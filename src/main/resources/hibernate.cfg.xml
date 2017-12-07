@@ -19,6 +19,7 @@
 	<property name="hibernate.current_session_context_class">thread</property>
 	
 	<mapping class="io.ticketcoin.dashboard.persistence.model.User" />
-
+	<mapping class="io.ticketcoin.dashboard.persistence.model.Address" />
+	<mapping class="io.ticketcoin.dashboard.persistence.model.Organization" />
 </session-factory>
 </hibernate-configuration>
