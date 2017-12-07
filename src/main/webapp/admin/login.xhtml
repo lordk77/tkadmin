@@ -1,0 +1,47 @@
+<ui:composition template="/WEB-INF/templates/layout.xhtml"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+>
+     <ui:define name="login">
+         <h:form>            
+         
+		    <p:growl id="growl" sticky="true" showDetail="true" life="3000" />
+
+       		<div class="ui-g">
+                <div class="ui-g-12 ui-md-4"></div>
+                <div class="ui-g-12 ui-md-4">
+			        <h:panelGrid columns="2" cellpadding="5"  widgetVar="dlg">
+			            <h:outputLabel for="username" value="Username:" />
+			            <p:inputText id="username" value="#{userLoginView.username}" required="true" label="username" />
+			 
+			            <h:outputLabel for="password" value="Password:" />
+			            <p:password id="password" value="#{userLoginView.password}" required="true" label="password" />
+			 
+			            <f:facet name="footer">
+			                <p:commandButton value="Login" update="growl" actionListener="#{userLoginView.login}"
+			                                 oncomplete="handleLoginRequest(xhr, status, args)" />
+			            </f:facet>  
+			        </h:panelGrid>
+				</div>
+                <div class="ui-g-12 ui-md-4"></div>
+            </div>
+            		        
+		</h:form>
+		 
+		<script type="text/javascript">
+		    function handleLoginRequest(xhr, status, args) {
+		        if(args.validationFailed || !args.loggedIn) {
+		            PF('dlg').jq.effect("shake", {times:5}, 100);
+		        }
+		        else {
+		            PF('dlg').hide();
+		            $('#loginLink').fadeOut();
+		        }
+		    }
+		</script>
+     </ui:define>
+</ui:composition>
+
