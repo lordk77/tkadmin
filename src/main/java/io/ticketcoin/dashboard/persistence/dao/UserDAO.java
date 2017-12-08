@@ -16,5 +16,9 @@ public class UserDAO extends GenericDAO<User>{
 		return HibernateUtils.getSessionFactory().getCurrentSession().createCriteria(User.class).add(Restrictions.eq("username", username).ignoreCase()).setProjection(Projections.property("id")).list().size()==0;
 	}
 
+	public boolean verifyEmail(String email) {
+		return HibernateUtils.getSessionFactory().getCurrentSession().createCriteria(User.class).add(Restrictions.eq("email", email).ignoreCase()).setProjection(Projections.property("id")).list().size()==0;
+	}
+
 
 }

@@ -1,18 +1,24 @@
 package io.ticketcoin.dashboard.bean;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
  
 import org.primefaces.context.RequestContext;
+
+import io.ticketcoin.dashboard.persistence.model.User;
  
 @ManagedBean
-public class UserLoginView {
+@SessionScoped
+public class UserBean {
      
     private String username;
      
     private String password;
  
+    private User loggedUser;
+    
     public String getUsername() {
         return username;
     }
@@ -29,20 +35,24 @@ public class UserLoginView {
         this.password = password;
     }
    
-    public void login(ActionEvent event) {
+    public String login() {
         RequestContext context = RequestContext.getCurrentInstance();
-        FacesMessage message = null;
-        boolean loggedIn = false;
-         
+
         if(username != null && username.equals("admin") && password != null && password.equals("admin")) {
-            loggedIn = true;
-            message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Welcome", username);
+            FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(FacesMessage.SEVERITY_INFO, "Welcome", username));
+            return "/admin/login.xhtml";
         } else {
-            loggedIn = false;
-            message = new FacesMessage(FacesMessage.SEVERITY_WARN, "Loggin Error", "Invalid credentials");
+            FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, "Loggin Error", "Invalid credentials"));
+            return null;
         }
          
-        FacesContext.getCurrentInstance().addMessage(null, message);
-        context.addCallbackParam("loggedIn", loggedIn);
-    }   
+    }
+
+	public User getLoggedUser() {
+		return loggedUser;
+	}
+
+	public void setLoggedUser(User loggedUser) {
+		this.loggedUser = loggedUser;
+	}   
 }

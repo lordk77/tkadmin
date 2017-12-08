@@ -31,4 +31,24 @@ public class UserService extends GenericService<User>{
 		}
 	}
 
+	
+	public boolean verifyEmail(String email)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			boolean retval = new UserDAO().verifyEmail(email);
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
 }

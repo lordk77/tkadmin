@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.bean;
 import java.io.Serializable;
+import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -21,9 +22,8 @@ public class RegistrationBean implements Serializable {
     
     public RegistrationBean()
     {
-    	 	user = new User();
-    	    organization= new Organization();
-    	    organization.setAddress(new Address());
+    		resetFields();
+
     }
      
     public Organization getCompany() {
@@ -48,13 +48,31 @@ public class RegistrationBean implements Serializable {
     	
     		try 
     		{
-    			new GenericService<Organization>(Organization.class).saveOrUpdate(organization);
-    			new UserService().saveOrUpdate(user);
-
-    			FacesMessage msg = new FacesMessage("Successful", "Welcome :" + organization.getName());
-    	        FacesContext.getCurrentInstance().addMessage(null, msg);
+    			//Sets the same email of the company
+    			this.user.setEmail(this.organization.getEmail());
+    			
+    			if(!new UserService().verifyUsername(this.getUser().getUsername().trim()))
+    			{
+    				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Username already used", "Username already used"));
+    			}
+    			else if(!new UserService().verifyEmail(this.getUser().getUsername().trim()))
+    			{
+    				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Email already used", "Email already used"));
+    			}	
+    			else
+    			{
+	    			new GenericService<Organization>(Organization.class).saveOrUpdate(organization);
+	    			user.setEmailVerificationCode(UUID.randomUUID().toString());
+	    			new UserService().saveOrUpdate(user);
+	
+	    			resetFields();
+	    			
+	    			FacesMessage msg = new FacesMessage("Successful", "Please chech your email for verificaton");
+	    	        FacesContext.getCurrentInstance().addMessage(null, msg);
+    			}
     		}
-		catch (Exception e) {
+		catch (Exception e) 
+    		{
 			e.printStackTrace();
 			FacesMessage msg = new FacesMessage("Error", e.getMessage());
 	        FacesContext.getCurrentInstance().addMessage(null, msg);
@@ -68,7 +86,14 @@ public class RegistrationBean implements Serializable {
     		else 
     			usernameVerified = this.getUser().getUsername().trim().length()>3 &&  new UserService().verifyUsername(this.getUser().getUsername().trim());
     }
-     
+    
+    public void resetFields()
+    {
+	 	user = new User();
+	    organization= new Organization();
+	    organization.setAddress(new Address());
+    }
+ 
     public boolean isSkip() {
         return skip;
     }

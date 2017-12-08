@@ -9,65 +9,20 @@
     	<p:growl id="messages"/>
  
  
- 		<b:navBar brand="Brand" brandHref="#" inverse="true" >
+ 		<b:navBar brand="Ticketcoin" brandHref="#" inverse="true" >
             <b:navbarLinks>
-                <b:navLink value="Link" href="#"></b:navLink>
-                <b:navLink value="Link" href="#"></b:navLink>
-                <b:dropMenu value="Dropdown">
-                    <b:navLink value="Action" href="#"></b:navLink>
-                    <b:navLink value="Another action" href="#"></b:navLink>
-                    <b:navLink value="Something else here" href="#"></b:navLink>
-                    <b:navLink></b:navLink>
-                    <b:navLink header="Nav header"></b:navLink>
-                    <b:navLink value="Separated link" href="#"></b:navLink>
-                    <b:navLink value="One more separated link" href="#"></b:navLink>
-                </b:dropMenu>
+                
             </b:navbarLinks>
             <h:form styleClass="navbar-form navbar-right">
                 <div class="form-group">
-                    <b:inputText placeholder="Email" fieldSize="sm"/>
-                    <!--input type="text" class="form-control" placeholder="Search"/-->
+                    <b:inputText placeholder="Username" fieldSize="sm" value="#{userBean.username}"/>
                 </div>
                 <div class="form-group">
-                    <b:inputText placeholder="Password" fieldSize="sm"/>
+                    <b:inputText placeholder="Password" fieldSize="sm" value="#{userBean.password}"/>
                 </div> 
                 #{' '}
-                <p:commandButton value="Sign in" look="success" icon="chevron-right" iconAlign="right"  onclick="PF('dlg').show();"/>
+                <b:commandButton value="Sign in" look="success" icon="chevron-right" iconAlign="right"  action="#{userBean.login}"/>
             </h:form>
         </b:navBar>
-        
-        
 
-	
-		<!-- Login form -->
-	<h:form>  
-	    <p:growl id="growl" sticky="true" showDetail="true" life="3000" />
-	 
-	    <p:dialog header="Login" widgetVar="dlg" resizable="false">
-	        <h:panelGrid columns="2" cellpadding="5">
-	            <h:outputLabel for="username" value="Username:" />
-	            <p:inputText id="username" value="#{userLoginView.username}" required="true" label="username" />
-	 
-	            <h:outputLabel for="password" value="Password:" />
-	            <p:password id="password" value="#{userLoginView.password}" required="true" label="password" />
-	 
-	            <f:facet name="footer">
-	                <p:commandButton value="Login" update="growl" actionListener="#{userLoginView.login}"
-	                                 oncomplete="handleLoginRequest(xhr, status, args)" />
-	            </f:facet>  
-	        </h:panelGrid>
-	    </p:dialog>
-	</h:form>
-	 
-	<script type="text/javascript">
-	    function handleLoginRequest(xhr, status, args) {
-	        if(args.validationFailed || !args.loggedIn) {
-	            PF('dlg').jq.effect("shake", {times:5}, 100);
-	        }
-	        else {
-	            PF('dlg').hide();
-	            $('#loginLink').fadeOut();
-	        }
-	    }
-	</script>
 </ui:composition>
