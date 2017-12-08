@@ -1,5 +1,7 @@
 package io.ticketcoin.dashboard.persistence.model;
 
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name="TDEF_ORGANIZATION")
 @XmlRootElement
-public class Organiztion {
+public class Organization {
 
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -34,8 +36,8 @@ public class Organiztion {
 
 	
     @OneToMany
-    @JoinColumn(name="COMPANY_ID")
-    private User users;
+    @JoinColumn(name="ORGANIZATION_ID")
+    private List<User> users;
     
     
     
@@ -96,13 +98,6 @@ public class Organiztion {
 		this.phone = phone;
 	}
 
-	public User getUsers() {
-		return users;
-	}
-
-	public void setUsers(User users) {
-		this.users = users;
-	}
 
 	public String getName() {
 		return name;
@@ -110,5 +105,13 @@ public class Organiztion {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public List<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<User> users) {
+		this.users = users;
 	}
 }

@@ -6,14 +6,21 @@
 <hibernate-configuration>
 <session-factory>
 	<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-	<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/test</property>
+	
+	
+<!-- 		<property name="connection.datasource">java:/comp/env/jdbc/tkadmin</property> -->
+	
+	<property name="hibernate.connection.url">jdbc:mysql://192.168.64.2:3306/tkadmin</property>
 	<property name="hibernate.connection.username">tkadmin</property>
-	<property name="hibernate.connection.password"></property>
+	<property name="hibernate.connection.password">tkadmin</property>
+	
+	
+	
 	<property name="hibernate.connection.pool_size">10</property>
 
 		<property name="hibernate.show_sql">true</property>
 <!-- 		<property name="hibernate.format_sql">true</property> -->
-		<property name="hibernate.hbm2ddl.auto">update</property> 	
+<!-- 		<property name="hibernate.hbm2ddl.auto">update</property> 	 -->
 
 	<property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
 	<property name="hibernate.current_session_context_class">thread</property>

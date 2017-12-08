@@ -6,7 +6,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 
 import io.ticketcoin.dashboard.persistence.model.Address;
-import io.ticketcoin.dashboard.persistence.model.Organiztion;
+import io.ticketcoin.dashboard.persistence.model.Organization;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.GenericService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
@@ -15,20 +15,22 @@ import io.ticketcoin.dashboard.persistence.service.UserService;
 public class RegistrationBean implements Serializable {
  
     private User user = new User();
-    private Organiztion organization= new Organiztion();
+    private Organization organization= new Organization();
+    private Boolean usernameVerified=null;
+    
     
     public RegistrationBean()
     {
     	 	user = new User();
-    	    organization= new Organiztion();
+    	    organization= new Organization();
     	    organization.setAddress(new Address());
     }
      
-    public Organiztion getCompany() {
+    public Organization getCompany() {
 		return organization;
 	}
 
-	public void setCompany(Organiztion company) {
+	public void setCompany(Organization company) {
 		this.organization = company;
 	}
 
@@ -46,7 +48,7 @@ public class RegistrationBean implements Serializable {
     	
     		try 
     		{
-    			new GenericService<Organiztion>(Organiztion.class).saveOrUpdate(organization);
+    			new GenericService<Organization>(Organization.class).saveOrUpdate(organization);
     			new UserService().saveOrUpdate(user);
 
     			FacesMessage msg = new FacesMessage("Successful", "Welcome :" + organization.getName());
@@ -59,6 +61,13 @@ public class RegistrationBean implements Serializable {
 		}
     		
     }
+    public void verifyUsername()
+    {
+    		if(this.user.getUsername()==null || this.getUser().getUsername().trim().equals(""))
+    			usernameVerified=null;
+    		else 
+    			usernameVerified = this.getUser().getUsername().trim().length()>3 &&  new UserService().verifyUsername(this.getUser().getUsername().trim());
+    }
      
     public boolean isSkip() {
         return skip;
@@ -69,11 +78,19 @@ public class RegistrationBean implements Serializable {
     }
      
 
-	public Organiztion getOrganization() {
+	public Organization getOrganization() {
 		return organization;
 	}
 
-	public void setOrganization(Organiztion organization) {
+	public void setOrganization(Organization organization) {
 		this.organization = organization;
+	}
+
+	public Boolean getUsernameVerified() {
+		return usernameVerified;
+	}
+
+	public void setUsernameVerified(Boolean usernameVerified) {
+		this.usernameVerified = usernameVerified;
 	}
 }

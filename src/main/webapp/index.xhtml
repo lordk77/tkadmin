@@ -15,10 +15,10 @@
 <b:jumbotron>
             <b:container style-class="text-center">
                 <h1>Ticket Coin</h1>
-                <p>The smartest way to sell your tickets.
+                <p>The smartest way to trade tickets.
                 </p>
                 <p>
-                    <a href="javascript:void" onclick="PF('reg-wizard').show();" class="btn btn-lg btn-info">Register now »</a>
+                    <a href="javascript:void" onclick="PF('reg-wizard').show();" class="btn btn-lg btn-info">Register you organization »</a>
                 </p>
             </b:container>
 
@@ -53,17 +53,32 @@
 					     <i class="fa fa-user-o" style="padding-right:20px" />
 					     <h:outputText value="Register your Organization" />
 					   </f:facet>
-					    <b:panelGrid columns="2">
-						    <b:inputText value="#{registrationBean.organization.name}" label="Name" render-label="true" required="true"/>
-						    <b:inputText value="#{registrationBean.organization.vatCode}" label="VAT number" render-label="true"/>
+					   	<b:panelGrid columns="1">
+					   		<b:inputText value="#{registrationBean.organization.name}" label="Organization Name" render-label="true" required="true" />
+					    </b:panelGrid>
+						<b:panelGrid columns="2">    
 						    <b:inputText value="#{registrationBean.organization.address.street}" label="Street" render-label="true"/>
 							<b:inputText value="#{registrationBean.organization.address.postalCode}" label="Postal code" render-label="true"/>
 							<b:inputText value="#{registrationBean.organization.address.city}" label="City" render-label="true"/>
 							<b:inputText value="#{registrationBean.organization.address.country}" label="Country" render-label="true"/>
 						   
-						    <b:inputText value="#{registrationBean.organization.email}" mask="email" label="Email address" render-label="true"/>
+						    <b:inputText value="#{registrationBean.organization.email}" mask="email" label="Email address" render-label="true"  required="true" />
 						    <b:inputText value="#{registrationBean.organization.phone}" label="Phone" render-label="true"/>
-						    <b:inputText value="#{registrationBean.organization.info}" label="Info" render-label="true"/>
+
+							<b:inputText value="#{registrationBean.user.username}" label="Username"  required="true" onchange="ajax:registrationBean.verifyUsername()" process="@this" update="@this">
+								<f:facet name="prepend">
+							      <b:icon name="user" />
+							    </f:facet>
+							     <f:facet name="append"  >
+							          <b:iconAwesome name="#{registrationBean.usernameVerified==true?'check':'times'}" />
+							      </f:facet>
+							</b:inputText>
+						    <b:inputSecret value="#{registrationBean.user.password}" label="Password"   required="true">
+						    		<f:facet name="prepend">
+								    <b:iconAwesome name="key" />
+								</f:facet>
+						    </b:inputSecret>													    
+
 						</b:panelGrid>
 						<div class="text-center">
 							<b:commandButton value="Register" look="primary" size="lg" action="#{registrationBean.save}" ajax="true" update="messages"/>
@@ -73,6 +88,9 @@
 				
 				
             </b:row>
+            
+            <hr/>
+            
             <footer>
             <p>© Ticketcoin 2017</p>
             </footer>
