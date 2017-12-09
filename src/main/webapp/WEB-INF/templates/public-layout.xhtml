@@ -1,0 +1,15 @@
+<ui:composition
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:b="http://bootsfaces.net/ui"
+     template="/WEB-INF/templates/layout.xhtml"
+     >
+     <ui:define name="body">
+          <b:column styleClass="main">
+              <ui:insert name="content"></ui:insert>
+          </b:column>
+      </ui:define>
+   </ui:composition>

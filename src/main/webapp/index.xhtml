@@ -1,18 +1,15 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:p="http://primefaces.org/ui"
+<ui:composition
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
      xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
      xmlns:b="http://bootsfaces.net/ui"
+     template="/WEB-INF/templates/public-layout.xhtml"
      >
- 
-     <h:head>
- 
-     </h:head>
-     <h:body>
-        	<ui:include src="/includes/menu-bar.xhtml"/>
+     <ui:define name="content">
         	
-<b:jumbotron>
+		<b:jumbotron>
             <b:container style-class="text-center">
                 <h1>Ticket Coin</h1>
                 <p>The smartest way to trade tickets.
@@ -92,9 +89,7 @@
             <footer>
             <p>© Ticketcoin 2017</p>
             </footer>
-        </b:container>
-	
-	
-		
-     </h:body>
-</html>
+	</b:container>
+
+</ui:define>
+</ui:composition>

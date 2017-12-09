@@ -3,20 +3,18 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
- 
-import org.primefaces.context.RequestContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import io.ticketcoin.dashboard.persistence.model.User;
+import io.ticketcoin.dashboard.persistence.service.UserService;
  
 @ManagedBean
 @SessionScoped
 public class UserBean {
      
     private String username;
-     
     private String password;
- 
     private User loggedUser;
     
     public String getUsername() {
@@ -36,17 +34,43 @@ public class UserBean {
     }
    
     public String login() {
-        RequestContext context = RequestContext.getCurrentInstance();
 
-        if(username != null && username.equals("admin") && password != null && password.equals("admin")) {
+        boolean loggedIn=false;
+        if(username != null)
+        {
+	        try 
+	        {
+	        		//integration with container security 
+	        		((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).login(username, password);
+	        		
+	        		//reads user data from db
+	        		if ((this.loggedUser= new UserService().getUser(username) )!=null) 
+	        			loggedIn=true;
+	        }
+	        catch (ServletException e) {
+				e.printStackTrace();
+			}
+        }
+        
+        if(loggedIn)
+        {
             FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(FacesMessage.SEVERITY_INFO, "Welcome", username));
-            return "/admin/login.xhtml";
+            return "/admin/index.xhtml";
         } else {
             FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, "Loggin Error", "Invalid credentials"));
             return null;
         }
+        	 
          
     }
+    
+    public String logout()
+    {
+    		this.loggedUser=null;
+		((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getSession().invalidate();
+		return "/index.xhtml";
+    }
+    
 
 	public User getLoggedUser() {
 		return loggedUser;

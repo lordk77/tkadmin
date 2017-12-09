@@ -1,10 +1,15 @@
 package io.ticketcoin.dashboard.persistence.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
 
 import io.ticketcoin.dashboard.persistence.dao.GenericDAO;
+import io.ticketcoin.dashboard.persistence.dao.RoleDAO;
+import io.ticketcoin.dashboard.persistence.dao.UserDAO;
+import io.ticketcoin.dashboard.persistence.model.Role;
+import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
 public class GenericService<T> {

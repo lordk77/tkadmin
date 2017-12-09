@@ -9,12 +9,12 @@
 
 	
 		<!--  Configurazione JDBC Realm 	-->
-<!-- 	<Realm className="org.apache.catalina.realm.DataSourceRealm"  debug="9" -->
-<!-- 	   dataSourceName="jdbc/tkadmin"	  -->
-<!-- 	   localDataSource="true" -->
-<!-- 	   userTable="tdef_user" userNameCol="username" userCredCol="password" -->
-<!-- 	   userRoleTable="tdef_user_role" roleNameCol="rolename" -->
-<!-- 	  	/>		  	 -->
+	<Realm className="org.apache.catalina.realm.DataSourceRealm"  debug="9"
+	   dataSourceName="jdbc/tkadmin"	 
+	   localDataSource="true"
+	   userTable="TDEF_USER" userNameCol="username" userCredCol="password"
+	   userRoleTable="TDEF_USER_ROLE" roleNameCol="rolename"
+	  	/>		  	
 	
  		
 </Context>

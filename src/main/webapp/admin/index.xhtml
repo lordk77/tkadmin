@@ -1,0 +1,126 @@
+<ui:composition
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:b="http://bootsfaces.net/ui"
+     template="/WEB-INF/templates/dashboard-layout.xhtml"
+     >
+     <ui:define name="content">
+        	
+
+					<h1>Overview</h1>
+                    <hr/>
+                    
+                    <b:row >
+					    <b:column col-xs="12" col-md="4">
+					    		<b:panel >
+						    		<b:row styleClass="overview-box">
+						    			<b:column col-md="4" styleClass="overview-box-image">
+						    				<b:iconAwesome name="user-plus" size="4x" />
+						    			</b:column>
+						    			<b:column col-md="8">
+						    				<span class="overview-box-count">3216</span>
+						    				<span class="overview-box-name">NEW CUSTOMERS</span>
+						    				<span class="overview-box-rate">+34%</span>
+						    			</b:column>
+						    		</b:row>
+					    		</b:panel>
+					    	</b:column>
+					    
+					    <b:column col-xs="12" col-md="4">
+					    		<b:panel >
+						    		<b:row styleClass="overview-box">
+						    			<b:column col-md="4" styleClass="overview-box-image">
+						    				<b:iconAwesome name="ticket" size="4x" />
+						    			</b:column>
+						    			<b:column col-md="8">
+						    				<span class="overview-box-count">3216</span>
+						    				<span class="overview-box-name">TICKET SOLD</span>
+						    				<span class="overview-box-rate">+34%</span>
+						    			</b:column>
+						    		</b:row>
+					    		</b:panel>
+					    	</b:column>
+						
+						<b:column col-xs="12" col-md="4" styleClass="overview-box-image">
+					    		<b:panel >
+						    		<b:row styleClass="overview-box">
+						    			<b:column col-md="4">
+						    				<b:iconAwesome name="university" size="4x" />
+						    			</b:column>
+						    			<b:column col-md="8">
+						    				<span class="overview-box-count">$3216</span>
+						    				<span class="overview-box-name">REVENUE</span>
+						    				<span class="overview-box-rate">+34%</span>
+						    			</b:column>
+						    		</b:row>
+					    		</b:panel>
+					    	</b:column>
+					    
+					</b:row>
+
+
+                    <b:row styleClass="placeholders">
+                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
+                            <img data-src="holder.js/200x200/sky" class="img-responsive" alt="Generic placeholder thumbnail"/>
+                            <h4>Label</h4>
+                            <span class="text-muted">Something else</span>
+                        </b:column>
+                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
+                            <img data-src="holder.js/200x200/vine" class="img-responsive" alt="Generic placeholder thumbnail"/>
+                            <h4>Label</h4>
+                            <span class="text-muted">Something else</span>
+                        </b:column>
+                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
+                            <img data-src="holder.js/200x200/sky" class="img-responsive" alt="Generic placeholder thumbnail"/>
+                            <h4>Label</h4>
+                            <span class="text-muted">Something else</span>
+                        </b:column>
+                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
+                            <img data-src="holder.js/200x200/vine" class="img-responsive" alt="Generic placeholder thumbnail"/>
+                            <h4>Label</h4>
+                            <span class="text-muted">Something else</span>
+                        </b:column>
+                    </b:row>
+                    
+                    <b:row rendered="false">
+						<b:column col-xs="12" col-md="6">
+							<p:chart type="bar" model="#{chartView.barModel}" style="height:300px"/>
+						</b:column>
+						<b:column col-xs="12" col-md="6">
+							<p:chart type="bar" model="#{chartView.horizontalBarModel}" style="height:300px"/>
+						</b:column>
+					</b:row>
+                    
+                    
+                    <h1>Top trending event</h1>
+                    <hr/>
+                    <b:row styleClass="table-responsive">
+                        <h:dataTable styleClass="table table-striped" value="#{loremIpsumBean.items}" var="item" rows="15">
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="#" /></f:facet>
+                                <h:outputText value="#{item.h1}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+                                <h:outputText value="#{item.h2}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+                                <h:outputText value="#{item.h3}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+                                <h:outputText value="#{item.h4}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+                                <h:outputText value="#{item.h5}" />
+                            </h:column>
+                        </h:dataTable>
+                    </b:row>
+                    
+</ui:define>
+</ui:composition>

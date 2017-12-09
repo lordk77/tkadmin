@@ -1,33 +1,20 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:p="http://primefaces.org/ui">
- 
-     <h:head>
- 
-     </h:head>
- 
-     <h:body>
-		<div class="ui-g">
-	        <div class="ui-g-12">
-	            <ui:insert name="login" > </ui:insert>
-	        </div>	
-		        		
-		    <div class="ui-g-12 ui-md-2">                
-		    	<ui:insert name="side-bar"><ui:include src="/includes/side-bar.xhtml"/> </ui:insert>
-			</div>
-		    <div class="ui-g-12 ui-md-10 ui-g-nopad">
-		        <div class="ui-g-12">
-		            <ui:insert name="top-bar"></ui:insert>
-		        </div>	        
-		        <div class="ui-g-12 ui-g-nopad">
-		            <ui:insert name="content"></ui:insert>
-		        </div>
-		    </div>
-		    <div class="ui-g-12">
-		        <ui:insert name="footer"></ui:insert>
-		    </div>
-		</div>  
-		</h:body>
-</html>		
+<ui:composition
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:b="http://bootsfaces.net/ui"
+     template="/WEB-INF/templates/layout.xhtml"
+     >
+     <ui:define name="body">
+          <b:column col-sm="3" col-md="2" styleClass="sidebar">
+              <ui:include src="/admin/includes/side-bar.xhtml"></ui:include>
+          </b:column>
+          <b:column col-sm="9" offset-sm="3" col-md="10" offset="2" styleClass="main">
+              <ui:insert name="content"></ui:insert>
+          </b:column>
+      </ui:define>
+   </ui:composition>
+   
+   

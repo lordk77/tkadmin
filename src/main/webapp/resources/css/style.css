@@ -1,13 +1,36 @@
-body {
-   background-color: #20272a
+.overview-box
+{
+	color: #525c65;
+	text-align: right;
 }
 
-
-
-div.centerContainer
-{ 
-   top: 0; left: 0; width: 100%; height: 100%;
-   position: absolute; display: table
+.overview-box-count
+{
+	font-size: 36px;
+	font-weight: bold;
 }
 
-div.centerContent {display: table-cell; vertical-align: middle}
+.overview-box-name
+{
+	font-size: 16px;
+	display: inline-block;
+	width: 100%;
+}
+
+.overview-box-rate
+{
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	padding: 2px 4px;
+	background-color: #9fd037;
+	font-weight: bold;
+	color: #ffffff;
+	display: inline-block;
+	margin-top: 4px;
+}
+.overview-box-image
+{
+	text-align: center;
+}
+

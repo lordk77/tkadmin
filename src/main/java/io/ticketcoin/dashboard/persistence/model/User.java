@@ -1,18 +1,27 @@
 package io.ticketcoin.dashboard.persistence.model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
 @Table(name="TDEF_USER")
 @XmlRootElement
-public class User {
+public class User implements Serializable{
 
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -25,14 +34,15 @@ public class User {
 	private String emailVerificationCode;
 	
 	
+	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+	@JoinTable(name="TDEF_USER_ROLE",joinColumns=
+	@JoinColumn(name="username",referencedColumnName="username"), inverseJoinColumns=	@JoinColumn(name="rolename",referencedColumnName="rolename"))
+	private List<Role> roles=new ArrayList<Role>();
 	
-
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ORGANIZATION_ID")
+	private Organization organization;
+	
 	public String getUsername() {
 		return username;
 	}
@@ -68,6 +78,18 @@ public class User {
 	}
 	public void setEmailVerificationCode(String emailVerificationCode) {
 		this.emailVerificationCode = emailVerificationCode;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public List<Role> getRoles() {
+		return roles;
+	}
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
 	}
 	
 }

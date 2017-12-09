@@ -36,7 +36,6 @@ public class GenericDAO<T> {
 
 
 
-
 	public T findById(Long id) {
 		return HibernateUtils.getSessionFactory().getCurrentSession().get(clazz, id);
 	}

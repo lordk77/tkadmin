@@ -6,22 +6,25 @@
      xmlns:p="http://primefaces.org/ui"
      xmlns:b="http://bootsfaces.net/ui"
      >
-    	<p:growl id="messages"/>
+    	<b:growl id="messages"/>
  
  
- 		<b:navBar brand="Ticketcoin" brandHref="#" inverse="true" >
+ 		<b:navBar brand="Ticketcoin" brandHref="#" inverse="true" fixed="top" fluid="true">
             <b:navbarLinks>
                 
             </b:navbarLinks>
-            <h:form styleClass="navbar-form navbar-right">
+            <h:form styleClass="navbar-form navbar-right" rendered="#{userBean.loggedUser==null}">
                 <div class="form-group">
                     <b:inputText placeholder="Username" fieldSize="sm" value="#{userBean.username}"/>
                 </div>
                 <div class="form-group">
-                    <b:inputText placeholder="Password" fieldSize="sm" value="#{userBean.password}"/>
+                    <b:inputSecret placeholder="Password"  fieldSize="sm" value="#{userBean.password}"/>
                 </div> 
                 #{' '}
                 <b:commandButton value="Sign in" look="success" icon="chevron-right" iconAlign="right"  action="#{userBean.login}"/>
+            </h:form>
+            <h:form styleClass="navbar-form navbar-right" rendered="#{userBean.loggedUser!=null}">
+                <b:commandButton value="Log out" icon="log-out" iconAlign="right"  action="#{userBean.logout}"/>
             </h:form>
         </b:navBar>
 

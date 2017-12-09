@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +36,7 @@ public class Organization {
 	private Address billingAddress;
 
 	
-    @OneToMany
+    @OneToMany(fetch=FetchType.LAZY)
     @JoinColumn(name="ORGANIZATION_ID")
     private List<User> users;
     
