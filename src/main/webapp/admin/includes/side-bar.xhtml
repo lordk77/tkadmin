@@ -7,18 +7,18 @@
      xmlns:b="http://bootsfaces.net/ui">
 		<h:form>
 		   <b:listLinks>
-                        <b:navLink header="Dasboard Links" />
-                        <b:navLink href="#" value="Overview" active="true"/>
-                        <b:navLink href="#" value="Reports" />
-                        <b:navLink href="#" value="Analytics" />
-                        <b:navLink href="#" value="Export" />
-                    </b:listLinks>
-                    <b:listLinks>
-                        <b:navLink value="Event" />
-                    </b:listLinks>
-                    <b:listLinks>
-                        <b:navLink value="Invoices" />
-                    </b:listLinks>
+                <b:navLink header="Dasboard Links" />
+                <b:navLink href="#" value="Overview"/>
+                <b:navLink href="#" value="Reports" />
+                <b:navLink href="#" value="Analytics" />
+                <b:navLink href="#" value="Export" />
+            </b:listLinks>
+            <b:listLinks>
+                <b:navCommandLink value="Event" action="#{eventBean.eventCreation}"   />
+            </b:listLinks>
+            <b:listLinks>
+                <b:navLink value="Invoices" />
+            </b:listLinks>
 		</h:form>
 
 </ui:composition>

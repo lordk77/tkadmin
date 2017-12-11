@@ -84,5 +84,9 @@
             display: inline-block;
         }
         </style>
+        
+		<script>
+		window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.keyIdentifier=='Enter'||e.keyCode==13){if(e.target.nodeName=='INPUT'&amp;&amp;e.target.type=='text' &amp;&amp;e.target.placeholder!="Tags"){e.preventDefault();return false;}}},true);
+		</script>
     </h:body>
 </html>

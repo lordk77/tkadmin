@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.persistence.service;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 import io.ticketcoin.dashboard.persistence.dao.UserDAO;
@@ -40,6 +41,7 @@ public class UserService extends GenericService<User>{
 			session = HibernateUtils.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			User retval = new UserDAO().getUser(username);
+			Hibernate.initialize(retval.getOrganization());
 			session.getTransaction().commit();
 			return retval;
 		}

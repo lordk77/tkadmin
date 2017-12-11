@@ -1,0 +1,145 @@
+<ui:composition
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:b="http://bootsfaces.net/ui"
+     template="/WEB-INF/templates/dashboard-layout.xhtml"
+     >
+     <ui:define name="content">
+
+					<h1>Event</h1>
+                    <hr/>
+					
+					<b:form >
+     				<b:commandButton ajax="true" update="@none" process="@this" immediate="true" style="visibility:hidden"/>
+				    <b:panel>
+					   <f:facet name="heading">
+					     <i class="fa fa-calendar-o" style="padding-right:20px" />
+					     <h:outputText value="Event detail" />
+					   </f:facet>
+
+					   	<b:panelGrid columns="1">
+					   		<b:inputText value="#{eventBean.event.name}" label="Event Name" render-label="true" required="true" />
+					    </b:panelGrid>					   
+
+					    <b:panelGrid columns="2">
+					    	
+						    <b:dateTimePicker value="#{eventBean.event.dateFrom}"
+						        icon-position="right"
+						        show-date="true"
+						        show-time="false"
+						        show-icon="true" 
+						        label="Date from" 
+						        required="true"
+						        />
+					    <b:dateTimePicker value="#{eventBean.event.dateTo}"
+					        icon-position="right"
+					        show-date="true"
+					        show-time="false"
+					        show-icon="true" 
+					        label="Date to"
+					        required="true"
+					        />						        
+
+					    </b:panelGrid>
+					    
+					    					   
+					   	<b:panelGrid columns="1">
+						    <b:inputTextarea placeholder="Event description..." value="#{eventBean.event.description}" label="Event description"/>
+					    </b:panelGrid>
+
+				    	</b:panel>
+				    	
+				    	<b:panel>
+						   <f:facet name="heading">
+						     <i class="fa fa-ticket" style="padding-right:20px" />
+						     <h:outputText value="Ticket Options" />
+						   </f:facet>
+						   
+						   <b:dataTable value="#{eventBean.event.categories}" var="category"  paginated="false" class="editableCategoryTable" searching="false" id="editableCategoryTable">
+						        <b:dataTableColumn>
+						        	<f:facet name="header">
+							          <h:outputText value="Description"/>
+							        </f:facet>
+							        <b:inputText value="#{category.description}" required="true" ajax="true" process="@this" update="@none"/>
+						        </b:dataTableColumn>
+					       		<b:dataTableColumn>
+						        	<f:facet name="header">
+							          <h:outputText value="Ticket Suppy" />
+							        </f:facet>
+						       		<h:panelGrid columns="#{category.supplyType == 'LEGACY_CODE' ? 3:1}">
+							    	    <b:inputText value="#{category.ticketSupply}" required="true" mask="integer"  readonly="#{category.supplyType == 'LEGACY_CODE'}"  ajax="true" process="@this" update="@none">
+								    	    <f:facet name="prepend">
+									       		 <b:selectOneMenu value="#{category.supplyType}" ajax="true" process="@this" update="editableCategoryTable">
+									       		 	<f:selectItem itemValue="NORMAL" itemLabel="Normal" />
+									       		 	<f:selectItem itemValue="LEGACY_CODE" itemLabel="Legacy code" />
+									       		 </b:selectOneMenu>
+								       		 </f:facet>
+							    	    </b:inputText>
+						       			<b:commandButton icon="file" ajax="true" rendered="#{category.supplyType == 'LEGACY_CODE'}"  />
+						       			<b:commandButton icon-awesome="times" title="Revoke unused" ajax="true" rendered="#{category.supplyType == 'LEGACY_CODE'}"  />
+						       			
+						       		</h:panelGrid>
+						       								        
+						        </b:dataTableColumn>
+						        <b:dataTableColumn value="#{category.ticketSupply-category.ticketSold}" label="Available Tickets" />
+				       			<b:dataTableColumn>
+									<f:facet name="header">
+							          <h:outputText value="Street Price"/>
+							        </f:facet>
+						       		 <b:inputText value="#{category.streetPrice}" required="true" mask="decimal" ajax="true">
+						       		 	<f:ajax onevent="change" execute="@this" listener="#{eventBean.calculateNetPrice()}" render="editableCategoryTable"/>
+							       		 <f:facet name="prepend">
+								       		 <b:selectOneMenu value="#{category.currency}">
+								       		 	<f:selectItem itemValue="EUR" itemLabel="EUR" />
+								       		 </b:selectOneMenu>
+							       		 </f:facet>
+						       		 </b:inputText>
+							        
+						        </b:dataTableColumn>
+	
+	
+								<b:dataTableColumn>
+									<f:facet name="header">
+							          <h:outputText value="Net Price"/>
+							        </f:facet>
+						       		 <h:outputText value="#{category.netPrice}"/>
+						        </b:dataTableColumn>
+						        
+						        
+				       			<b:dataTableColumn>
+									<f:facet name="header">
+							          <h:outputText value=""/>
+							        </f:facet>
+						       		<h:panelGroup>
+						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;1}"  />
+						       		</h:panelGroup>
+							        
+							    	<f:facet name="footer">
+							          <b:commandButton value="Add"  ajax="true" action="#{eventBean.addCategory}" update="@(.editableCategoryTable)" process="editableCategoryTable"   />
+							        </f:facet>
+							        
+						        </b:dataTableColumn>
+						       </b:dataTable>
+					   </b:panel>
+
+				    	<b:panel>
+						   <f:facet name="heading">
+						     <i class="fa fa-tags" style="padding-right:20px" />
+						     <h:outputText value="Tags" />
+						   </f:facet>		
+							<b:panelGrid columns="1">
+							    <b:inputText value="#{eventBean.event.tagsAsString}" placeholder="Tags" tags="true" label="Tags" ajax="true" process="@this"   />
+						    </b:panelGrid>
+						</b:panel>					   
+					   
+					   <div class="text-center">
+							<b:commandButton value="Save" look="primary" size="lg" action="#{eventBean.save}"   />
+						</div>
+				</b:form>                  
+                  
+                    
+</ui:define>
+</ui:composition>

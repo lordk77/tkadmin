@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 @Entity
-@Table(name="TDEF_LOCATION")
+@Table(name="LOCATION")
 @XmlRootElement
 public class Location {
 	
@@ -19,6 +19,7 @@ public class Location {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	private String name;
+	private String description;
 	
 	@OneToOne(cascade=CascadeType.ALL)
 	private Address address;

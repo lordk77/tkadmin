@@ -8,7 +8,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name="TDEF_ARTIST")
+@Table(name="ARTIST")
 @XmlRootElement
 public class Artist {
 
