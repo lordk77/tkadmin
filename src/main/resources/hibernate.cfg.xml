@@ -10,7 +10,7 @@
 	
 <!-- 		<property name="connection.datasource">java:/comp/env/jdbc/tkadmin</property> -->
 	
-	<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/tkadmin</property>
+	<property name="hibernate.connection.url">jdbc:mysql://192.168.64.2:3306/tkadmin</property>
 	<property name="hibernate.connection.username">tkadmin</property>
 	<property name="hibernate.connection.password">tkadmin</property>
 	
@@ -37,6 +37,8 @@
 	<mapping class="io.ticketcoin.dashboard.persistence.model.Ticket" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.TicketCategory" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.User" />
+	<mapping class="io.ticketcoin.dashboard.persistence.model.FileAttachment" />
+
 
 
 </session-factory>

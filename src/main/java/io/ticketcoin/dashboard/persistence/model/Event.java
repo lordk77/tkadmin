@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -79,6 +80,10 @@ public class Event {
 	@JoinColumn(name="EVENT_ID")
 	private List<TicketCategory> categories;
 	
+	
+	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
+	@JoinColumn(name="EVENT_ID")
+	private List<FileAttachment> images;
 	
 	
 	public List<String> getTags() {
@@ -210,5 +215,13 @@ public class Event {
 
 	public void setCategories(List<TicketCategory> categories) {
 		this.categories = categories;
+	}
+
+	public List<FileAttachment> getImages() {
+		return images;
+	}
+
+	public void setImages(List<FileAttachment> images) {
+		this.images = images;
 	}
 }

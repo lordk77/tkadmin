@@ -47,6 +47,14 @@ public class Location {
 	public void setAddress(Address address) {
 		this.address = address;
 	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	
 	
 	

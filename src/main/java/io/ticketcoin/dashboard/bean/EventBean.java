@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.bean;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
@@ -10,11 +11,13 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
 import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
+import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
 import io.ticketcoin.dashboard.persistence.service.EventService;
-import io.ticketcoin.dashboard.persistence.service.GenericService;
 
 @ManagedBean
 @ViewScoped
@@ -25,6 +28,7 @@ public class EventBean
 	private UserBean userBean;
 
 	private Event event;
+	
 	
 	public EventBean()
 	{
@@ -39,12 +43,43 @@ public class EventBean
 	}
 
 	
-	 public void handleFileUpload(FileUploadEvent event) {
-	        FacesMessage message = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");
-	        FacesContext.getCurrentInstance().addMessage(null, message);
-	    }
+	 public void handleImageUpload(FileUploadEvent event) 
+	 {
+		 if (this.event.getImages()==null)
+			 this.event.setImages(new ArrayList<FileAttachment>());
+		 else
+			 this.event.getImages().clear();
+			 
+		 FileAttachment fa= new FileAttachment();
+		 fa.setContentType(event.getFile().getContentType());
+		 fa.setFileName(event.getFile().getFileName());
+		 fa.setContent(event.getFile().getContents());
+		 
+		 this.event.getImages().add(fa);
+		 
+		 prepareEventImage();
+		 
+        FacesMessage message = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");
+        FacesContext.getCurrentInstance().addMessage(null, message);
+    }
 
 	 
+	 private StreamedContent eventImage;
+	 
+	 public StreamedContent getEventImage()
+	 {
+		 
+		 return eventImage;
+	 }
+	 
+	 private void prepareEventImage() 
+	 {		 
+		 if (this.event.getImages()!=null && !this.event.getImages().isEmpty())
+			 eventImage=  new DefaultStreamedContent(new ByteArrayInputStream(this.event.getImages().get(0).getContent()),this.event.getImages().get(0).getContentType(), this.event.getImages().get(0).getFileName() );
+		 else
+			 eventImage= null;
+
+	 }
 	 
 	 public void calculateNetPrice()
 	 {

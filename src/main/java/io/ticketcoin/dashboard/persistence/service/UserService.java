@@ -41,7 +41,8 @@ public class UserService extends GenericService<User>{
 			session = HibernateUtils.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			User retval = new UserDAO().getUser(username);
-			Hibernate.initialize(retval.getOrganization());
+			if(retval!=null && retval.getOrganization()!=null)
+				Hibernate.initialize(retval.getOrganization());
 			session.getTransaction().commit();
 			return retval;
 		}
