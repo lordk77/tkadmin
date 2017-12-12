@@ -12,8 +12,8 @@
 					<h1>Event</h1>
                     <hr/>
 					
-					<b:form >
-     				<b:commandButton ajax="true" update="@none" process="@this" immediate="true" style="visibility:hidden"/>
+					<h:form >
+     				<b:commandButton ajax="true" update="eventImagePanel" process="@this" immediate="true" style="visibility:hidden" id="emptyAction" styleClass="refreshImagePanel"/>
 				    <b:panel>
 					   <f:facet name="heading">
 					     <i class="fa fa-calendar-o" style="padding-right:20px" />
@@ -25,37 +25,65 @@
 
 						<b:row >
 				    			<b:column col-md="8" col-xs="12">
-				    				<b:panelGrid columns="1">
-							   		<b:inputText value="#{eventBean.event.name}" label="Event Name" render-label="true" required="true" >
-							   		</b:inputText>
-							    </b:panelGrid>					   
-		
-							    <b:panelGrid columns="2">
-								    <b:dateTimePicker value="#{eventBean.event.dateFrom}"
+					    			<b:panelGrid columns="1">
+								   		<b:inputText value="#{eventBean.event.name}" label="Event Name" render-label="true" required="true" >
+								   		</b:inputText>
+								    </b:panelGrid>					   
+			
+								    <b:panelGrid columns="2">
+									    <b:dateTimePicker value="#{eventBean.event.dateFrom}"
+									        icon-position="right"
+									        show-date="true"
+									        show-time="false"
+									        show-icon="true" 
+									        label="Date from" 
+									        required="true"
+									        update="datePanel"
+									        process="@this"									        
+									        />
+								    <b:dateTimePicker value="#{eventBean.event.dateTo}"
 								        icon-position="right"
 								        show-date="true"
 								        show-time="false"
 								        show-icon="true" 
-								        label="Date from" 
+								        label="Date to"
 								        required="true"
-								        />
-							    <b:dateTimePicker value="#{eventBean.event.dateTo}"
-							        icon-position="right"
-							        show-date="true"
-							        show-time="false"
-							        show-icon="true" 
-							        label="Date to"
-							        required="true"
-							        />						        
-		
-							    </b:panelGrid>
+								        update="datePanel"
+								        process="@this"
+								        />						        
+			
+								    </b:panelGrid>
+								    
+					    			<b:panelGrid columns="1" id="datePanel">
+					    			
+					    			
+				    					<b:selectMultiMenu value="#{eventBean.event.daysOfWeek}" label="Days of week" >
+								            <f:selectItem itemValue="1" itemLabel="Sunday"/>
+								            <f:selectItem itemValue="2" itemLabel="Monday"/>
+								            <f:selectItem itemValue="3" itemLabel="Tuesday"/>
+								            <f:selectItem itemValue="4" itemLabel="Wednesday"/>
+								            <f:selectItem itemValue="5" itemLabel="Thursday"/>
+								            <f:selectItem itemValue="6" itemLabel="Friday"/>
+								            <f:selectItem itemValue="7" itemLabel="Saturday"/>
+								        </b:selectMultiMenu>
+										 <b:selectMultiMenu value="#{eventBean.event.eventCategoryAsString}" label="Event type" >
+									            <f:selectItems value="#{eventBean.event.eventCategory}"  var="cat" itemValue="#{cat.toString()}" itemLabel="#{cat.emoji} #{cat.description}"/>
+									        </b:selectMultiMenu>
+								    </b:panelGrid>									    
+								    
+								    
+								    
+							    
+							    
 				    			</b:column>
 				    			<b:column col-md="4" col-xs="12">
 				    				
 				    			
-					    			<b:panel style="height:150px" styleClass="overview-box-image" id="eventImagePanel">
-					    				<p:graphicImage value="#{eventBean.eventImage}" id="eventImage"/>
-					    				<b:button iconAwesome="photo" look="success" onclick="$('.modalPseudoClass').modal()" value="Load image" />
+					    			<b:panel style="min-height:150px" styleClass="overview-box-image" id="eventImagePanel">
+					    				<h:panelGrid columns="1" styleClass="overview-box-image">
+											<p:graphicImage value="#{eventBean.content}" height="150px"/>
+											<b:button iconAwesome="photo" look="success" onclick="$('.modalPseudoClass').modal()" value="Load image" />
+					    				</h:panelGrid>
 					    			</b:panel>
 							</b:column>
 						</b:row>			
@@ -151,12 +179,14 @@
 					   <div class="text-center">
 							<b:commandButton value="Save" look="primary" size="lg" action="#{eventBean.save}"   />
 						</div>
-				</b:form>                  
+				</h:form>                  
                   
 				<b:modal id="imagePanel" title="Event Image" styleClass="modalPseudoClass">
 				  <h:form>
-				  	 <p:fileUpload fileUploadListener="#{eventBean.handleImageUpload}" mode="advanced" dragDropSupport="true" auto="true"
-                          update="messages" sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" />
+				  	 <p:fileUpload 
+				  	 	fileUploadListener="#{eventBean.handleImageUpload}" mode="advanced" 
+				  	 	dragDropSupport="true"
+                          update="messages" sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" oncomplete="$('.modalPseudoClass').modal('hide');$('.refreshImagePanel').click()" />
 				  </h:form>
 				  <f:facet name="footer">
 				    <b:button value="Close" dismiss="modal" />

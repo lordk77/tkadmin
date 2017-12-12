@@ -1,0 +1,36 @@
+<ui:composition
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:b="http://bootsfaces.net/ui"
+     template="/WEB-INF/templates/dashboard-layout.xhtml"
+     >
+     <ui:define name="content">
+        	
+
+					<h1>Events</h1>
+                    <hr/>
+                    
+                    <h:form>
+                    
+                    
+				    <b:dataTable value="#{eventBeanList.events}"
+					                 var="event">
+					        <b:dataTableColumn value="#{event.name}" />
+					        <b:dataTableColumn value="#{event.dateFrom}" />
+					        <b:dataTableColumn value="#{event.dateTo}" />
+					        <b:dataTableColumn  >
+				        		<f:facet name="header">
+						          <h:outputText value=""/>
+						        </f:facet>
+					       		<h:panelGroup>
+					       			 <b:commandButton  icon="edit"  action="#{eventBean.editEvent(event.id)}"/>
+					       		</h:panelGroup>
+					        </b:dataTableColumn>
+					    </b:dataTable>
+					</h:form>
+                    
+</ui:define>
+</ui:composition>

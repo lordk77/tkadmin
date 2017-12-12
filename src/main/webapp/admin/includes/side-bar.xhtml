@@ -8,13 +8,11 @@
 		<h:form>
 		   <b:listLinks>
                 <b:navLink header="Dasboard Links" />
-                <b:navLink href="#" value="Overview"/>
-                <b:navLink href="#" value="Reports" />
-                <b:navLink href="#" value="Analytics" />
-                <b:navLink href="#" value="Export" />
+                <b:navCommandLink href="#" value="Overview"  action="/admin/index.xhtml" />
             </b:listLinks>
             <b:listLinks>
-                <b:navCommandLink value="Event" action="#{eventBean.eventCreation}"   />
+                <b:navCommandLink value="Create event" action="#{eventBean.eventCreation}"   />
+                <b:navCommandLink value="Event list" action="/admin/eventList.xhtml"   />
             </b:listLinks>
             <b:listLinks>
                 <b:navLink value="Invoices" />

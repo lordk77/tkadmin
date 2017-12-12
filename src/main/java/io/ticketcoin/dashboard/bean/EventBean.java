@@ -3,11 +3,12 @@ package io.ticketcoin.dashboard.bean;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
 import org.primefaces.event.FileUploadEvent;
@@ -19,14 +20,16 @@ import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
 import io.ticketcoin.dashboard.persistence.service.EventService;
 
+
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class EventBean 
 {
 	
 	@ManagedProperty(value="#{userBean}")
 	private UserBean userBean;
-
+	
+	
 	private Event event;
 	
 	
@@ -43,6 +46,14 @@ public class EventBean
 	}
 
 	
+	public String editEvent(Long eventId)
+	{
+		this.event=new EventService().findById(eventId);
+		return "/admin/eventDetail.xhtml";
+	}
+	
+	
+	
 	 public void handleImageUpload(FileUploadEvent event) 
 	 {
 		 if (this.event.getImages()==null)
@@ -53,33 +64,31 @@ public class EventBean
 		 FileAttachment fa= new FileAttachment();
 		 fa.setContentType(event.getFile().getContentType());
 		 fa.setFileName(event.getFile().getFileName());
+		 fa.setAttachmentUUID(UUID.randomUUID().toString());
 		 fa.setContent(event.getFile().getContents());
-		 
 		 this.event.getImages().add(fa);
-		 
-		 prepareEventImage();
-		 
-        FacesMessage message = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");
-        FacesContext.getCurrentInstance().addMessage(null, message);
     }
 
 	 
-	 private StreamedContent eventImage;
-	 
-	 public StreamedContent getEventImage()
-	 {
-		 
-		 return eventImage;
-	 }
-	 
-	 private void prepareEventImage() 
-	 {		 
-		 if (this.event.getImages()!=null && !this.event.getImages().isEmpty())
-			 eventImage=  new DefaultStreamedContent(new ByteArrayInputStream(this.event.getImages().get(0).getContent()),this.event.getImages().get(0).getContentType(), this.event.getImages().get(0).getFileName() );
-		 else
-			 eventImage= null;
 
-	 }
+
+		private StreamedContent content;
+
+		public StreamedContent getContent()
+		{
+			FileAttachment fa = this.event.getImages()!=null && this.event.getImages().size()>0?this.event.getImages().get(0):null ;
+			
+			 if (fa !=null)
+				 content= new DefaultStreamedContent(new ByteArrayInputStream(fa.getContent()),(fa.getContentType()));
+			 else
+				 content= null;
+			 
+			 return content;
+		}
+		public void setContent(StreamedContent content) {
+			this.content = content;
+		}
+		
 	 
 	 public void calculateNetPrice()
 	 {
@@ -156,7 +165,9 @@ public class EventBean
 	public void setUserBean(UserBean userBean) {
 		this.userBean = userBean;
 	}
+
 	
+
 	
 	
 }

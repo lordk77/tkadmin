@@ -9,11 +9,15 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -25,6 +29,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
+
+import emoji4j.EmojiUtils;
+import io.ticketcoin.dashboard.persistence.model.Event.EventCategory;
+import javassist.expr.NewArray;
 
 
 @Entity
@@ -84,6 +92,48 @@ public class Event {
 	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL, orphanRemoval=true)
 	@JoinColumn(name="EVENT_ID")
 	private List<FileAttachment> images;
+	
+	
+	
+	@Enumerated(EnumType.STRING)
+	@ElementCollection
+	private List<EventCategory> eventCategories;
+	
+	
+	
+	
+	public enum EventCategory {
+		
+		ART("&#x1F3A8;","Art"),
+		THEATRE("&#x1F3AD;","Theatre"),
+		MUSIC("&#x1F3B6;","Music"),
+		SPORT("&#x1F3C0;","Sport"),
+		MUSEUM("&#x1F3E6;","Museum");
+		
+		private String description;
+		private String emojiCode ;
+		EventCategory(String emojiCode, String description)
+		{
+			this.description = description;
+			this.emojiCode = emojiCode;
+		}
+		public String getEmoji()
+		{
+			if(this.emojiCode!=null)
+				return EmojiUtils.getEmoji(this.emojiCode).getEmoji();
+			else return null;
+		}		
+		public String getDescription()
+		{
+			return description;
+		}
+	}
+	
+	
+	
+	public EventCategory[] getEventCategory() {
+		return EventCategory.values();
+	}
 	
 	
 	public List<String> getTags() {
@@ -158,6 +208,9 @@ public class Event {
 		this.daysOfWeek = daysOfWeek;
 	}
 
+	
+	
+
 	public String getEventUUID() {
 		return eventUUID;
 	}
@@ -209,6 +262,39 @@ public class Event {
 	}
 
 	
+	
+	@Transient
+	public String getEventCategoryAsString()
+	{
+		if (this.getEventCategories()!=null)
+			return StringUtils.join(this.getEventCategories(), ",") ;
+		else 
+			return null;
+	}
+	public void setEventCategoryAsString(String categories)
+	{
+		if(this.eventCategories!=null)
+		{
+			try {
+				this.eventCategories.clear();
+			}
+			catch(Exception e) {
+				this.eventCategories=null;
+			}
+		}
+			
+		
+		if(StringUtils.isNotEmpty(categories))
+		{
+			this.eventCategories=new ArrayList<EventCategory>();
+			for(String s : StringUtils.split(categories,","))
+				if(!s.equals("0"))
+					this.eventCategories.add(EventCategory.valueOf(s));
+		}	
+	}
+
+
+	
 	public List<TicketCategory> getCategories() {
 		return categories;
 	}
@@ -223,5 +309,13 @@ public class Event {
 
 	public void setImages(List<FileAttachment> images) {
 		this.images = images;
+	}
+
+	public List<EventCategory> getEventCategories() {
+		return eventCategories;
+	}
+
+	public void setEventCategories(List<EventCategory> eventCategories) {
+		this.eventCategories = eventCategories;
 	}
 }

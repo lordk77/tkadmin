@@ -3,7 +3,7 @@
 	
 	<Resource name="jdbc/tkadmin" auth="Container"                              
 	type="javax.sql.DataSource" driverClassName="com.mysql.jdbc.Driver"
-       url="jdbc:mysql://192.168.64.2:3306/tkadmin"
+       url="jdbc:mysql://localhost:3306/tkadmin"
        username="tkadmin" password="tkadmin"  logAbandoned="true" maxActive="10" maxIdle="5" maxWait="10000" minEvictableIdleTimeMillis="60000"  removeAbandoned="true" removeAbandonedTimeout="300" testOnBorrow="true"  testOnReturn="true" testWhileIdle="true" timeBetweenEvictionRunsMillis="60000"  validationQuery="SELECT 1"	>
        </Resource>	
 

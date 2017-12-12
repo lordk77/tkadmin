@@ -30,6 +30,14 @@ public class Organization {
     private String phone;
 	private String vatCode;
 	
+	
+	public Organization()
+	{}
+	public Organization(String name)
+	{
+		this.name=name;
+	}
+	
 	@OneToOne(cascade=CascadeType.ALL)
 	private Address address;
 	
