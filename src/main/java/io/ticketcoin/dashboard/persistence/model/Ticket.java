@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -60,6 +62,20 @@ public class Ticket
 	private boolean resellable;
 	private BigDecimal resellPriceCap;
 	
+	
+	  private Date created;
+	  private Date updated;
+	  @PrePersist
+	  protected void onCreate() {
+	    created = new Date();
+	  }
+
+	  @PrePersist
+	  @PreUpdate
+	  protected void onUpdate() {
+	    updated = new Date();
+	  }
+	  
 	
 	public Long getId() {
 		return id;
@@ -171,6 +187,22 @@ public class Ticket
 
 	public void setResellPriceCap(BigDecimal resellPriceCap) {
 		this.resellPriceCap = resellPriceCap;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 
 	

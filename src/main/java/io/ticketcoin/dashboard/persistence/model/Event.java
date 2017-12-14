@@ -21,6 +21,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -30,6 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import emoji4j.EmojiUtils;
 import io.ticketcoin.dashboard.persistence.model.Event.EventCategory;
 import javassist.expr.NewArray;
@@ -38,6 +42,7 @@ import javassist.expr.NewArray;
 @Entity
 @Table(name="TDEF_EVENT")
 @XmlRootElement
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Event {
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -100,7 +105,20 @@ public class Event {
 	private List<EventCategory> eventCategories;
 	
 	
-	
+	  private Date created;
+	  private Date updated;
+
+	  @PrePersist
+	  protected void onCreate() {
+	    created = new Date();
+	  }
+
+	  @PrePersist
+	  @PreUpdate
+	  protected void onUpdate() {
+	    updated = new Date();
+	  }
+	  
 	
 	public enum EventCategory {
 		
@@ -317,5 +335,21 @@ public class Event {
 
 	public void setEventCategories(List<EventCategory> eventCategories) {
 		this.eventCategories = eventCategories;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 }

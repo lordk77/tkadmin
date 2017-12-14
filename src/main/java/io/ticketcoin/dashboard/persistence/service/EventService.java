@@ -6,7 +6,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 import io.ticketcoin.dashboard.persistence.dao.EventDAO;
-import io.ticketcoin.dashboard.persistence.dao.GenericDAO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.User;
@@ -18,10 +17,6 @@ public class EventService extends GenericService<Event> {
 		super(Event.class);
 	}
 
-	
-	
-	
-	
 	public List<Event> getEvents(User user)
 	{
 		Session session = null;
@@ -51,6 +46,20 @@ public class EventService extends GenericService<Event> {
 			session = HibernateUtils.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			List<Event> retval = new EventDAO().searchEvents(filter);
+
+			for(Event event : retval)
+			{
+				if(event.getCategories()!=null)
+					Hibernate.initialize(event.getCategories());
+				
+				if(event.getImages()!=null)
+					Hibernate.initialize(event.getImages());
+	
+				if(event.getArtists()!=null)
+					Hibernate.initialize(event.getArtists());
+				
+			}
+			
 			session.getTransaction().commit();
 			return retval;
 		}
@@ -81,6 +90,9 @@ public class EventService extends GenericService<Event> {
 
 			if(event.getEventCategories()!=null)
 				Hibernate.initialize(event.getEventCategories());
+			
+			if(event.getArtists()!=null)
+				Hibernate.initialize(event.getArtists());
 			
 			session.getTransaction().commit();
 			return event;

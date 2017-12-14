@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.persistence.model;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -12,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -29,7 +32,19 @@ public class Organization {
 	private String email;
     private String phone;
 	private String vatCode;
-	
+
+	  private Date created;
+	  private Date updated;
+	  @PrePersist
+	  protected void onCreate() {
+	    created = new Date();
+	  }
+
+	  @PrePersist
+	  @PreUpdate
+	  protected void onUpdate() {
+	    updated = new Date();
+	  }
 	
 	public Organization()
 	{}
@@ -133,5 +148,21 @@ public class Organization {
 
 	public void setEvents(List<Event> events) {
 		this.events = events;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 }

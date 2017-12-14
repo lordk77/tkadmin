@@ -2,6 +2,7 @@ package io.ticketcoin.dashboard.persistence.model;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -26,7 +27,7 @@ public class TicketCategory {
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
-	
+	private String ticketCategoryUUID;
 	private Integer categoryOrder;
 	private String description;
 	private BigDecimal streetPrice;
@@ -44,6 +45,13 @@ public class TicketCategory {
 	    LEGACY_CODE, NORMAL;
 	}
 	
+	public TicketCategory(){}
+	
+	public TicketCategory(boolean generateUUID)
+	{
+		if(generateUUID)
+			this.ticketCategoryUUID=UUID.randomUUID().toString();
+	}
 	
 	@OneToMany(cascade=CascadeType.REMOVE,fetch=FetchType.LAZY)
 	@JoinColumn(name="TICKET_CATEGORY_ID")
@@ -110,6 +118,12 @@ public class TicketCategory {
 	}
 	public void setNetPrice(BigDecimal netPrice) {
 		this.netPrice = netPrice;
+	}
+	public String getTicketCategoryUUID() {
+		return ticketCategoryUUID;
+	}
+	public void setTicketCategoryUUID(String ticketCategoryUUID) {
+		this.ticketCategoryUUID = ticketCategoryUUID;
 	}
 	
 	

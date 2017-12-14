@@ -8,7 +8,6 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.SimpleExpression;
 
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
@@ -34,16 +33,27 @@ public class EventDAO extends GenericDAO<Event>{
 				.createCriteria(Event.class);
 				
 		
-		List<Criterion> x = new ArrayList<Criterion>();
-		for(String s : new StringUtils().split(filter.getGenericTxt()," "))
+		if(!StringUtils.isEmpty(filter.getGenericTxt()))
 		{
-		
-					x.add(Restrictions.like("name", filter.getGenericTxt(), MatchMode.ANYWHERE).ignoreCase());
-					x.add(Restrictions.like("description", filter.getGenericTxt(), MatchMode.ANYWHERE).ignoreCase());
+			List<Criterion> x = new ArrayList<Criterion>();
+			for(String s : new StringUtils().split(filter.getGenericTxt()," "))
+			{
+				x.add(Restrictions.like("name", filter.getGenericTxt(), MatchMode.ANYWHERE).ignoreCase());
+				x.add(Restrictions.like("description", filter.getGenericTxt(), MatchMode.ANYWHERE).ignoreCase());
+			}
+			
+			
+			c.add(Restrictions.or(x.toArray(new Criterion[] {})));
 		}
-		
-		c.add(Restrictions.or(x.toArray(new Criterion[] {})));
 		 
+		
+		if(filter.getUpdatedSince()!=null)
+			c.add(Restrictions.gt("updated", filter.getUpdatedSince()));
+		
+		if(filter.getMaxResult()>0)
+			c.setMaxResults(filter.getMaxResult());
+		
+		
 		 return c.list();
 	}
 	

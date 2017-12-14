@@ -15,6 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -32,7 +34,18 @@ public class User implements Serializable{
 	private Boolean active;
 	private Date emailVerficationDate;
 	private String emailVerificationCode;
-	
+
+	  private Date created;
+	  private Date updated;
+	  @PrePersist
+	  protected void onCreate() {
+	    created = new Date();
+	  }
+
+	  @PreUpdate
+	  protected void onUpdate() {
+	    updated = new Date();
+	  }
 	
 	@ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
 	@JoinTable(name="TDEF_USER_ROLE",joinColumns=
@@ -96,6 +109,22 @@ public class User implements Serializable{
 	}
 	public void setOrganization(Organization organization) {
 		this.organization = organization;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 	
 }

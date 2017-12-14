@@ -42,7 +42,7 @@ public class EventBean
 	{
 		this.event=new Event();
 		this.event.setCategories(new ArrayList<TicketCategory>());
-		this.getEvent().getCategories().add(new TicketCategory());
+		this.getEvent().getCategories().add(new TicketCategory(true));
 	}
 
 	
@@ -123,7 +123,7 @@ public class EventBean
 		if (this.event.getCategories()==null)
 			this.event.setCategories(new ArrayList<TicketCategory>());
 		
-		this.event.getCategories().add(new TicketCategory());
+		this.event.getCategories().add(new TicketCategory(true));
 		
 		return null;
 	}
