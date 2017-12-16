@@ -31,7 +31,7 @@ public class EventRestService
 	@GET
 	@Path("/list/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON)
-	  public List<EventExtDTO> search(@PathParam("timeStamp") Long timeStamp) 
+	  public Response search(@PathParam("timeStamp") Long timeStamp) 
 	  {
 		EventFilter filter = new EventFilter();
 		if(timeStamp!=null && timeStamp>0)
@@ -41,7 +41,11 @@ public class EventRestService
 		List<EventExtDTO> events = new ArrayList<>();
 		for (Event e:es)
 			events.add(new EventExtDTO(e));
-		return events;
+		
+		 return Response.ok(new Gson().toJson(events))
+				 .header("Access-Control-Allow-Origin", "*")
+					.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+				 .build();
 	  }
 	
 	
