@@ -41,6 +41,7 @@ public class EventBean
 	public void initEvent()
 	{
 		this.event=new Event();
+		this.event.setEventUUID(UUID.randomUUID().toString());
 		this.event.setCategories(new ArrayList<TicketCategory>());
 		this.getEvent().getCategories().add(new TicketCategory(true));
 	}
