@@ -57,6 +57,11 @@ public class EventService extends GenericService<Event> {
 	
 				if(event.getArtists()!=null)
 					Hibernate.initialize(event.getArtists());
+
+				
+				if(event.getEventCategories()!=null)
+					Hibernate.initialize(event.getEventCategories());
+				
 				
 			}
 			

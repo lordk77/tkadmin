@@ -13,6 +13,7 @@ public class EventExtDTO extends EventDTO
 
 	private List<TicketCategoryDTO> ticketCategories;
 
+	private List<String> eventCategories;
 	
 	public EventExtDTO(){}
 	
@@ -28,6 +29,14 @@ public class EventExtDTO extends EventDTO
 		}
 		
 		
+		
+		this.eventCategories =new ArrayList<String>();
+		if(event.getEventCategories()!=null && event.getEventCategories().size()>0)
+		{
+			for(int i =0; i < event.getEventCategories().size();i++)
+				this.eventCategories.add(event.getEventCategories().get(i).toString());
+		}
+		
 	}
 	
 	public List<TicketCategoryDTO> getTicketCategories() {
@@ -36,5 +45,13 @@ public class EventExtDTO extends EventDTO
 
 	public void setTicketCategories(List<TicketCategoryDTO> ticketCategories) {
 		this.ticketCategories = ticketCategories;
+	}
+
+	public List<String> getEventCategories() {
+		return eventCategories;
+	}
+
+	public void setEventCategories(List<String> eventCategories) {
+		this.eventCategories = eventCategories;
 	}
 }

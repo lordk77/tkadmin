@@ -13,7 +13,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.gson.Gson;
 
 import io.ticketcoin.dashboard.dto.EventDTO;
@@ -31,7 +30,7 @@ public class EventRestService
 	@GET
 	@Path("/list/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON)
-	  public List<EventExtDTO> search(@PathParam("timeStamp") Long timeStamp) 
+	  public Response search(@PathParam("timeStamp") Long timeStamp) 
 	  {
 		EventFilter filter = new EventFilter();
 		if(timeStamp!=null && timeStamp>0)
@@ -41,7 +40,9 @@ public class EventRestService
 		List<EventExtDTO> events = new ArrayList<>();
 		for (Event e:es)
 			events.add(new EventExtDTO(e));
-		return events;
+//		return events.toArray(new EventExtDTO[]{});
+		
+		return Response.ok(new Gson().toJson(events)).type(MediaType.APPLICATION_JSON).build();
 	  }
 	
 	
@@ -50,15 +51,14 @@ public class EventRestService
 	@POST
 	@Path("/search")
     @Consumes(MediaType.APPLICATION_JSON)
-	  public List<EventDTO> search(EventFilter filter) 
+	  public Response search(EventFilter filter) 
 	  {
 		filter.setMaxResult(MAX_RESULTS);
 		List<Event> es = new EventService().searchEvents(filter);
 		List<EventDTO> events = new ArrayList<>();
 		for (Event e:es)
 			events.add(new EventDTO(e));
-    	return events;
-//		return Response.ok(new Gson().toJson(es)).type(MediaType.APPLICATION_JSON).build();
+		return Response.ok(new Gson().toJson(events)).type(MediaType.APPLICATION_JSON).build();
     	  
 	  }
 	  
