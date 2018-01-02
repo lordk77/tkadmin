@@ -40,9 +40,12 @@ public class EventRestService
 		List<EventExtDTO> events = new ArrayList<>();
 		for (Event e:es)
 			events.add(new EventExtDTO(e));
-//		return events.toArray(new EventExtDTO[]{});
-		
-		return Response.ok(new Gson().toJson(events)).type(MediaType.APPLICATION_JSON).build();
+
+		 return Response.ok(new Gson().toJson(events))
+				//.header("Access-Control-Allow-Origin", "*")
+				//	.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+					.type(MediaType.APPLICATION_JSON)
+					.build();
 	  }
 	
 	
@@ -58,7 +61,13 @@ public class EventRestService
 		List<EventDTO> events = new ArrayList<>();
 		for (Event e:es)
 			events.add(new EventDTO(e));
-		return Response.ok(new Gson().toJson(events)).type(MediaType.APPLICATION_JSON).build();
+
+		 return Response.ok(new Gson().toJson(events))
+				// .header("Access-Control-Allow-Origin", "*")
+				//	.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+					.type(MediaType.APPLICATION_JSON)
+				 .build();
+		 
     	  
 	  }
 	  
