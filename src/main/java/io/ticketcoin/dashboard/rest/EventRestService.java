@@ -42,8 +42,8 @@ public class EventRestService
 			events.add(new EventExtDTO(e));
 
 		 return Response.ok(new Gson().toJson(events))
-				//.header("Access-Control-Allow-Origin", "*")
-				//	.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+				.header("Access-Control-Allow-Origin", "*")
+					.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
 					.type(MediaType.APPLICATION_JSON)
 					.build();
 	  }
@@ -63,8 +63,8 @@ public class EventRestService
 			events.add(new EventDTO(e));
 
 		 return Response.ok(new Gson().toJson(events))
-				// .header("Access-Control-Allow-Origin", "*")
-				//	.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+				 .header("Access-Control-Allow-Origin", "*")
+				 .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
 					.type(MediaType.APPLICATION_JSON)
 				 .build();
 		 
