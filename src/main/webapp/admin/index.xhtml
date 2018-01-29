@@ -62,30 +62,21 @@
 					</b:row>
 
 
+
                     <b:row styleClass="placeholders">
-                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
-                            <img data-src="holder.js/200x200/sky" class="img-responsive" alt="Generic placeholder thumbnail"/>
-                            <h4>Label</h4>
-                            <span class="text-muted">Something else</span>
+                        <b:column col-xs="6" col-sm="4" styleClass="placeholder">
+                            <p:chart type="pie" model="#{chartView.pieModel1}" style="width:400px;height:300px"  />
                         </b:column>
-                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
-                            <img data-src="holder.js/200x200/vine" class="img-responsive" alt="Generic placeholder thumbnail"/>
-                            <h4>Label</h4>
-                            <span class="text-muted">Something else</span>
+                        <b:column col-xs="6" col-sm="4" styleClass="placeholder">
+                            <p:chart type="pie" model="#{chartView.pieModel2}" style="width:400px;height:300px"  />
                         </b:column>
-                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
-                            <img data-src="holder.js/200x200/sky" class="img-responsive" alt="Generic placeholder thumbnail"/>
-                            <h4>Label</h4>
-                            <span class="text-muted">Something else</span>
-                        </b:column>
-                        <b:column col-xs="6" col-sm="3" styleClass="placeholder">
-                            <img data-src="holder.js/200x200/vine" class="img-responsive" alt="Generic placeholder thumbnail"/>
-                            <h4>Label</h4>
-                            <span class="text-muted">Something else</span>
-                        </b:column>
-                    </b:row>
+                        <b:column col-xs="6" col-sm="4" styleClass="placeholder">
+                            <p:chart type="pie" model="#{chartView.pieModel3}" style="width:400px;height:300px"  />
+                        </b:column>                        
+                    </b:row>	
+
                     
-                    <b:row rendered="false">
+                    <b:row >
 						<b:column col-xs="12" col-md="6">
 							<p:chart type="bar" model="#{chartView.barModel}" style="height:300px"/>
 						</b:column>
@@ -93,6 +84,17 @@
 							<p:chart type="bar" model="#{chartView.horizontalBarModel}" style="height:300px"/>
 						</b:column>
 					</b:row>
+
+	
+					
+					
+				
+                    <b:row >
+						<b:column col-xs="12" col-md="12">
+							<p:chart type="line" model="#{chartView.lineModel2}" style="height:300px;"/>
+						</b:column>
+					</b:row>	
+					
                     
                     
                     <h1>Top trending event</h1>
