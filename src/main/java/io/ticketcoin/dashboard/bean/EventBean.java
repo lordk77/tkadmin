@@ -167,8 +167,10 @@ public class EventBean
 		this.userBean = userBean;
 	}
 
-	
-
+	public String getCode39()
+	{
+		return this.event!=null?"{\"eventUUID\":" + this.event.getEventUUID() + "}":"";
+	}
 	
 	
 }

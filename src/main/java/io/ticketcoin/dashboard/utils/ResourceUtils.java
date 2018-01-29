@@ -58,7 +58,7 @@ public class ResourceUtils {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		FileInputStream fis;
 		try {
-			fis = new FileInputStream(new File(getImgeFolder() + fa.getFileName()));
+			fis = new FileInputStream(new File(getImgeFolder() +'/'+ fa.getFileName()));
 			IOUtils.copyLarge(fis, baos);
 			fis.close();
 			baos.close();

@@ -85,6 +85,9 @@
 											<b:button iconAwesome="photo" look="success" onclick="$('.modalPseudoClass').modal()" value="Load image" />
 					    				</h:panelGrid>
 					    			</b:panel>
+					    			
+					    			<b:image library="img" name="qr_code.jpg" height="150px" rendered="#{eventBean.event.id != null}"/>
+					    			
 							</b:column>
 						</b:row>			
 					   	<b:panelGrid columns="1">
