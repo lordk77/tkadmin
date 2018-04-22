@@ -3,7 +3,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import io.ticketcoin.dashboard.persistence.model.User;
@@ -41,13 +40,13 @@ public class UserBean {
 	        try 
 	        {
 	        		//integration with container security 
-	        		((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).login(username, password);
+//	        		((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).login(username, password);
 	        		
 	        		//reads user data from db
 	        		if ((this.loggedUser= new UserService().getUser(username) )!=null) 
 	        			loggedIn=true;
 	        }
-	        catch (ServletException e) {
+	        catch (Exception e) {
 				e.printStackTrace();
 			}
         }
@@ -57,7 +56,7 @@ public class UserBean {
             FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(FacesMessage.SEVERITY_INFO, "Welcome", username));
             return "/admin/index.xhtml";
         } else {
-            FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, "Loggin Error", "Invalid credentials"));
+            FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, "Login Error", "Invalid credentials"));
             return null;
         }
         	 
