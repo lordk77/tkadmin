@@ -21,7 +21,7 @@ public class UserRestService {
 		@GET
 		@Path("/{id}")
 		@Produces(MediaType.APPLICATION_JSON)
-		public User getMsg(@PathParam("id") Long id) {
+		public User getUser(@PathParam("id") Long id) {
 			return new UserService().findById(id);
 		}
 

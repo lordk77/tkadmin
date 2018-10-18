@@ -11,7 +11,8 @@ public class EventFilter {
 	private String genericTxt;
 	private Date updatedSince;
 	private int maxResult;
-	
+	private String category;
+	private String eventUUID;
 
 	public String getGenericTxt() {
 		return genericTxt;
@@ -35,6 +36,22 @@ public class EventFilter {
 
 	public void setMaxResult(int maxResult) {
 		this.maxResult = maxResult;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getEventUUID() {
+		return eventUUID;
+	}
+
+	public void setEventUUID(String eventUUID) {
+		this.eventUUID = eventUUID;
 	}
 	
 	

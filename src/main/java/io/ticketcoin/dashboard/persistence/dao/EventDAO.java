@@ -47,8 +47,21 @@ public class EventDAO extends GenericDAO<Event>{
 		}
 		 
 		
+		if (!StringUtils.isEmpty(filter.getCategory()))
+		{
+			c.createAlias("eventCategories", "eventCategory");
+			c.add(Restrictions.eq("eventCategory.description", filter.getCategory()));
+		}
+			
+		
 		if(filter.getUpdatedSince()!=null)
 			c.add(Restrictions.gt("updated", filter.getUpdatedSince()));
+
+		
+		if(filter.getEventUUID()!=null)
+			c.add(Restrictions.eq("eventUUID", filter.getEventUUID()));
+		
+		
 		
 		if(filter.getMaxResult()>0)
 			c.setMaxResults(filter.getMaxResult());

@@ -43,7 +43,7 @@ public class EventRestService
 
 		 return Response.ok(new Gson().toJson(events))
 				.header("Access-Control-Allow-Origin", "*")
-					.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+					.header("Access-Control-Allow-Methods", "GET")
 					.type(MediaType.APPLICATION_JSON)
 					.build();
 	  }
@@ -64,12 +64,37 @@ public class EventRestService
 
 		 return Response.ok(new Gson().toJson(events))
 				 .header("Access-Control-Allow-Origin", "*")
-				 .header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
+				 .header("Access-Control-Allow-Methods", "POST")
 					.type(MediaType.APPLICATION_JSON)
 				 .build();
 		 
-    	  
 	  }
 	  
+	
+	@GET
+	@Path("/detail/{eventUUID}")
+    @Produces(MediaType.APPLICATION_JSON)
+	  public Response detail(@PathParam("eventUUID") String eventUUID) 
+	  {
+		EventFilter filter = new EventFilter();
+		filter.setMaxResult(1);
+		
+		filter.setEventUUID(eventUUID);
+		
+		List<Event> es = new EventService().searchEvents(filter);
+		EventExtDTO eventExtDTO = null;
+		
+		if (es!=null && !es.isEmpty())
+			eventExtDTO = new EventExtDTO(es.get(0));
+
+		 return Response.ok(new Gson().toJson(eventExtDTO))
+				.header("Access-Control-Allow-Origin", "*")
+					.header("Access-Control-Allow-Methods", "GET")
+					.type(MediaType.APPLICATION_JSON)
+					.build();
+	  }
+	
+	
+	
 	
 }
