@@ -10,7 +10,7 @@ import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.service.FileAttachmentService;
 
 @Path("/image")
-public class ImageService 
+public class ImageRestService 
 {
 
 	@GET

@@ -1,6 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://java.sun.com/xml/ns/javaee" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
-  http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://cxf.apache.org/jaxrs
+	http://cxf.apache.org/schemas/jaxrs.xsd">
+	
+	
+       
+  
+  <!-- implements OAuthDataProvider -->
+	<bean id="oauthProvider" class="io.ticketcoin.oauth.provider.TkAminOAuthDataProvider"/>
+	      
+	<bean id="accessTokenService" class="org.apache.cxf.rs.security.oauth2.services.AccessTokenService">
+	  <property name="dataProvider" ref="oauthProvider"/>
+	</bean>
+	 
+	<jaxrs:server id="oauthServer" address="/oauth">
+	   <jaxrs:serviceBeans>
+	      <ref bean="accessTokenService"/>
+	  </jaxrs:serviceBeans>
+	</jaxrs:server>
+
+  <bean id="eventServiceBean" class="io.ticketcoin.dashboard.rest.EventRestService" />
+  <bean id="imageServiceBean" class="io.ticketcoin.dashboard.rest.ImageRestService" />
+  <bean id="userServiceBean" class="io.ticketcoin.dashboard.rest.UserRestService" />
+  
+  
+<!--   <bean id="jwtTokenValidator" class="org.apache.cxf.rs.security.oauth2.filters.JwtAccessTokenValidator"/> -->
+<!-- <bean id="oAuthFilterLocalValidation" class="org.apache.cxf.rs.security.oauth2.filters.OAuthRequestFilter"> -->
+<!--     <property name="tokenValidator" ref="jwtTokenValidator"/> -->
+<!-- </bean> -->
+
+
+  
+<!-- 	<bean id="tokenValidator" class="org.apache.cxf.rs.security.oauth2.filters.AccessTokenValidatorClient"> -->
+<!-- 	    <property name="tokenValidatorClient" ref="tvServiceClient"/> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="oauthFilter" class="org.apache.cxf.rs.security.oauth2.filters.OAuthRequestFilter"> -->
+<!-- 	    <property name="tokenValidator" ref="tokenValidator"/> -->
+<!-- 	</bean> -->
+
+ 
+  <jaxrs:server id="resourceServer" address="/rest" >
+    <jaxrs:serviceBeans>
+      <ref bean="eventServiceBean" />
+      <ref bean="imageServiceBean" />
+      <ref bean="userServiceBean" />
+    </jaxrs:serviceBeans>
+  </jaxrs:server>
+  
+  
+ 
+
+  
+
 </beans>
