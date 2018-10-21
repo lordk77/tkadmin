@@ -8,17 +8,17 @@
 	<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 	
 	
-<!-- 		<property name="connection.datasource">java:/comp/env/jdbc/tkadmin</property> -->
+		<property name="connection.datasource">java:/comp/env/jdbc/tkadmin</property>
 	
-	<property name="hibernate.connection.url">jdbc:mysql://192.168.64.2:3306/tkadmin</property>
-	<property name="hibernate.connection.username">tkadmin</property>
-	<property name="hibernate.connection.password">tkadmin</property>
+<!-- 	<property name="hibernate.connection.url">jdbc:mysql://aa1vh7e70z69qj1.cnyt2n8xtrwa.eu-west-3.rds.amazonaws.com:3306/ebdb</property> -->
+<!-- 	<property name="hibernate.connection.username">ticketcoin</property> -->
+<!-- 	<property name="hibernate.connection.password">ticketcoin</property> -->
 	
 	
 	
 	<property name="hibernate.connection.pool_size">10</property>
 
-		<property name="hibernate.show_sql">true</property>
+<!-- 		<property name="hibernate.show_sql">true</property> -->
 <!-- 		<property name="hibernate.format_sql">true</property> -->
 		<property name="hibernate.hbm2ddl.auto">update</property> 	
 
@@ -38,6 +38,8 @@
 	<mapping class="io.ticketcoin.dashboard.persistence.model.TicketCategory" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.User" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.FileAttachment" />
+	<mapping class="io.ticketcoin.dashboard.persistence.model.PurchaseOrder" />
+	<mapping class="io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail" />
 
 
 
