@@ -7,7 +7,7 @@ public class TkAminOAuthDataProvider extends DefaultEHCacheOAuthDataProvider {
 	public TkAminOAuthDataProvider()
 	{
 		super();
-		Client c = new Client("test", "test", true);
+		Client c = new Client("admin", "admin", true);
 		setClient(c);
 	}
 	

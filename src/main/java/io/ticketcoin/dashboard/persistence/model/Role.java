@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.persistence.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name="TDEF_ROLE")
 @XmlRootElement
-public class Role {
+public class Role  implements Serializable{
 
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)

@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.persistence.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -21,7 +22,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name="ORGANIZATION")
 @XmlRootElement
-public class Organization {
+public class Organization implements Serializable{
+
+	private static final long serialVersionUID = 2110533968459638973L;
 
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)

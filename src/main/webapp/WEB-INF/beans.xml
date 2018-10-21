@@ -19,6 +19,8 @@
   
   <!-- implements OAuthDataProvider -->
 	<bean id="oauthProvider" class="io.ticketcoin.oauth.provider.TkAminOAuthDataProvider"/>
+	 
+	
 	      
 	<bean id="accessTokenService" class="org.apache.cxf.rs.security.oauth2.services.AccessTokenService">
 	  <property name="dataProvider" ref="oauthProvider"/>
@@ -57,6 +59,7 @@
 	      <ref bean="userServiceBean" />
 	    </jaxrs:serviceBeans>
 	    <jaxrs:providers>
+	    	  <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthContextProvider"/>
 	       <ref bean="oAuthFilter"/>
 	    </jaxrs:providers>
 	  </jaxrs:server>
