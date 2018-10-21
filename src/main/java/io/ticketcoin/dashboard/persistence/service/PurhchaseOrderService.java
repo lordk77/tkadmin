@@ -1,7 +1,9 @@
 package io.ticketcoin.dashboard.persistence.service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -55,7 +57,8 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 			purhchaseOrder.setEventUUID(purhchaseOrderDTO.getEventUUID());
 			purhchaseOrder.setTotalAmount(new BigDecimal("0"));
 			purhchaseOrder.setStatus(STATUS_PENDING);
-			
+			purhchaseOrder.setCreated(new Date());
+			purhchaseOrder.setOrderUUID(UUID.randomUUID().toString());
 			for (PurchaseOrderDetailDTO dto : purhchaseOrderDTO.getOrderDetail())
 			{
 				boolean found = false;
