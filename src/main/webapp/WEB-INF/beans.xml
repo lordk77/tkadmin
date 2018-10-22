@@ -19,6 +19,10 @@
   
   <!-- implements OAuthDataProvider -->
 	<bean id="oauthProvider" class="io.ticketcoin.oauth.provider.TkAminOAuthDataProvider"/>
+	<bean id="loginHandler" class="io.ticketcoin.oauth.handler.TkAdminLoginHandler"/>
+	
+	
+	
 	 
 	
 	      
@@ -79,8 +83,9 @@
         <property name="dataProvider" ref="oauthProvider"/>
     </bean>
     
-    <bean id="clientCredsHandler" class="org.apache.cxf.rs.security.oauth2.grants.clientcred.ClientCredentialsGrantHandler">
+    <bean id="clientCredsHandler" class="org.apache.cxf.rs.security.oauth2.grants.owner.ResourceOwnerGrantHandler">
         <property name="dataProvider" ref="oauthProvider"/>
+        <property name="loginHandler" ref="loginHandler"/>
     </bean>
         
     <util:list id="grantHandlers">
