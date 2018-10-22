@@ -103,7 +103,10 @@ public class EventDAO extends GenericDAO<Event>{
 		
 //		c.setResultTransformer(new AliasToBeanResultTransformer(EventCategoryDTO.class));
 		for (Object o : c.list())
-			categories.add(new EventCategoryDTO(((Event.EventCategory)((Object[])o)[0]).getDescription(), ((Event.EventCategory)((Object[])o)[0]).getEmoji(), ((Number)((Object[])o)[1]).longValue()));
+		{
+			Event.EventCategory cat = (Event.EventCategory)((Object[])o)[0];
+			categories.add(new EventCategoryDTO(cat.toString(), cat.getDescription(), ((Event.EventCategory)((Object[])o)[0]).getEmoji(), ((Number)((Object[])o)[1]).longValue()));
+		}
 		
 		 return categories;
 	}

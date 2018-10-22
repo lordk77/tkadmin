@@ -13,16 +13,16 @@ public class EventCategoryDTO implements Serializable{
 
 	private static final long serialVersionUID = -3568633452830321331L;
 	
-	
+	private String categoryCode;
 	private String description;
 	private String emojiCode;
 	private Long eventCount;
 	
 	public EventCategoryDTO() {}
 			
-	public EventCategoryDTO(String description, String emojiCode, Long eventCount) {
+	public EventCategoryDTO(String categoryCode, String description, String emojiCode, Long eventCount) {
 		super();
-		
+		 this.categoryCode = categoryCode;
 		 this.description = description;
 		 this.emojiCode = emojiCode;
 		 this.eventCount = eventCount;
@@ -47,6 +47,14 @@ public class EventCategoryDTO implements Serializable{
 
 	public void setEventCount(Long eventCount) {
 		this.eventCount = eventCount;
+	}
+
+	public String getCategoryCode() {
+		return categoryCode;
+	}
+
+	public void setCategoryCode(String categoryCode) {
+		this.categoryCode = categoryCode;
 	}
 	
 

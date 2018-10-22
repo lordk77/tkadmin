@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -35,6 +36,28 @@ public class User implements Serializable{
 	private Date emailVerficationDate;
 	private String emailVerificationCode;
 
+	
+	private String name;
+	private String surname;
+	private String phone;
+	private String language;
+	private String country;
+	private String zip;
+	private String platform;
+	private String app_version;
+    
+    
+    
+    /*
+    "wallet" : {
+      "version": 1,
+      "ticketcoin_ethereum" : {
+        "address": "8cDBF70E278e95a60E57eD389522Fbb6cc96474d",
+        "private_key" : "698d120ec98081a80fd0288088db97163a123434a7b6d308fdd142ac1abba13e"
+      }
+    }
+    */
+	
 	  private Date created;
 	  private Date updated;
 	  @PrePersist
@@ -55,6 +78,10 @@ public class User implements Serializable{
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ORGANIZATION_ID")
 	private Organization organization;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name="WALLET_ID")	
+	private Wallet wallet;
 	
 	public String getUsername() {
 		return username;
@@ -125,6 +152,79 @@ public class User implements Serializable{
 
 	public void setUpdated(Date updated) {
 		this.updated = updated;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getZip() {
+		return zip;
+	}
+
+	public void setZip(String zip) {
+		this.zip = zip;
+	}
+
+
+	public String getPlatform() {
+		return platform;
+	}
+
+	public void setPlatform(String platform) {
+		this.platform = platform;
+	}
+
+	public String getApp_version() {
+		return app_version;
+	}
+
+	public void setApp_version(String app_version) {
+		this.app_version = app_version;
+	}
+
+	public Wallet getWallet() {
+		return wallet;
+	}
+
+	public void setWallet(Wallet wallet) {
+		this.wallet = wallet;
 	}
 	
 }
