@@ -8,7 +8,7 @@ public class JSONResponseWrapper {
 
 	
 	private boolean success=true;
-	private String Message;
+	private String message;
 	private Object data;
 	
 	private JSONResponseWrapper() {}
@@ -33,20 +33,14 @@ public class JSONResponseWrapper {
 	public static JSONResponseWrapper getFaultWrapper(String message) {
 		JSONResponseWrapper wrapper = new JSONResponseWrapper();
 		wrapper.success=false;
+		wrapper.setMessage(message);
 		return wrapper;
 		
 	}
 	
 
-
-
 	
-	public String getMessage() {
-		return Message;
-	}
-	public void setMessage(String message) {
-		Message = message;
-	}
+
 	public Object getData() {
 		return data;
 	}
@@ -66,6 +60,20 @@ public class JSONResponseWrapper {
 
 	public void setSuccess(boolean success) {
 		this.success = success;
+	}
+
+
+
+
+	public String getMessage() {
+		return message;
+	}
+
+
+
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 }

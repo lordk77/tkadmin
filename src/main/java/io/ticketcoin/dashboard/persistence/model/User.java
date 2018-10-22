@@ -79,7 +79,7 @@ public class User implements Serializable{
 	@JoinColumn(name="ORGANIZATION_ID")
 	private Organization organization;
 	
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name="WALLET_ID")	
 	private Wallet wallet;
 	

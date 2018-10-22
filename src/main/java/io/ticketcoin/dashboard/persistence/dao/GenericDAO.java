@@ -14,7 +14,11 @@ public class GenericDAO<T> {
     }
 
 
-    
+	public T save(T entity)
+	{
+		HibernateUtils.getSessionFactory().getCurrentSession().save(entity);
+		return entity;
+	}
     
 	public T saveOrUpdate(T entity)
 	{

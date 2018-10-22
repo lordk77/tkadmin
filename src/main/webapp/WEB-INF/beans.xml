@@ -21,10 +21,6 @@
 	<bean id="oauthProvider" class="io.ticketcoin.oauth.provider.TkAminOAuthDataProvider"/>
 	<bean id="loginHandler" class="io.ticketcoin.oauth.handler.TkAdminLoginHandler"/>
 	
-	
-	
-	 
-	
 	      
 	<bean id="accessTokenService" class="org.apache.cxf.rs.security.oauth2.services.AccessTokenService">
 	  <property name="dataProvider" ref="oauthProvider"/>
@@ -46,10 +42,9 @@
   <bean id="eventServiceBean" class="io.ticketcoin.dashboard.rest.EventRestService" />
   <bean id="imageServiceBean" class="io.ticketcoin.dashboard.rest.ImageRestService" />
   <bean id="userServiceBean" class="io.ticketcoin.dashboard.rest.UserRestService" />
+  <bean id="registrationBean" class="io.ticketcoin.dashboard.rest.RegistrationRestService" />
   
   
-
-
 
      <bean id="oAuthFilter" class="org.apache.cxf.rs.security.oauth2.filters.OAuthRequestFilter">
          <property name="dataProvider" ref="oauthProvider"/>
@@ -76,6 +71,17 @@
 	      <ref bean="imageServiceBean" />
 	    </jaxrs:serviceBeans>
 	  </jaxrs:server>
+	  
+	  
+	  <jaxrs:server id="unsecureResourceServer" address="/registration"  >
+	    <jaxrs:serviceBeans>
+	      <ref bean="registrationBean" />
+	    </jaxrs:serviceBeans>
+	    	 <jaxrs:providers>
+	    	  <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider" />
+	    </jaxrs:providers>
+	  </jaxrs:server>
+	  
   
   
   

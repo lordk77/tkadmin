@@ -31,6 +31,11 @@ public class UserService extends GenericService<User>{
 			throw e;
 		}
 	}
+	
+	public static String hashPassword(String password)
+	{
+		return org.apache.commons.codec.digest.DigestUtils.sha256Hex(password);
+	}
 
 	
 	public User getUser(String username)

@@ -10,6 +10,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
 
@@ -17,6 +18,7 @@ import com.google.gson.Gson;
 
 import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
 import io.ticketcoin.dashboard.dto.UserDTO;
+import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.PurhchaseOrderService;
@@ -34,7 +36,7 @@ public class UserRestService {
 		@Path("/me")
 		@Produces(MediaType.APPLICATION_JSON)
 		public Response me() {
-			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getClientId();
+			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
 			User user = new UserService().getUser(userName);
 			UserDTO uDto = new UserDTO(user);
 			
@@ -52,7 +54,7 @@ public class UserRestService {
 		@Consumes(MediaType.APPLICATION_JSON)
 		public Response buy(PurchaseOrderDTO order) {
 			
-			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getClientId();
+			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
 			PurhchaseOrderService pos = new PurhchaseOrderService();
 				try {
 					PurchaseOrder createdOrder = pos.placeOrder(order, userName);
@@ -75,11 +77,11 @@ public class UserRestService {
 		
 		
 		@GET
-		@Path("/order/{orderUUID}")
+		@Path("/me/order/{orderUUID}")
 	    @Produces(MediaType.APPLICATION_JSON)
 		  public Response detail(@PathParam("orderUUID") String orderUUID) 
 		  {
-			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getClientId();
+			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
 			PurchaseOrder order = new PurhchaseOrderService().getOrder(orderUUID);
 
 			if(userName.equals(order.getUser().getUsername()))
@@ -96,6 +98,47 @@ public class UserRestService {
 			}
 		  }
 		
+		
+		@POST
+		@Path("/me/update_profile")
+		@Consumes(MediaType.APPLICATION_JSON)
+		public Response register(UserProfileDTO userData) 
+		{
+				try 
+				{
+					
+					UserService userService = new UserService();
+					String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+					
+					User user = userService.getUser(userName);
+					
+					if(user==null)
+					{
+						return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("username.not.found"))).build();
+					}
+					else
+					{
+						userData.setUsername(userName);
+						
+						BeanUtils.copyProperties(user, userData);
+						user.setPassword(UserService.hashPassword(userData.getPassword()));
+						userService.saveOrUpdate(user);
+						
+						return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(null, "user.updated")))
+								.header("Access-Control-Allow-Origin", "*")
+									.header("Access-Control-Allow-Methods", "POST")
+									.type(MediaType.APPLICATION_JSON)
+									.build();
+					}
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}
+			
+
+		}
 		
 		
 		
@@ -137,4 +180,8 @@ public class UserRestService {
 		}
 		
 		*/
+		
+		public static void main(String[] args) {
+			System.out.println(UserService.hashPassword("admin"));
+		}
 }

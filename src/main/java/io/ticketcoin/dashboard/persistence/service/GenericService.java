@@ -20,6 +20,25 @@ public class GenericService<T> {
         this.clazz = clazz;
     }
 
+	public T save(T entity)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			T retval = new GenericDAO<T>(clazz).save(entity);
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
     
 	public T saveOrUpdate(T entity)
 	{
