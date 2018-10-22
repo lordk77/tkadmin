@@ -5,11 +5,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class JSONResponseWrapper {
 	
-	public static String SATUS_SUCCESS = "success";
-	public static String SATUS_FAILURE = "failure";
 
 	
-	private String status;
+	private boolean success=true;
 	private String Message;
 	private Object data;
 	
@@ -21,7 +19,7 @@ public class JSONResponseWrapper {
 	public static JSONResponseWrapper getSuccessWrapper(Object data, String message) {
 		JSONResponseWrapper wrapper = new JSONResponseWrapper();
 		wrapper.setData(data);
-		wrapper.setStatus(SATUS_SUCCESS);
+		wrapper.success = true;
 		wrapper.setMessage(message);
 		return wrapper;
 	}
@@ -34,21 +32,13 @@ public class JSONResponseWrapper {
 	
 	public static JSONResponseWrapper getFaultWrapper(String message) {
 		JSONResponseWrapper wrapper = new JSONResponseWrapper();
-		wrapper.setStatus(SATUS_FAILURE);
+		wrapper.success=false;
 		return wrapper;
 		
 	}
 	
 
 
-	public String getStatus() {
-		return status;
-	}
-
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
 
 	
 	public String getMessage() {
@@ -62,6 +52,20 @@ public class JSONResponseWrapper {
 	}
 	public void setData(Object data) {
 		this.data = data;
+	}
+
+
+
+
+	public boolean isSuccess() {
+		return success;
+	}
+
+
+
+
+	public void setSuccess(boolean success) {
+		this.success = success;
 	}
 
 }
