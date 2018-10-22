@@ -74,7 +74,7 @@ public class UserRestService {
 		
 		
 		@GET
-		@Path("/me/order/{orderUUID}")
+		@Path("/order/{orderUUID}")
 	    @Produces(MediaType.APPLICATION_JSON)
 		  public Response detail(@PathParam("orderUUID") String orderUUID) 
 		  {

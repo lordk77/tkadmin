@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,6 +18,7 @@ import io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail;
 public class PurchaseOrderDTO implements Serializable{
 	private static final long serialVersionUID = -6180250644038091899L;
 	private String eventUUID;
+	private Date reservationDate;
 	private List<PurchaseOrderDetailDTO> orderDetail = new ArrayList<PurchaseOrderDetailDTO>();
 	private String orderUUID;
 	private BigDecimal amount;
@@ -94,6 +96,14 @@ public class PurchaseOrderDTO implements Serializable{
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public Date getReservationDate() {
+		return reservationDate;
+	}
+
+	public void setReservationDate(Date reservationDate) {
+		this.reservationDate = reservationDate;
 	}
 	
 	

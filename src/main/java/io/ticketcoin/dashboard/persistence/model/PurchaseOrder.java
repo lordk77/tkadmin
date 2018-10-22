@@ -44,6 +44,9 @@ public class PurchaseOrder implements Serializable{
 	@JoinColumn(name="USER_ID")
 	private User user;
 	
+	@Temporal(TemporalType.DATE)
+	private Date reservationDate;
+	
 
 	
 	@OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
@@ -121,6 +124,14 @@ public class PurchaseOrder implements Serializable{
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Date getReservationDate() {
+		return reservationDate;
+	}
+
+	public void setReservationDate(Date reservationDate) {
+		this.reservationDate = reservationDate;
 	}
 	
 

@@ -37,7 +37,7 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 		super(PurchaseOrder.class);
 	}
 	
-	public PurchaseOrder placeOrder(PurchaseOrderDTO purhchaseOrderDTO, String username) throws EventNotFoundException, UserNotFoundException, TicketCategoryNotFoundException,  Exception
+	public PurchaseOrder placeOrder(PurchaseOrderDTO purchaseOrderDTO, String username) throws EventNotFoundException, UserNotFoundException, TicketCategoryNotFoundException,  Exception
 	{
 		Session session = null;
 		
@@ -47,19 +47,21 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 			session.beginTransaction();
 			EventDAO eventDao = new EventDAO();
 			EventFilter filter= new EventFilter();
-			filter.setEventUUID(purhchaseOrderDTO.getEventUUID());
+			filter.setEventUUID(purchaseOrderDTO.getEventUUID());
 			List<Event> events = eventDao.searchEvents(filter);
 			if(events == null || events.size()!=1)
 				throw new EventNotFoundException();
 			
 			
-			PurchaseOrder purhchaseOrder= new PurchaseOrder();
-			purhchaseOrder.setEventUUID(purhchaseOrderDTO.getEventUUID());
-			purhchaseOrder.setTotalAmount(new BigDecimal("0"));
-			purhchaseOrder.setStatus(STATUS_PENDING);
-			purhchaseOrder.setCreated(new Date());
-			purhchaseOrder.setOrderUUID(UUID.randomUUID().toString());
-			for (PurchaseOrderDetailDTO dto : purhchaseOrderDTO.getOrderDetail())
+			PurchaseOrder purchaseOrder= new PurchaseOrder();
+			purchaseOrder.setEventUUID(purchaseOrderDTO.getEventUUID());
+			purchaseOrder.setTotalAmount(new BigDecimal("0"));
+			purchaseOrder.setStatus(STATUS_PENDING);
+			purchaseOrder.setCreated(new Date());
+			purchaseOrder.setOrderUUID(UUID.randomUUID().toString());
+			purchaseOrder.setReservationDate(purchaseOrderDTO.getReservationDate());
+			
+			for (PurchaseOrderDetailDTO dto : purchaseOrderDTO.getOrderDetail())
 			{
 				boolean found = false;
 				for (TicketCategory category : events.get(0).getCategories())
@@ -67,12 +69,11 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 					if(category.getTicketCategoryUUID().equals(dto.getTicketCategoryUUID()))
 					{
 						PurchaseOrderDetail detail = new PurchaseOrderDetail();
-						detail.setDate(dto.getDate());
 						detail.setQuantity(dto.getQuantity());
 						detail.setTicketCategoryUUID(category.getTicketCategoryUUID());
 						detail.setAmount(category.getStreetPrice().multiply(BigDecimal.valueOf(dto.getQuantity())));
 						detail.setDescription(category.getDescription());
-						purhchaseOrder.setTotalAmount(purhchaseOrder.getTotalAmount().add(detail.getAmount()));
+						purchaseOrder.setTotalAmount(purchaseOrder.getTotalAmount().add(detail.getAmount()));
 						found=true;
 						break;
 					}
@@ -85,12 +86,12 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 			User user = new UserDAO().getUser(username);
 			
 			if(user==null)
-				throw new UserNotFoundException(purhchaseOrderDTO.getUsername());
+				throw new UserNotFoundException(purchaseOrderDTO.getUsername());
 			else
-				purhchaseOrder.setUser(user);
-			session.save(purhchaseOrder);
+				purchaseOrder.setUser(user);
+			session.save(purchaseOrder);
 			session.getTransaction().commit();
-			return purhchaseOrder;
+			return purchaseOrder;
 		}
 		catch(Exception e)
 		{

@@ -30,8 +30,7 @@ public class PurchaseOrderDetail implements Serializable{
 	private String description;
 	
 	
-	@Temporal(TemporalType.DATE)
-	private Date date;
+
 	
 	public Long getId() {
 		return id;
@@ -50,12 +49,6 @@ public class PurchaseOrderDetail implements Serializable{
 	}
 	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
-	}
-	public Date getDate() {
-		return date;
-	}
-	public void setDate(Date date) {
-		this.date = date;
 	}
 	public String getDescription() {
 		return description;

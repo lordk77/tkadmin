@@ -15,11 +15,8 @@ public class PurchaseOrderDetailDTO  implements Serializable{
 
 	
 	private static final long serialVersionUID = -1767279242094573896L;
-	
-	
 	private String ticketCategoryUUID;
 	private Integer quantity;
-	private Date date;
 	
 	public PurchaseOrderDetailDTO() {}
 	public PurchaseOrderDetailDTO(PurchaseOrderDetail detail) {
@@ -44,12 +41,6 @@ public class PurchaseOrderDetailDTO  implements Serializable{
 	}
 	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
-	}
-	public Date getDate() {
-		return date;
-	}
-	public void setDate(Date date) {
-		this.date = date;
 	}
 
 
