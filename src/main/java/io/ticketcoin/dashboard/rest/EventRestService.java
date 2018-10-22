@@ -21,6 +21,7 @@ import io.ticketcoin.dashboard.dto.EventExtDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.service.EventService;
+import io.ticketcoin.dashboard.rest.response.JSONResponseWrapper;
 
 @Path("/event")
 public class EventRestService 
@@ -42,7 +43,7 @@ public class EventRestService
 		for (Event e:es)
 			events.add(new EventExtDTO(e));
 
-		 return Response.ok(new Gson().toJson(events))
+		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(events)))
 				.header("Access-Control-Allow-Origin", "*")
 					.header("Access-Control-Allow-Methods", "GET")
 					.type(MediaType.APPLICATION_JSON)
@@ -57,15 +58,9 @@ public class EventRestService
 	  public Response categories() 
 	  {
 		
-		
-		
 		List<EventCategoryDTO> categories =  new EventService().searchCategories();
 		
-//		List<EventCategoryDTO> categories = new ArrayList<>();
-//		for (Event.EventCategory cat : Event.EventCategory.values())
-//			categories.add(new EventCategoryDTO(cat.getDescription(), cat.getEmoji(), 1l));
-
-		 return Response.ok(new Gson().toJson(categories))
+		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(categories)))
 				.header("Access-Control-Allow-Origin", "*")
 					.header("Access-Control-Allow-Methods", "GET")
 					.type(MediaType.APPLICATION_JSON)
@@ -88,7 +83,7 @@ public class EventRestService
 		for (Event e:es)
 			events.add(new EventDTO(e));
 
-		 return Response.ok(new Gson().toJson(events))
+		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(events)))
 				 .header("Access-Control-Allow-Origin", "*")
 				 .header("Access-Control-Allow-Methods", "POST")
 					.type(MediaType.APPLICATION_JSON)
@@ -110,7 +105,7 @@ public class EventRestService
 		for (Event e:es)
 			events.add(new EventDTO(e));
 
-		 return Response.ok(new Gson().toJson(events))
+		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(events)))
 				 .header("Access-Control-Allow-Origin", "*")
 				 .header("Access-Control-Allow-Methods", "POST")
 					.type(MediaType.APPLICATION_JSON)
@@ -135,7 +130,7 @@ public class EventRestService
 		if (es!=null && !es.isEmpty())
 			eventExtDTO = new EventExtDTO(es.get(0));
 
-		 return Response.ok(new Gson().toJson(eventExtDTO))
+		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(eventExtDTO)))
 				.header("Access-Control-Allow-Origin", "*")
 					.header("Access-Control-Allow-Methods", "GET")
 					.type(MediaType.APPLICATION_JSON)

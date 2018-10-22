@@ -5,9 +5,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import io.ticketcoin.dashboard.utils.ResourceUtils;
 
 @Entity
 @Table(name="FILE_ATTACHMENT")
@@ -23,7 +20,6 @@ public class FileAttachment {
 	private String attachmentURL;
 	
 	
-	@Transient
 	private byte[] content;
 	
 	
@@ -52,10 +48,9 @@ public class FileAttachment {
 		this.attachmentUUID = attachmentUUID;
 	}
 	
-	@Transient
 	public byte[] getContent() {
-		if(this.content==null)
-			this.content = new ResourceUtils().getContent(this);
+//		if(this.content==null)
+//			this.content = new ResourceUtils().getContent(this);
 		return content;
 	}
 	public void setContent(byte[] content) {

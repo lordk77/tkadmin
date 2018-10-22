@@ -79,7 +79,7 @@ public class EventBean
 		{
 			FileAttachment fa = this.event.getImages()!=null && this.event.getImages().size()>0?this.event.getImages().get(0):null ;
 			
-			 if (fa !=null)
+			 if (fa !=null && fa.getContent()!=null)
 				 content= new DefaultStreamedContent(new ByteArrayInputStream(fa.getContent()),(fa.getContentType()));
 			 else
 				 content= null;

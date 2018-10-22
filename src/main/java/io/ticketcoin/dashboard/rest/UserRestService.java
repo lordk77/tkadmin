@@ -21,6 +21,7 @@ import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.PurhchaseOrderService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
+import io.ticketcoin.dashboard.rest.response.JSONResponseWrapper;
 
 @Path("/user")
 public class UserRestService {
@@ -37,7 +38,7 @@ public class UserRestService {
 			User user = new UserService().getUser(userName);
 			UserDTO uDto = new UserDTO(user);
 			
-			 return Response.ok(new Gson().toJson(uDto))
+			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(uDto)))
 						.header("Access-Control-Allow-Origin", "*")
 							.header("Access-Control-Allow-Methods", "GET")
 							.type(MediaType.APPLICATION_JSON)
@@ -56,7 +57,7 @@ public class UserRestService {
 				try {
 					PurchaseOrder createdOrder = pos.placeOrder(order, userName);
 					
-					return Response.ok(new Gson().toJson(new PurchaseOrderDTO(createdOrder)))
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new PurchaseOrderDTO(createdOrder))))
 							.header("Access-Control-Allow-Origin", "*")
 								.header("Access-Control-Allow-Methods", "POST")
 								.type(MediaType.APPLICATION_JSON)
@@ -83,7 +84,7 @@ public class UserRestService {
 
 			if(userName.equals(order.getUser().getUsername()))
 			{
-			 return Response.ok(new Gson().toJson(new PurchaseOrderDTO(order)))
+			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new PurchaseOrderDTO(order))))
 					.header("Access-Control-Allow-Origin", "*")
 						.header("Access-Control-Allow-Methods", "GET")
 						.type(MediaType.APPLICATION_JSON)

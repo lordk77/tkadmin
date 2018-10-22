@@ -67,11 +67,9 @@
 	  </jaxrs:server>
 	  
 	  
-	  	  <jaxrs:server id="unsecureResourceServer" address="/unsecure"  >
+	  <jaxrs:server id="unsecureResourceServer" address="/image"  >
 	    <jaxrs:serviceBeans>
-	      <ref bean="eventServiceBean" />
 	      <ref bean="imageServiceBean" />
-	      <ref bean="userServiceBean" />
 	    </jaxrs:serviceBeans>
 	  </jaxrs:server>
   

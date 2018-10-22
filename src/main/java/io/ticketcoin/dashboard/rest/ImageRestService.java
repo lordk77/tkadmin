@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.service.FileAttachmentService;
 
-@Path("/image")
+@Path("/")
 public class ImageRestService 
 {
 
