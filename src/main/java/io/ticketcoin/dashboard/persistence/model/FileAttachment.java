@@ -20,6 +20,8 @@ public class FileAttachment {
 	private String contentType;
 	private String fileName;
 	private String attachmentUUID;
+	private String attachmentURL;
+	
 	
 	@Transient
 	private byte[] content;
@@ -58,6 +60,12 @@ public class FileAttachment {
 	}
 	public void setContent(byte[] content) {
 		this.content = content;
+	}
+	public String getAttachmentURL() {
+		return attachmentURL;
+	}
+	public void setAttachmentURL(String attachmentURL) {
+		this.attachmentURL = attachmentURL;
 	}
 
 	

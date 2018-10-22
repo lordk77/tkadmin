@@ -3,6 +3,7 @@ package io.ticketcoin.dashboard.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
@@ -11,6 +12,12 @@ import io.ticketcoin.dashboard.persistence.model.Event;
 public class EventExtDTO extends EventDTO 
 {
 
+	private String country;
+	private String city;
+	private String address;
+	private String coordX;
+	private String coordY;
+	
 	private List<TicketCategoryDTO> ticketCategories;
 
 	private List<String> eventCategories;
@@ -20,7 +27,17 @@ public class EventExtDTO extends EventDTO
 	public EventExtDTO(Event event)
 	{
 		super(event);
+		
+		if(event.getLocation()!=null && event.getLocation().getAddress()!=null)
+		{
+			this.country = event.getLocation().getAddress().getCountry();
+			this.city = event.getLocation().getAddress().getCity();
+			this.address = event.getLocation().getAddress().getAddress();
+			this.coordX = event.getLocation().getAddress().getCoordX();
+			this.coordY = event.getLocation().getAddress().getCoordY();
+		}
 
+		
 		this.ticketCategories=new ArrayList<TicketCategoryDTO>();
 		if(event.getCategories()!=null && event.getCategories().size()>0)
 		{
@@ -53,5 +70,45 @@ public class EventExtDTO extends EventDTO
 
 	public void setEventCategories(List<String> eventCategories) {
 		this.eventCategories = eventCategories;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getCoordX() {
+		return coordX;
+	}
+
+	public void setCoordX(String coordX) {
+		this.coordX = coordX;
+	}
+
+	public String getCoordY() {
+		return coordY;
+	}
+
+	public void setCoordY(String coordY) {
+		this.coordY = coordY;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
+import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.persistence.dao.EventDAO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
@@ -35,6 +36,32 @@ public class EventService extends GenericService<Event> {
 			throw e;
 		}
 	}
+	
+	
+
+	
+	
+	
+	public List<EventCategoryDTO> searchCategories()
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			List<EventCategoryDTO> retval = new EventDAO().searchCategories();
+
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
 	
 	
 	

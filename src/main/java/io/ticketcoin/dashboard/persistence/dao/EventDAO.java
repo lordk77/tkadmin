@@ -1,14 +1,21 @@
 package io.ticketcoin.dashboard.persistence.dao;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.sql.JoinType;
+import org.hibernate.transform.AliasToBeanResultTransformer;
 
+import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.User;
@@ -30,7 +37,10 @@ public class EventDAO extends GenericDAO<Event>{
 
 	public List<Event> searchEvents(EventFilter filter) {
 		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
-				.createCriteria(Event.class);
+				.createCriteria(Event.class)
+				.createAlias("location", "location",JoinType.LEFT_OUTER_JOIN)
+				.createAlias("location.address", "address",JoinType.LEFT_OUTER_JOIN)
+				;
 				
 		
 		if(!StringUtils.isEmpty(filter.getGenericTxt()))
@@ -49,8 +59,8 @@ public class EventDAO extends GenericDAO<Event>{
 		
 		if (!StringUtils.isEmpty(filter.getCategory()))
 		{
-			c.createAlias("eventCategories", "eventCategory");
-			c.add(Restrictions.eq("eventCategory.description", filter.getCategory()));
+			c.createAlias("eventCategories", "eventCategories");
+			c.add(Restrictions.eq("eventCategories.elements", Event.EventCategory.valueOf(filter.getCategory())));
 		}
 			
 		
@@ -68,6 +78,34 @@ public class EventDAO extends GenericDAO<Event>{
 		
 		
 		 return c.list();
+	}
+
+	public List<EventCategoryDTO> searchCategories() {
+		
+		 List<EventCategoryDTO>  categories = new ArrayList<>();
+
+		
+		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
+				.createCriteria(Event.class)
+				.createAlias("eventCategories", "eventCategory")
+				;
+				
+		//Considera solo eventi futuri
+		c.add(Restrictions.ge("dateTo", new Date()));
+		
+		c.setProjection(
+				Projections.projectionList()
+				.add(Projections.property("eventCategory.elements"), "category")
+				.add(Projections.count("id"), "eventCount")
+				.add(Projections.groupProperty("eventCategory.elements"))
+				);
+		
+		
+//		c.setResultTransformer(new AliasToBeanResultTransformer(EventCategoryDTO.class));
+		for (Object o : c.list())
+			categories.add(new EventCategoryDTO(((Event.EventCategory)((Object[])o)[0]).getDescription(), ((Event.EventCategory)((Object[])o)[0]).getEmoji(), ((Number)((Object[])o)[1]).longValue()));
+		
+		 return categories;
 	}
 	
 	

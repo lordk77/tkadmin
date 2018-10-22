@@ -13,6 +13,9 @@ public class TicketCategoryDTO {
 	private String description;
 	private BigDecimal price;
 	private String currency;
+	private String title;
+	private Integer maxQty;
+	
 	
 	public TicketCategoryDTO(){}
 	
@@ -22,6 +25,9 @@ public class TicketCategoryDTO {
 		this.description=tc.getDescription();
 		this.price=tc.getStreetPrice();
 		this.currency=tc.getCurrency();
+		this.title = tc.getTitle();
+		
+		maxQty = tc.getTicketSupply();
 	}
 	
 	public String getTicketCategoryUUID() {
@@ -50,5 +56,22 @@ public class TicketCategoryDTO {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public Integer getMaxQty() {
+		return maxQty;
+	}
+
+	public void setMaxQty(Integer maxQty) {
+		this.maxQty = maxQty;
+	}
+
 	
 }

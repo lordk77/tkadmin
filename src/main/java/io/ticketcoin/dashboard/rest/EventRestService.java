@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import com.google.gson.Gson;
 
+import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.dto.EventDTO;
 import io.ticketcoin.dashboard.dto.EventExtDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
@@ -46,6 +47,53 @@ public class EventRestService
 					.header("Access-Control-Allow-Methods", "GET")
 					.type(MediaType.APPLICATION_JSON)
 					.build();
+	  }
+	
+	
+	
+	@GET
+	@Path("/categories")
+    @Produces(MediaType.APPLICATION_JSON)
+	  public Response categories() 
+	  {
+		
+		
+		
+		List<EventCategoryDTO> categories =  new EventService().searchCategories();
+		
+//		List<EventCategoryDTO> categories = new ArrayList<>();
+//		for (Event.EventCategory cat : Event.EventCategory.values())
+//			categories.add(new EventCategoryDTO(cat.getDescription(), cat.getEmoji(), 1l));
+
+		 return Response.ok(new Gson().toJson(categories))
+				.header("Access-Control-Allow-Origin", "*")
+					.header("Access-Control-Allow-Methods", "GET")
+					.type(MediaType.APPLICATION_JSON)
+					.build();
+	  }
+	
+	
+	
+	@GET
+	@Path("/category/{categoryCode}")
+    @Produces(MediaType.APPLICATION_JSON)
+	  public Response category(@PathParam("categoryCode") String categoryCode)
+	  {
+		
+		EventFilter filter = new EventFilter();
+		filter.setMaxResult(MAX_RESULTS);
+		filter.setCategory(categoryCode);
+		List<Event> es = new EventService().searchEvents(filter);
+		List<EventDTO> events = new ArrayList<>();
+		for (Event e:es)
+			events.add(new EventDTO(e));
+
+		 return Response.ok(new Gson().toJson(events))
+				 .header("Access-Control-Allow-Origin", "*")
+				 .header("Access-Control-Allow-Methods", "POST")
+					.type(MediaType.APPLICATION_JSON)
+				 .build();
+		 
 	  }
 	
 	

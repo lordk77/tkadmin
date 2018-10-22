@@ -16,11 +16,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -35,8 +32,6 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import emoji4j.EmojiUtils;
-import io.ticketcoin.dashboard.persistence.model.Event.EventCategory;
-import javassist.expr.NewArray;
 
 
 @Entity
@@ -44,6 +39,11 @@ import javassist.expr.NewArray;
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Event {
+	
+	public static String TYPE_SINGLE_DATE = "SINGLE_DATE";
+	public static String TYPE_PERIOD = "PERIOD";
+	public static String TYPE_OPEN = "OPEN";
+	
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
@@ -57,6 +57,7 @@ public class Event {
     
     private String name;
     
+    
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="LOCATION_ID")
 	private Location location;
@@ -67,6 +68,18 @@ public class Event {
 	
 	@Column(length=4000)
 	private String description;
+	
+	@Column(name = "SHORT_DESCRIPTION")
+	private String shortDescription;
+
+	@Column(name = "EVENT_TYPE")
+	private String eventType;
+	
+	
+	
+	@Column(name = "URL_SHARE")
+	private String urlShare;
+	
 
 	@ElementCollection(targetClass=String.class)
 	private List<String> tags;
@@ -351,5 +364,31 @@ public class Event {
 
 	public void setUpdated(Date updated) {
 		this.updated = updated;
+	}
+
+	public String getShortDescription() {
+		return shortDescription;
+	}
+
+	public void setShortDescription(String shortDescription) {
+		this.shortDescription = shortDescription;
+	}
+
+	public String getEventType() {
+		return eventType;
+	}
+
+	public void setEventType(String eventType) {
+		this.eventType = eventType;
+	}
+
+	
+
+	public String getUrlShare() {
+		return urlShare;
+	}
+
+	public void setUrlShare(String urlShare) {
+		this.urlShare = urlShare;
 	}
 }

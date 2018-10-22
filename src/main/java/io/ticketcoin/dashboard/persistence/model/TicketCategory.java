@@ -33,6 +33,7 @@ public class TicketCategory {
 	private BigDecimal streetPrice;
 	private BigDecimal netPrice;
 	private String currency;
+	private String title;
 	
 	private Integer ticketSupply = 0;
 	
@@ -124,6 +125,14 @@ public class TicketCategory {
 	}
 	public void setTicketCategoryUUID(String ticketCategoryUUID) {
 		this.ticketCategoryUUID = ticketCategoryUUID;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 	

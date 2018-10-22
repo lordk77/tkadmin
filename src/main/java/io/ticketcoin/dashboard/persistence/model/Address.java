@@ -8,7 +8,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name="COMPANY")
+@Table(name="ADDRESS")
 @XmlRootElement
 public class Address {
 
@@ -16,10 +16,16 @@ public class Address {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
-	private String street;
     private String city;
     private String postalCode;
     private String country;
+	private String address;
+	
+	private String coordX;
+	private String coordY;
+	
+    
+    
     
 	public Long getId() {
 		return id;
@@ -27,12 +33,7 @@ public class Address {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getStreet() {
-		return street;
-	}
-	public void setStreet(String street) {
-		this.street = street;
-	}
+
 	public String getCity() {
 		return city;
 	}
@@ -50,6 +51,24 @@ public class Address {
 	}
 	public void setCountry(String country) {
 		this.country = country;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getCoordX() {
+		return coordX;
+	}
+	public void setCoordX(String coordX) {
+		this.coordX = coordX;
+	}
+	public String getCoordY() {
+		return coordY;
+	}
+	public void setCoordY(String coordY) {
+		this.coordY = coordY;
 	}
 	
 }
