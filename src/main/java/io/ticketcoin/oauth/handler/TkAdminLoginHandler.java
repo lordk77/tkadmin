@@ -12,7 +12,7 @@ public class TkAdminLoginHandler implements ResourceOwnerLoginHandler{
 	public UserSubject createSubject(String name, String password) {
 		User user = new UserService().getUser(name);
 		 
-		if (user.getPassword().equals(UserService.hashPassword(password)))
+		if (user!=null && user.getPassword().equals(UserService.hashPassword(password)))
 			return new UserSubject(name);
 		else 
 			return null;

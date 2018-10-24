@@ -45,6 +45,9 @@ public class User implements Serializable{
 	private String zip;
 	private String platform;
 	private String app_version;
+	
+	private String fb_identifier;
+	private String bt_identifier;
     
     
     
@@ -225,6 +228,22 @@ public class User implements Serializable{
 
 	public void setWallet(Wallet wallet) {
 		this.wallet = wallet;
+	}
+
+	public String getFb_identifier() {
+		return fb_identifier;
+	}
+
+	public void setFb_identifier(String fb_identifier) {
+		this.fb_identifier = fb_identifier;
+	}
+
+	public String getBt_identifier() {
+		return bt_identifier;
+	}
+
+	public void setBt_identifier(String bt_identifier) {
+		this.bt_identifier = bt_identifier;
 	}
 	
 }
