@@ -177,6 +177,14 @@
 		    <artifactId>commons-codec</artifactId>
 		    <version>1.11</version>
 		</dependency>
+		
+		
+		<!-- braintree payments -->
+		<dependency>
+		  <groupId>com.braintreepayments.gateway</groupId>
+		  <artifactId>braintree-java</artifactId>
+		  <version>2.84.0</version>
+		</dependency>
 
 
   </dependencies>
