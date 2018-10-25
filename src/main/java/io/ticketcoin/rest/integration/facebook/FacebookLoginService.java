@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -42,12 +44,13 @@ public class FacebookLoginService {
 	TkAminOAuthDataProvider dataProvider;
 	
 	
-	@GET
-	@Path("/login/{access_token}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response search(@PathParam("access_token") String access_token) 
+	@POST
+	@Path("/login")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response search(LoginRequest request) 
     {
-		UserProfile userProfile=getProfileInfo(access_token);
+		UserProfile userProfile=getProfileInfo(request.getFb_access_token());
 		UserService userService = new UserService();
 		
 		try 
