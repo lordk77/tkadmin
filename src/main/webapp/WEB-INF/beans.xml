@@ -39,12 +39,16 @@
     	  </jaxrs:providers>
 	</jaxrs:server>
 
-  <bean id="eventServiceBean" class="io.ticketcoin.dashboard.rest.EventRestService" />
-  <bean id="imageServiceBean" class="io.ticketcoin.dashboard.rest.ImageRestService" />
-  <bean id="userServiceBean" class="io.ticketcoin.dashboard.rest.UserRestService" />
-  <bean id="registrationBean" class="io.ticketcoin.dashboard.rest.RegistrationRestService" />
+  <bean id="eventServiceBean" class="io.ticketcoin.rest.EventRestService" />
+  <bean id="imageServiceBean" class="io.ticketcoin.rest.ImageRestService" />
+  <bean id="userServiceBean" class="io.ticketcoin.rest.UserRestService" />
+  <bean id="registrationBean" class="io.ticketcoin.rest.RegistrationRestService" />
   
-  
+  <bean id="facebookLoginService" class="io.ticketcoin.rest.integration.facebook.FacebookLoginService">
+         <property name="handler" ref="clientCredsHandler"/>
+        <property name="dataProvider" ref="oauthProvider"/>
+  </bean>
+  <bean id="braintreeService" class="io.ticketcoin.rest.integration.braintree.BraintreeService" />
 
      <bean id="oAuthFilter" class="org.apache.cxf.rs.security.oauth2.filters.OAuthRequestFilter">
          <property name="dataProvider" ref="oauthProvider"/>
@@ -56,6 +60,7 @@
 	      <ref bean="eventServiceBean" />
 	      <ref bean="imageServiceBean" />
 	      <ref bean="userServiceBean" />
+	       <ref bean="braintreeService" />
 	    </jaxrs:serviceBeans>
 	    <jaxrs:providers>
 	    	  <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthContextProvider"/>
@@ -76,6 +81,8 @@
 	  <jaxrs:server id="unsecureResourceServer" address="/registration"  >
 	    <jaxrs:serviceBeans>
 	      <ref bean="registrationBean" />
+	      <ref bean="facebookLoginService" />
+	      
 	    </jaxrs:serviceBeans>
 	    	 <jaxrs:providers>
 	    	  <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider" />
@@ -93,6 +100,11 @@
         <property name="dataProvider" ref="oauthProvider"/>
         <property name="loginHandler" ref="loginHandler"/>
     </bean>
+        
+        
+        
+        
+
         
     <util:list id="grantHandlers">
         <ref bean="clientCredsHandler"/>

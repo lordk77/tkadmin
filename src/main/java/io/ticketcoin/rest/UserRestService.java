@@ -1,4 +1,4 @@
-package io.ticketcoin.dashboard.rest;
+package io.ticketcoin.rest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -23,7 +23,7 @@ import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.PurhchaseOrderService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
-import io.ticketcoin.dashboard.rest.response.JSONResponseWrapper;
+import io.ticketcoin.rest.response.JSONResponseWrapper;
 
 @Path("/user")
 public class UserRestService {

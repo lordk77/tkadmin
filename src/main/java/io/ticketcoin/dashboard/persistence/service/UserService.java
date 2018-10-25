@@ -1,9 +1,15 @@
 package io.ticketcoin.dashboard.persistence.service;
 
+import java.util.List;
+
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
+import io.ticketcoin.dashboard.persistence.dao.EventDAO;
 import io.ticketcoin.dashboard.persistence.dao.UserDAO;
+import io.ticketcoin.dashboard.persistence.filter.EventFilter;
+import io.ticketcoin.dashboard.persistence.filter.UserFilter;
+import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
@@ -64,6 +70,46 @@ public class UserService extends GenericService<User>{
 	}
 	
 	
+
+	
+	public User createUser(User user)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			
+			//crea lo wallet
+			user.setWallet(new WalletService().createEthereumWallet());
+			
+			//assegna il profilo
+			
+			
+			//Salva l'utente
+			new UserDAO().save(user);
+			
+			
+			
+			session.getTransaction().commit();
+			return user;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	
+	
+	
+	
+
+	
+	
+	
 	public boolean verifyEmail(String email)
 	{
 		Session session = null;
@@ -82,5 +128,27 @@ public class UserService extends GenericService<User>{
 			throw e;
 		}
 	}
+	
+	
+	public List<User> searchUsers(UserFilter filter)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			List<User> retval = new UserDAO().searchUsers(filter);
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	
 	
 }

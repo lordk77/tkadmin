@@ -1,4 +1,4 @@
-package io.ticketcoin.dashboard.rest;
+package io.ticketcoin.rest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -17,7 +17,7 @@ import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.UserService;
 import io.ticketcoin.dashboard.persistence.service.WalletService;
-import io.ticketcoin.dashboard.rest.response.JSONResponseWrapper;
+import io.ticketcoin.rest.response.JSONResponseWrapper;
 
 @Path("/")
 public class RegistrationRestService {
@@ -79,9 +79,7 @@ public class RegistrationRestService {
 						User user = new User();
 						BeanUtils.copyProperties(user, userData);
 						user.setPassword(UserService.hashPassword(userData.getPassword()));
-						user.setWallet(new WalletService().createEthereumWallet());
-						//set roles
-						userService.save(user);
+						userService.createUser(user);
 						
 						
 						return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(null, "user.created")))

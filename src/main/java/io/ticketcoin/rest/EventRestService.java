@@ -1,4 +1,4 @@
-package io.ticketcoin.dashboard.rest;
+package io.ticketcoin.rest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,7 +21,7 @@ import io.ticketcoin.dashboard.dto.EventExtDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.service.EventService;
-import io.ticketcoin.dashboard.rest.response.JSONResponseWrapper;
+import io.ticketcoin.rest.response.JSONResponseWrapper;
 
 @Path("/event")
 public class EventRestService 

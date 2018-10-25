@@ -1,4 +1,4 @@
-package io.ticketcoin.integration.facebook;
+package io.ticketcoin.rest.integration.facebook;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -20,7 +20,7 @@ public class FBGraph {
 		String graph = null;
 		try {
 
-			String g = "https://graph.facebook.com/me?access_token=" + accessToken;
+			String g = "https://graph.facebook.com/me?fields=id,name,first_name,last_name,email&access_token=" + accessToken;
 			URL u = new URL(g);
 			URLConnection c = u.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(

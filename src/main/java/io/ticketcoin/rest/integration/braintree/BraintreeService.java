@@ -1,14 +1,20 @@
-package io.ticketcoin.integration.braintree;
+package io.ticketcoin.rest.integration.braintree;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import com.braintreegateway.BraintreeGateway;
 import com.braintreegateway.Transaction;
 import com.braintreegateway.Transaction.Status;
 
 
-public class CheckoutService {
+@Path("/bt")
+public class BraintreeService {
 
 	public static String DEFAULT_CONFIG_FILENAME = "config.properties";
     private static BraintreeGateway gateway = BraintreeGatewayFactory.fromConfigFile(DEFAULT_CONFIG_FILENAME);
-    
     
     
 
@@ -22,6 +28,12 @@ public class CheckoutService {
         Transaction.Status.SUBMITTED_FOR_SETTLEMENT
      };
      
+ 	 @POST
+ 	 @Path("/checkouts")
+     @Produces(MediaType.APPLICATION_JSON)
+     public Response checkout() {
+    	 return Response.ok().build();
+     }
      
      
      /*

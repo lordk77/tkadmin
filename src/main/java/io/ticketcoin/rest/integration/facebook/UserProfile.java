@@ -1,4 +1,4 @@
-package io.ticketcoin.integration.facebook;
+package io.ticketcoin.rest.integration.facebook;
 
 public class UserProfile {
 	
@@ -6,7 +6,7 @@ public class UserProfile {
 	private String id;
 	private String user_name;
 	private String first_name;
-	private String surname;
+	private String last_name;
 	private String email;
 	private String gender;
 	
@@ -19,12 +19,7 @@ public class UserProfile {
 		this.user_name = user_name;
 	}
 	
-	public String getSurname() {
-		return surname;
-	}
-	public void setSurname(String surname) {
-		this.surname = surname;
-	}
+
 	public String getId() {
 		return id;
 	}
@@ -48,6 +43,12 @@ public class UserProfile {
 	}
 	public void setGender(String gender) {
 		this.gender = gender;
+	}
+	public String getLast_name() {
+		return last_name;
+	}
+	public void setLast_name(String last_name) {
+		this.last_name = last_name;
 	}
 	
 	

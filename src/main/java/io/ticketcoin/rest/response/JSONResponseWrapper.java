@@ -1,4 +1,4 @@
-package io.ticketcoin.dashboard.rest.response;
+package io.ticketcoin.rest.response;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -30,7 +30,7 @@ public class JSONResponseWrapper {
 
 	}
 	
-	public static JSONResponseWrapper getFaultWrapper(String message) {
+	public static JSONResponseWrapper getFaultWrapper(String message, String... args) {
 		JSONResponseWrapper wrapper = new JSONResponseWrapper();
 		wrapper.success=false;
 		wrapper.setMessage(message);

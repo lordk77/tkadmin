@@ -1,4 +1,4 @@
-package io.ticketcoin.integration.braintree;
+package io.ticketcoin.rest.integration.braintree;
 import java.util.Map;
 import java.util.Properties;
 
