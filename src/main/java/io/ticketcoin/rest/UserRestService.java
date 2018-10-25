@@ -102,7 +102,7 @@ public class UserRestService {
 		@POST
 		@Path("/me/update_profile")
 		@Consumes(MediaType.APPLICATION_JSON)
-		public Response register(UserProfileDTO userData) 
+		public Response updateProfile(UserProfileDTO userData) 
 		{
 				try 
 				{
@@ -119,12 +119,19 @@ public class UserRestService {
 					else
 					{
 						userData.setUsername(userName);
-						
+						String oldPwd = user.getPassword();
 						BeanUtils.copyProperties(user, userData);
-						user.setPassword(UserService.hashPassword(userData.getPassword()));
+						
+						user.setLanguage(mc.getHttpHeaders().getRequestHeaders().getFirst("Accept-Language"));
+						user.setPlatform(mc.getHttpHeaders().getRequestHeaders().getFirst("X-Platform"));
+						user.setApp_version(mc.getHttpHeaders().getRequestHeaders().getFirst("X-App-Version"));
+						
+						user.setPassword(userData.getPassword()!=null ? UserService.hashPassword(userData.getPassword()) :oldPwd);
+						
 						userService.saveOrUpdate(user);
 						
-						return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(null, "user.updated")))
+						
+						return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new UserDTO(user), "user.updated")))
 								.header("Access-Control-Allow-Origin", "*")
 									.header("Access-Control-Allow-Methods", "POST")
 									.type(MediaType.APPLICATION_JSON)

@@ -13,6 +13,7 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 
 import com.google.gson.Gson;
 
+import io.ticketcoin.dashboard.dto.UserDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.UserService;
@@ -85,11 +86,15 @@ public class RegistrationRestService {
 					{
 						User user = new User();
 						BeanUtils.copyProperties(user, userData);
+
+						user.setLanguage(mc.getHttpHeaders().getRequestHeaders().getFirst("Accept-Language"));
+						user.setPlatform(mc.getHttpHeaders().getRequestHeaders().getFirst("X-Platform"));
+						user.setApp_version(mc.getHttpHeaders().getRequestHeaders().getFirst("X-App-Version"));
+						
 						user.setPassword(UserService.hashPassword(userData.getPassword()));
 						userService.createUser(user);
 						
-						
-						return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(null, "user.created")))
+						return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new UserDTO(user), "user.created")))
 								.header("Access-Control-Allow-Origin", "*")
 									.header("Access-Control-Allow-Methods", "POST")
 									.type(MediaType.APPLICATION_JSON)
