@@ -13,6 +13,7 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 
 import com.google.gson.Gson;
 
+import io.ticketcoin.dashboard.dto.ResetPasswordDTO;
 import io.ticketcoin.dashboard.dto.UserDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.User;
@@ -29,12 +30,12 @@ public class RegistrationRestService {
 	
 		@POST
 		@Path("/reset_password")
-		@Produces(MediaType.APPLICATION_JSON)
-		public Response resetPassword(String userName) 
+		@Consumes(MediaType.APPLICATION_JSON)
+		public Response resetPassword(ResetPasswordDTO resetUserDTO) 
 		{
 			try
 			{
-				User user = new UserService().getUser(userName);
+				User user = new UserService().getUser(resetUserDTO.getUsername());
 				
 				if (user!=null)
 				{
