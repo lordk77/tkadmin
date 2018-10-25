@@ -70,7 +70,7 @@
 	  </jaxrs:server>
 	  
 	  
-	  <jaxrs:server id="unsecureResourceServer" address="/image"  >
+	  <jaxrs:server id="imageServiceServer" address="/image"  >
 	    <jaxrs:serviceBeans>
 	      <ref bean="imageServiceBean" />
 	    </jaxrs:serviceBeans>

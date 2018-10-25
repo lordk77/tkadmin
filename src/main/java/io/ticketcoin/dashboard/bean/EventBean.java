@@ -9,6 +9,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.primefaces.event.FileUploadEvent;
@@ -66,6 +67,13 @@ public class EventBean
 		 fa.setContentType(event.getFile().getContentType());
 		 fa.setFileName(event.getFile().getFileName());
 		 fa.setAttachmentUUID(UUID.randomUUID().toString());
+		 
+		 //TODO:metodo temporaneo per impostare la attachment url
+		 ExternalContext ctx = FacesContext.getCurrentInstance().getExternalContext();
+		 String attachmentURL = ctx.getRequestScheme() + "://" +  ctx.getRequestServerName()+":"+ctx.getRequestServerPort() + "/" + (ctx.getRequestContextPath()!=null ? ctx.getRequestContextPath():"") +  
+				 "services/image/"+fa.getAttachmentUUID();
+		 fa.setAttachmentURL(attachmentURL);
+		 
 		 fa.setContent(event.getFile().getContents());
 		 this.event.getImages().add(fa);
     }
