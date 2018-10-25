@@ -50,8 +50,20 @@ public class FacebookLoginService {
 	@Produces(MediaType.APPLICATION_JSON)
     public Response search(LoginRequest request) 
     {
-		UserProfile userProfile=getProfileInfo(request.getFb_access_token());
+		
 		UserService userService = new UserService();
+		UserProfile userProfile= null;
+		
+		try 
+		{
+			userProfile=getProfileInfo(request.getFb_access_token());
+		}
+		catch (Exception e) {
+//			e.printStackTrace();
+//			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.facebook.login",e.getMessage()))).build();
+			return Response.status(400).build();
+		}
+		
 		
 		try 
 		{
@@ -110,8 +122,9 @@ public class FacebookLoginService {
 			}
 		}
 		catch (Exception e) {e.printStackTrace();
-			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic")), e.getMessage()).build();
+			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic", e.getMessage()))).build();
 		}
+		
 		
 		
     }

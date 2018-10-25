@@ -48,7 +48,7 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 			EventDAO eventDao = new EventDAO();
 			EventFilter filter= new EventFilter();
 			filter.setEventUUID(purchaseOrderDTO.getEventUUID());
-			List<Event> events = eventDao.searchEvents(filter);
+			List<Event> events = eventDao.searchEvents(filter).getResults();
 			if(events == null || events.size()!=1)
 				throw new EventNotFoundException();
 			

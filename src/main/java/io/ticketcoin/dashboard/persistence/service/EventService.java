@@ -65,16 +65,16 @@ public class EventService extends GenericService<Event> {
 	
 	
 	
-	public List<Event> searchEvents(EventFilter filter)
+	public EventSearchResult searchEvents(EventFilter filter)
 	{
 		Session session = null;
 		try
 		{
 			session = HibernateUtils.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
-			List<Event> retval = new EventDAO().searchEvents(filter);
+			EventSearchResult retval = new EventDAO().searchEvents(filter);
 
-			for(Event event : retval)
+			for(Event event : retval.getResults())
 			{
 				if(event.getCategories()!=null)
 					Hibernate.initialize(event.getCategories());

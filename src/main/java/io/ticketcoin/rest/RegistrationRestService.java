@@ -31,24 +31,31 @@ public class RegistrationRestService {
 		@Produces(MediaType.APPLICATION_JSON)
 		public Response resetPassword(String userName) 
 		{
-			User user = new UserService().getUser(userName);
-			
-			if (user!=null)
+			try
 			{
-				 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(null,"email.sent")))
-							.header("Access-Control-Allow-Origin", "*")
-								.header("Access-Control-Allow-Methods", "POST")
-								.type(MediaType.APPLICATION_JSON)
-								.build();
+				User user = new UserService().getUser(userName);
+				
+				if (user!=null)
+				{
+					 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(null,"email.sent")))
+								.header("Access-Control-Allow-Origin", "*")
+									.header("Access-Control-Allow-Methods", "POST")
+									.type(MediaType.APPLICATION_JSON)
+									.build();
+				}
+				else 
+				{
+					 return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("user.not.found")))
+								.header("Access-Control-Allow-Origin", "*")
+									.header("Access-Control-Allow-Methods", "POST")
+									.type(MediaType.APPLICATION_JSON)
+									.build();
+				}
 			}
-			else 
-			{
-				 return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("user.not.found")))
-							.header("Access-Control-Allow-Origin", "*")
-								.header("Access-Control-Allow-Methods", "POST")
-								.type(MediaType.APPLICATION_JSON)
-								.build();
-			}
+			catch (Exception e) {
+				e.printStackTrace();
+				return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic",e.getMessage()))).build();
+				}
 		}
 		
 		

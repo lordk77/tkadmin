@@ -14,6 +14,11 @@ public class EventFilter {
 	private String category;
 	private String eventUUID;
 
+	private Integer skip;
+	private Integer limit;
+	
+	
+	
 	public String getGenericTxt() {
 		return genericTxt;
 	}
@@ -52,6 +57,22 @@ public class EventFilter {
 
 	public void setEventUUID(String eventUUID) {
 		this.eventUUID = eventUUID;
+	}
+
+	public Integer getSkip() {
+		return skip;
+	}
+
+	public void setSkip(Integer skip) {
+		this.skip = skip;
+	}
+
+	public Integer getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Integer limit) {
+		this.limit = limit;
 	}
 	
 	

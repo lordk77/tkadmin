@@ -18,8 +18,10 @@ import com.google.gson.Gson;
 import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.dto.EventDTO;
 import io.ticketcoin.dashboard.dto.EventExtDTO;
+import io.ticketcoin.dashboard.dto.EventSearchResultDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
+import io.ticketcoin.dashboard.persistence.service.EventSearchResult;
 import io.ticketcoin.dashboard.persistence.service.EventService;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
 
@@ -34,20 +36,29 @@ public class EventRestService
     @Produces(MediaType.APPLICATION_JSON)
 	  public Response search(@PathParam("timeStamp") Long timeStamp) 
 	  {
-		EventFilter filter = new EventFilter();
-		if(timeStamp!=null && timeStamp>0)
-			filter.setUpdatedSince(new Date(timeStamp));
-		filter.setMaxResult(MAX_RESULTS);
-		List<Event> es = new EventService().searchEvents(filter);
-		List<EventExtDTO> events = new ArrayList<>();
-		for (Event e:es)
-			events.add(new EventExtDTO(e));
-
-		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(events)))
-				.header("Access-Control-Allow-Origin", "*")
-					.header("Access-Control-Allow-Methods", "GET")
-					.type(MediaType.APPLICATION_JSON)
-					.build();
+		try 
+		{
+			EventFilter filter = new EventFilter();
+			if(timeStamp!=null && timeStamp>0)
+				filter.setUpdatedSince(new Date(timeStamp));
+			filter.setMaxResult(MAX_RESULTS);
+			List<Event> es = new EventService().searchEvents(filter).getResults();
+			List<EventExtDTO> events = new ArrayList<>();
+			for (Event e:es)
+				events.add(new EventExtDTO(e));
+				
+			
+	
+			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(events)))
+					.header("Access-Control-Allow-Origin", "*")
+						.header("Access-Control-Allow-Methods", "GET")
+						.type(MediaType.APPLICATION_JSON)
+						.build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic",e.getMessage()))).build();
+			}
 	  }
 	
 	
@@ -57,6 +68,7 @@ public class EventRestService
     @Produces(MediaType.APPLICATION_JSON)
 	  public Response categories() 
 	  {
+		try {
 		
 		List<EventCategoryDTO> categories =  new EventService().searchCategories();
 		
@@ -65,6 +77,11 @@ public class EventRestService
 					.header("Access-Control-Allow-Methods", "GET")
 					.type(MediaType.APPLICATION_JSON)
 					.build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic",e.getMessage()))).build();
+			}
 	  }
 	
 	
@@ -74,20 +91,33 @@ public class EventRestService
     @Produces(MediaType.APPLICATION_JSON)
 	  public Response category(@PathParam("categoryCode") String categoryCode)
 	  {
-		
-		EventFilter filter = new EventFilter();
-		filter.setMaxResult(MAX_RESULTS);
-		filter.setCategory(categoryCode);
-		List<Event> es = new EventService().searchEvents(filter);
-		List<EventDTO> events = new ArrayList<>();
-		for (Event e:es)
-			events.add(new EventDTO(e));
-
-		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(events)))
-				 .header("Access-Control-Allow-Origin", "*")
-				 .header("Access-Control-Allow-Methods", "POST")
-					.type(MediaType.APPLICATION_JSON)
-				 .build();
+		try
+		{
+			EventFilter filter = new EventFilter();
+			filter.setMaxResult(MAX_RESULTS);
+			filter.setCategory(categoryCode);
+			EventSearchResult searchResult = new EventService().searchEvents(filter);
+			List<EventDTO> events = new ArrayList<>();
+			for (Event e:searchResult.getResults())
+				events.add(new EventDTO(e));
+			
+			
+			EventSearchResultDTO resDTO = new EventSearchResultDTO();
+			resDTO.setResults(events);
+			resDTO.setRowCount(searchResult.getRowCount());
+			
+			
+	
+			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(resDTO)))
+					 .header("Access-Control-Allow-Origin", "*")
+					 .header("Access-Control-Allow-Methods", "POST")
+						.type(MediaType.APPLICATION_JSON)
+					 .build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic",e.getMessage()))).build();
+			}
 		 
 	  }
 	
@@ -99,18 +129,29 @@ public class EventRestService
     @Consumes(MediaType.APPLICATION_JSON)
 	  public Response search(EventFilter filter) 
 	  {
-		filter.setMaxResult(MAX_RESULTS);
-		List<Event> es = new EventService().searchEvents(filter);
-		List<EventDTO> events = new ArrayList<>();
-		for (Event e:es)
-			events.add(new EventDTO(e));
-
-		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(events)))
-				 .header("Access-Control-Allow-Origin", "*")
-				 .header("Access-Control-Allow-Methods", "POST")
-					.type(MediaType.APPLICATION_JSON)
-				 .build();
-		 
+		try 
+		{
+			filter.setMaxResult(MAX_RESULTS);
+			EventSearchResult searchResult = new EventService().searchEvents(filter);
+			List<EventDTO> events = new ArrayList<>();
+			for (Event e:searchResult.getResults())
+				events.add(new EventDTO(e));
+	
+			EventSearchResultDTO resDTO = new EventSearchResultDTO();
+			resDTO.setResults(events);
+			resDTO.setRowCount(searchResult.getRowCount());
+			
+			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(resDTO)))
+					 .header("Access-Control-Allow-Origin", "*")
+					 .header("Access-Control-Allow-Methods", "POST")
+						.type(MediaType.APPLICATION_JSON)
+					 .build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic",e.getMessage()))).build();
+			}
+			 
 	  }
 	  
 	
@@ -119,12 +160,14 @@ public class EventRestService
     @Produces(MediaType.APPLICATION_JSON)
 	  public Response detail(@PathParam("eventUUID") String eventUUID) 
 	  {
+		try
+		{
 		EventFilter filter = new EventFilter();
 		filter.setMaxResult(1);
 		
 		filter.setEventUUID(eventUUID);
 		
-		List<Event> es = new EventService().searchEvents(filter);
+		List<Event> es = new EventService().searchEvents(filter).getResults();
 		EventExtDTO eventExtDTO = null;
 		
 		if (es!=null && !es.isEmpty())
@@ -135,6 +178,11 @@ public class EventRestService
 					.header("Access-Control-Allow-Methods", "GET")
 					.type(MediaType.APPLICATION_JSON)
 					.build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.generic",e.getMessage()))).build();
+			}
 	  }
 	
 	

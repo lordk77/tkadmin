@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
@@ -19,6 +20,7 @@ import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.User;
+import io.ticketcoin.dashboard.persistence.service.EventSearchResult;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
 public class EventDAO extends GenericDAO<Event>{
@@ -35,13 +37,44 @@ public class EventDAO extends GenericDAO<Event>{
 
 	}
 
-	public List<Event> searchEvents(EventFilter filter) {
-		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
-				.createCriteria(Event.class)
-				.createAlias("location", "location",JoinType.LEFT_OUTER_JOIN)
-				.createAlias("location.address", "address",JoinType.LEFT_OUTER_JOIN)
-				;
+	public EventSearchResult searchEvents(EventFilter filter) {
+		Criteria c = createCrieria(filter).getExecutableCriteria(HibernateUtils.getSessionFactory().getCurrentSession());
+		
 				
+		if(filter.getMaxResult()>0)
+			c.setMaxResults(filter.getMaxResult());
+		
+		if (filter.getSkip()!=null && filter.getSkip()>0)
+			c.setFirstResult(filter.getSkip());
+		
+		if (filter.getLimit()!=null && filter.getLimit()>0)
+				c.setMaxResults(filter.getLimit());		
+			
+		
+		EventSearchResult result = new EventSearchResult();
+		result.setResults(c.list());
+		
+		if(filter.getSkip()!=null || filter.getLimit()!=null)
+		{//Esegue la count
+			 c = createCrieria(filter).getExecutableCriteria(HibernateUtils.getSessionFactory().getCurrentSession());
+			 result.setRowCount(((Number)c.setProjection(Projections.count("id")).uniqueResult()).intValue());
+		}
+		else
+		{
+			result.setRowCount(result.getResults().size());
+		}
+		 return result;
+	}
+	
+	
+	private DetachedCriteria createCrieria(EventFilter filter) 
+	{
+		
+		DetachedCriteria c =  DetachedCriteria.forClass(Event.class)
+			.createAlias("location", "location",JoinType.LEFT_OUTER_JOIN)
+			.createAlias("location.address", "address",JoinType.LEFT_OUTER_JOIN)
+			;
+			
 		
 		if(!StringUtils.isEmpty(filter.getGenericTxt()))
 		{
@@ -66,18 +99,14 @@ public class EventDAO extends GenericDAO<Event>{
 		
 		if(filter.getUpdatedSince()!=null)
 			c.add(Restrictions.gt("updated", filter.getUpdatedSince()));
-
+	
 		
 		if(filter.getEventUUID()!=null)
 			c.add(Restrictions.eq("eventUUID", filter.getEventUUID()));
 		
 		
 		
-		if(filter.getMaxResult()>0)
-			c.setMaxResults(filter.getMaxResult());
-		
-		
-		 return c.list();
+		return c;
 	}
 
 	public List<EventCategoryDTO> searchCategories() {
