@@ -5,7 +5,6 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-
 public class EventFilter {
 
 	private String genericTxt;

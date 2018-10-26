@@ -64,7 +64,7 @@
 	    </jaxrs:serviceBeans>
 	    <jaxrs:providers>
 	    	  <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthContextProvider"/>
-	    	  <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider" />
+	    	  <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider" />
 	       <ref bean="oAuthFilter"/>
 	    </jaxrs:providers>
 	  </jaxrs:server>
@@ -84,7 +84,7 @@
 	    </jaxrs:serviceBeans>
 	   	<jaxrs:providers>
 	  	      <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthJSONProvider" />
-	    	  <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider" />
+	    	  <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider" />
 	    </jaxrs:providers>
 	  </jaxrs:server>
 	  
