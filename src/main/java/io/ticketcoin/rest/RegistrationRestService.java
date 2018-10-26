@@ -25,6 +25,7 @@ import io.ticketcoin.dashboard.dto.ResetPasswordDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.UserService;
+import io.ticketcoin.oauth.ClientTokenDTO;
 import io.ticketcoin.oauth.provider.TkAminOAuthDataProvider;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
 
@@ -122,7 +123,7 @@ public class RegistrationRestService {
 				        {
 				            // Extract the information to be of use for the client
 				            ClientAccessToken clientToken = OAuthUtils.toClientAccessToken(serverToken, true);
-				            return Response.ok(clientToken)
+				            return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new ClientTokenDTO(clientToken))))
 				                       .header(HttpHeaders.CACHE_CONTROL, "no-store")
 				                       .header("Pragma", "no-cache")
 				                        .build();
