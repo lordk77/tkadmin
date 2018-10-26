@@ -5,11 +5,20 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
+import org.apache.cxf.jaxrs.impl.MetadataMap;
+import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
+import org.apache.cxf.rs.security.oauth2.common.ServerAccessToken;
+import org.apache.cxf.rs.security.oauth2.grants.owner.ResourceOwnerGrantHandler;
+import org.apache.cxf.rs.security.oauth2.utils.OAuthConstants;
+import org.apache.cxf.rs.security.oauth2.utils.OAuthUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
 
@@ -19,6 +28,7 @@ import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.UserService;
 import io.ticketcoin.dashboard.persistence.service.WalletService;
+import io.ticketcoin.oauth.provider.TkAminOAuthDataProvider;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
 
 @Path("/")
@@ -27,6 +37,12 @@ public class RegistrationRestService {
 		@Context
 	    private MessageContext mc;
 	
+		
+		@Autowired
+		ResourceOwnerGrantHandler handler;
+	
+		@Autowired
+		TkAminOAuthDataProvider dataProvider;		
 	
 		@POST
 		@Path("/reset_password")
@@ -95,11 +111,27 @@ public class RegistrationRestService {
 						user.setPassword(UserService.hashPassword(userData.getPassword()));
 						userService.createUser(user);
 						
-						return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new UserDTO(user), "user.created")))
-								.header("Access-Control-Allow-Origin", "*")
-									.header("Access-Control-Allow-Methods", "POST")
-									.type(MediaType.APPLICATION_JSON)
-									.build();
+						
+						
+						MultivaluedMap<String, String> params = new MetadataMap<>();
+						params.add(OAuthConstants.RESOURCE_OWNER_NAME, user.getUsername());
+						params.add(OAuthConstants.RESOURCE_OWNER_PASSWORD, userData.getPassword());
+						ServerAccessToken serverToken =  handler.createAccessToken(dataProvider.getClient("admin"), params);
+						
+				        if (serverToken == null) {
+				        	return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper("error.facebook.token.invalid_grant"))).build();
+				        }
+				        else
+				        {
+				            // Extract the information to be of use for the client
+				            ClientAccessToken clientToken = OAuthUtils.toClientAccessToken(serverToken, true);
+				            return Response.ok(clientToken)
+				                       .header(HttpHeaders.CACHE_CONTROL, "no-store")
+				                       .header("Pragma", "no-cache")
+				                        .build();
+				            
+				        }
+					
 					}
 					
 					
@@ -108,9 +140,31 @@ public class RegistrationRestService {
 					e.printStackTrace();
 					return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
 				}
-			
-
 		}
 		
-		
+	
+		public ResourceOwnerGrantHandler getHandler() {
+			return handler;
+		}
+
+
+
+		public void setHandler(ResourceOwnerGrantHandler handler) {
+			this.handler = handler;
+		}
+
+
+
+		public TkAminOAuthDataProvider getDataProvider() {
+			return dataProvider;
+		}
+
+
+
+		public void setDataProvider(TkAminOAuthDataProvider dataProvider) {
+			this.dataProvider = dataProvider;
+		}
+	
+
 }
+	

@@ -47,7 +47,10 @@
   <bean id="eventServiceBean" class="io.ticketcoin.rest.EventRestService" />
   <bean id="imageServiceBean" class="io.ticketcoin.rest.ImageRestService" />
   <bean id="userServiceBean" class="io.ticketcoin.rest.UserRestService" />
-  <bean id="registrationBean" class="io.ticketcoin.rest.RegistrationRestService" />
+  <bean id="registrationBean" class="io.ticketcoin.rest.RegistrationRestService" >
+      <property name="handler" ref="clientCredsHandler"/>
+	  <property name="dataProvider" ref="oauthProvider"/>
+  </bean>
   
   <bean id="facebookLoginService" class="io.ticketcoin.rest.integration.facebook.FacebookLoginService">
          <property name="handler" ref="clientCredsHandler"/>
