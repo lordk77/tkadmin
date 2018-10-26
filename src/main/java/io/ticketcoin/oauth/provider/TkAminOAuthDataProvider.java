@@ -2,11 +2,13 @@ package io.ticketcoin.oauth.provider;
 import java.util.List;
 
 import org.apache.cxf.rs.security.oauth2.common.Client;
+import org.apache.cxf.rs.security.oauth2.common.OAuthPermission;
 import org.apache.cxf.rs.security.oauth2.common.ServerAccessToken;
 import org.apache.cxf.rs.security.oauth2.common.UserSubject;
 import org.apache.cxf.rs.security.oauth2.provider.DefaultEHCacheOAuthDataProvider;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthServiceException;
 import org.apache.cxf.rs.security.oauth2.tokens.refresh.RefreshToken;
+import org.apache.cxf.rs.security.oauth2.utils.OAuthConstants;
  
 public class TkAminOAuthDataProvider extends DefaultEHCacheOAuthDataProvider {
  
@@ -15,6 +17,9 @@ public class TkAminOAuthDataProvider extends DefaultEHCacheOAuthDataProvider {
 		super();
 		Client c = new Client("admin", "admin", true);
 		setClient(c);
+		setAccessTokenLifetime(3600);
+		setRefreshTokenLifetime(3600*24*90);
+		getPermissionMap().put(OAuthConstants.REFRESH_TOKEN_SCOPE, new OAuthPermission(OAuthConstants.REFRESH_TOKEN_SCOPE));
 	}
 	@Override
 		public Client getClient(String clientId) throws OAuthServiceException {

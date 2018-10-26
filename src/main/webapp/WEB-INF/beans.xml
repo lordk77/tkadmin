@@ -28,6 +28,11 @@
 	</bean>
 	 
 	 
+    <bean id="jsonProvider"  class="org.apache.cxf.jaxrs.provider.json.JSONProvider">
+           <property name="dropRootElement" value="true"/>
+           <property name="supportUnwrapped" value="true"/>
+	</bean>
+	 
 	 
 	 
 	<jaxrs:server id="oauthServer" address="/oauth">
@@ -64,7 +69,7 @@
 	    </jaxrs:serviceBeans>
 	    <jaxrs:providers>
 	    	  <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthContextProvider"/>
-	    	  <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider" />
+    		  <ref bean="jsonProvider" />
 	       <ref bean="oAuthFilter"/>
 	    </jaxrs:providers>
 	  </jaxrs:server>
@@ -84,7 +89,7 @@
 	    </jaxrs:serviceBeans>
 	   	<jaxrs:providers>
 	  	      <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthJSONProvider" />
-	    	  <bean class="org.apache.cxf.jaxrs.provider.json.JSONProvider" />
+	    	  <ref bean="jsonProvider" />
 	    </jaxrs:providers>
 	  </jaxrs:server>
 	  
@@ -95,7 +100,7 @@
         <property name="dataProvider" ref="oauthProvider"/>
     </bean>
     
-    <bean id="clientCredsHandler" class="org.apache.cxf.rs.security.oauth2.grants.owner.ResourceOwnerGrantHandler">
+    <bean id="clientCredsHandler" class="io.ticketcoin.oauth.grants.TkResourceOwnerGrantHandler">
         <property name="dataProvider" ref="oauthProvider"/>
         <property name="loginHandler" ref="loginHandler"/>
     </bean>
@@ -107,6 +112,7 @@
         
     <util:list id="grantHandlers">
         <ref bean="clientCredsHandler"/>
+        <ref bean="refreshTokenHandler"/>
     </util:list>
     
   
