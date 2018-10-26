@@ -3,7 +3,6 @@ package io.ticketcoin.rest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -23,11 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.gson.Gson;
 
 import io.ticketcoin.dashboard.dto.ResetPasswordDTO;
-import io.ticketcoin.dashboard.dto.UserDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.UserService;
-import io.ticketcoin.dashboard.persistence.service.WalletService;
 import io.ticketcoin.oauth.provider.TkAminOAuthDataProvider;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
 
