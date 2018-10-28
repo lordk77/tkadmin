@@ -34,10 +34,11 @@ public class TicketCategory {
 	private BigDecimal netPrice;
 	private String currency;
 	private String title;
-	
 	private Integer ticketSupply = 0;
-	
-	private Integer ticketSold = 0;
+
+	@OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+	@JoinColumn(name="TICKET_CATEGORY_ID")
+	private List<TicketCategoryDetail> categoryDetails;
 	
 	@Enumerated(EnumType.STRING)
 	private SupplyType supplyType;
@@ -90,18 +91,7 @@ public class TicketCategory {
 	public void setCategoryOrder(Integer categoryOrder) {
 		this.categoryOrder = categoryOrder;
 	}
-	public Integer getTicketSupply() {
-		return ticketSupply;
-	}
-	public void setTicketSupply(Integer ticketSupply) {
-		this.ticketSupply = ticketSupply;
-	}
-	public Integer getTicketSold() {
-		return ticketSold;
-	}
-	public void setTicketSold(Integer ticketSold) {
-		this.ticketSold = ticketSold;
-	}
+
 	public SupplyType getSupplyType() {
 		return supplyType;
 	}
@@ -133,6 +123,22 @@ public class TicketCategory {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public List<TicketCategoryDetail> getCategoryDetails() {
+		return categoryDetails;
+	}
+
+	public void setCategoryDetails(List<TicketCategoryDetail> categoryDetails) {
+		this.categoryDetails = categoryDetails;
+	}
+
+	public Integer getTicketSupply() {
+		return ticketSupply;
+	}
+
+	public void setTicketSupply(Integer ticketSupply) {
+		this.ticketSupply = ticketSupply;
 	}
 	
 	

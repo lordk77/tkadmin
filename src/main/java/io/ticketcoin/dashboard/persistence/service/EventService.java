@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.persistence.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Hibernate;
@@ -9,6 +10,8 @@ import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.persistence.dao.EventDAO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
+import io.ticketcoin.dashboard.persistence.model.TicketCategory;
+import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
@@ -40,7 +43,24 @@ public class EventService extends GenericService<Event> {
 	
 
 	
-	
+	public TicketCategoryDetail getTicketCategoryDetail(String ticketCategoryUUID, Date date)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			TicketCategoryDetail retval = new EventDAO().getTicketCategoryDetail(ticketCategoryUUID, date);
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
 	
 	public List<EventCategoryDTO> searchCategories()
 	{
@@ -112,8 +132,15 @@ public class EventService extends GenericService<Event> {
 			session.beginTransaction();		
 			Event event = new EventDAO().findById(id);
 			if(event.getCategories()!=null)
+			{
 				Hibernate.initialize(event.getCategories());
-			
+				
+				for(TicketCategory tc :event.getCategories())
+				{
+					if(tc.getCategoryDetails()!=null)
+						Hibernate.initialize(tc.getCategoryDetails());
+				}
+			}
 			if(event.getTags()!=null)
 				Hibernate.initialize(event.getTags());
 

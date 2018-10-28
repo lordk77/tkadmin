@@ -12,7 +12,7 @@
 					<h1>Event</h1>
                     <hr/>
 					
-					<h:form >
+					<h:form id="evtForm">
      				<b:commandButton ajax="true" update="eventImagePanel" process="@this" immediate="true" style="visibility:hidden" id="emptyAction" styleClass="refreshImagePanel"/>
 				    <b:panel>
 					   <f:facet name="heading">
@@ -96,6 +96,16 @@
 
 				    	</b:panel>
 				    	
+			    		<b:panel rendered="false">
+					   <f:facet name="heading">
+					     <i class="fa fa-tags" style="padding-right:20px" />
+					     <h:outputText value="Tags" />
+					   </f:facet>		
+						<b:panelGrid columns="1">
+						    <b:inputText value="#{eventBean.event.tagsAsString}" placeholder="Tags" tags="true" label="Tags" ajax="true" process="@this"   />
+					    </b:panelGrid>
+					</b:panel>		
+				    	
 				    	<b:panel>
 						   <f:facet name="heading">
 						     <i class="fa fa-ticket" style="padding-right:20px" />
@@ -107,34 +117,14 @@
 						        	<f:facet name="header">
 							          <h:outputText value="Description"/>
 							        </f:facet>
-							        <b:inputText value="#{category.description}" required="true" ajax="true" process="@this" update="@none"/>
+							        <b:inputText value="#{category.description}" required="true"/>
 						        </b:dataTableColumn>
-					       		<b:dataTableColumn>
-						        	<f:facet name="header">
-							          <h:outputText value="Ticket Suppy" />
-							        </f:facet>
-						       		<h:panelGrid columns="#{category.supplyType == 'LEGACY_CODE' ? 3:1}">
-							    	    <b:inputText value="#{category.ticketSupply}" required="true" mask="integer"  readonly="#{category.supplyType == 'LEGACY_CODE'}"  ajax="true" process="@this" update="@none">
-								    	    <f:facet name="prepend">
-									       		 <b:selectOneMenu value="#{category.supplyType}" ajax="true" process="@this" update="editableCategoryTable">
-									       		 	<f:selectItem itemValue="NORMAL" itemLabel="Normal" />
-									       		 	<f:selectItem itemValue="LEGACY_CODE" itemLabel="Legacy code" />
-									       		 </b:selectOneMenu>
-								       		 </f:facet>
-							    	    </b:inputText>
-						       			<b:commandButton icon="file" ajax="true" rendered="#{category.supplyType == 'LEGACY_CODE'}"  />
-						       			<b:commandButton icon-awesome="times" title="Revoke unused" ajax="true" rendered="#{category.supplyType == 'LEGACY_CODE'}"  />
-						       			
-						       		</h:panelGrid>
-						       								        
-						        </b:dataTableColumn>
-						        <b:dataTableColumn value="#{category.ticketSupply-category.ticketSold}" label="Available Tickets" />
+					       		
 				       			<b:dataTableColumn>
 									<f:facet name="header">
-							          <h:outputText value="Street Price"/>
+							          <h:outputText value="Price"/>
 							        </f:facet>
-						       		 <b:inputText value="#{category.streetPrice}" required="true" mask="decimal" ajax="true">
-						       		 	<f:ajax onevent="change" execute="@this" listener="#{eventBean.calculateNetPrice()}" render="editableCategoryTable"/>
+						       		 <b:inputText value="#{category.streetPrice}" required="true" mask="decimal">
 							       		 <f:facet name="prepend">
 								       		 <b:selectOneMenu value="#{category.currency}">
 								       		 	<f:selectItem itemValue="EUR" itemLabel="EUR" />
@@ -143,14 +133,15 @@
 						       		 </b:inputText>
 							        
 						        </b:dataTableColumn>
-	
-	
-								<b:dataTableColumn>
+						        
+				       			<b:dataTableColumn>
 									<f:facet name="header">
-							          <h:outputText value="Net Price"/>
+							          <h:outputText value="Initial supply"/>
 							        </f:facet>
-						       		 <h:outputText value="#{category.netPrice}"/>
+								   	<b:inputText value="#{category.ticketSupply}"  render-label="true" required="true" />
 						        </b:dataTableColumn>
+						        
+						        
 						        
 						        
 				       			<b:dataTableColumn>
@@ -158,26 +149,90 @@
 							          <h:outputText value=""/>
 							        </f:facet>
 						       		<h:panelGroup>
-						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;1}"  />
+						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;1}" >
+						       			 <f:ajax render="evtForm:editableCategoryDetailPanel,editableCategoryTable"></f:ajax>
+						       			 </b:commandButton>
+						       			 <b:commandButton  icon="calendar" ajax="true" action="#{eventBean.regenerateCategoryDetail(category)}" rendered="#{eventBean.event.categories.size()&gt;1}" >
+						       			 	<f:ajax render="evtForm:editableCategoryDetailPanel,editableCategoryTable"></f:ajax>
+						       			 </b:commandButton>
 						       		</h:panelGroup>
 							        
-							    	<f:facet name="footer">
+							      	<f:facet name="footer">
 							          <b:commandButton value="Add"  ajax="true" action="#{eventBean.addCategory}" update="@(.editableCategoryTable)" process="editableCategoryTable"   />
 							        </f:facet>
 							        
 						        </b:dataTableColumn>
 						       </b:dataTable>
 					   </b:panel>
+					   
+				<b:panel id="editableCategoryDetailPanel">
+				   <f:facet name="heading">
+				     <i class="fa fa-ticket" style="padding-right:20px" />
+				     <h:outputText value="Date detail" />
+				   </f:facet>
+					   
+					   <b:dataTable value="#{eventBean.categoryDetails}"  var="detail"  paginated="false" class="editableCategoryDetailTable" searching="false" id="editableCategoryDetailTable">
+						        
+						        
+						        <b:dataTableColumn>
+						       	 	<f:facet name="header">
+							          <h:outputText value="Description"/>
+							        </f:facet>
+							        <h:outputText value="#{detail.ticketCategory.description}" />
+						        </b:dataTableColumn>
+						        
+						        
+						        <b:dataTableColumn>   
+						      
+						        	<f:facet name="header">
+							          <h:outputText value="Date"/>
+							        </f:facet>
+							       
+							        	<b:dateTimePicker value="#{detail.startingDate}"
+									        icon-position="right"
+									        show-date="true"
+									        show-time="false"
+									        show-icon="true" 
+									        required="true"
+									        process="@this"	
+									        readonly="#{not empty detail.startingDate }"								        
+									        />
+						        </b:dataTableColumn>
+					       		
+				       			<b:dataTableColumn>
+									<f:facet name="header">
+							          <h:outputText value="Available tickets"/>
+							        </f:facet>
+								   	<b:inputText value="#{detail.availableTicket}" render-label="true" required="true" />
+						        </b:dataTableColumn>
 
-				    	<b:panel>
-						   <f:facet name="heading">
-						     <i class="fa fa-tags" style="padding-right:20px" />
-						     <h:outputText value="Tags" />
-						   </f:facet>		
-							<b:panelGrid columns="1">
-							    <b:inputText value="#{eventBean.event.tagsAsString}" placeholder="Tags" tags="true" label="Tags" ajax="true" process="@this"   />
-						    </b:panelGrid>
-						</b:panel>					   
+				       			<b:dataTableColumn>
+									<f:facet name="header">
+							          <h:outputText value="Sold tickets"/>
+							        </f:facet>
+								   	<b:inputText value="#{detail.soldTicket}" render-label="true" readonly="true"/>
+						        </b:dataTableColumn>
+						        
+				       			<b:dataTableColumn>
+									<f:facet name="header">
+							          <h:outputText value=""/>
+							        </f:facet>
+						       		<h:panelGroup>
+						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategoryDetail(detail)}" 
+						       			  update="@(.editableCategoryDetailTable)" process="editableCategoryDetailTable" 
+						       			 rendered="#{eventBean.event.categories.size()&gt;1}"  />
+						       		</h:panelGroup>
+
+							        
+						        </b:dataTableColumn>
+						       </b:dataTable>
+					   </b:panel>
+					   
+					   
+					   
+					   
+
+				   
 					   
 					   <div class="text-center">
 							<b:commandButton value="Save" look="primary" size="lg" action="#{eventBean.save}"   />

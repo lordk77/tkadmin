@@ -1,6 +1,7 @@
 package io.ticketcoin.dashboard.dto;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -24,7 +25,7 @@ public class EventExtDTO extends EventDTO
 	
 	public EventExtDTO(){}
 	
-	public EventExtDTO(Event event)
+	public EventExtDTO(Event event, Date date)
 	{
 		super(event);
 		
@@ -42,7 +43,7 @@ public class EventExtDTO extends EventDTO
 		if(event.getCategories()!=null && event.getCategories().size()>0)
 		{
 			for(int i =0; i < event.getCategories().size();i++)
-				this.ticketCategories.add(new TicketCategoryDTO(event.getCategories().get(i)));
+				this.ticketCategories.add(new TicketCategoryDTO(event.getCategories().get(i), date));
 		}
 		
 		

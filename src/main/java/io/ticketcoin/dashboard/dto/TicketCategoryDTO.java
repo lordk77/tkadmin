@@ -1,10 +1,13 @@
 package io.ticketcoin.dashboard.dto;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
+import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
+import io.ticketcoin.dashboard.persistence.service.EventService;
 
 @XmlRootElement
 public class TicketCategoryDTO {
@@ -19,7 +22,7 @@ public class TicketCategoryDTO {
 	
 	public TicketCategoryDTO(){}
 	
-	public TicketCategoryDTO(TicketCategory tc)
+	public TicketCategoryDTO(TicketCategory tc, Date date)
 	{
 		this.ticketCategoryUUID=tc.getTicketCategoryUUID();
 		this.description=tc.getDescription();
@@ -27,7 +30,8 @@ public class TicketCategoryDTO {
 		this.currency=tc.getCurrency();
 		this.title = tc.getTitle();
 		
-		maxQty = tc.getTicketSupply();
+		TicketCategoryDetail tcd = new EventService().getTicketCategoryDetail(ticketCategoryUUID, date);
+		maxQty =  tcd!=null ? tcd.getAvailableTicket() : 0;
 	}
 	
 	public String getTicketCategoryUUID() {

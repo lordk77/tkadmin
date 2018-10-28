@@ -1,5 +1,6 @@
 package io.ticketcoin.rest;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -30,6 +32,7 @@ public class EventRestService
 {
 
 	private static final int MAX_RESULTS =50;
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@GET
 	@Path("/list/{timeStamp}")
@@ -45,7 +48,7 @@ public class EventRestService
 			List<Event> es = new EventService().searchEvents(filter).getResults();
 			List<EventExtDTO> events = new ArrayList<>();
 			for (Event e:es)
-				events.add(new EventExtDTO(e));
+				events.add(new EventExtDTO(e, null));
 				
 			
 	
@@ -158,7 +161,7 @@ public class EventRestService
 	@GET
 	@Path("/detail/{eventUUID}")
     @Produces(MediaType.APPLICATION_JSON)
-	  public Response detail(@PathParam("eventUUID") String eventUUID) 
+	  public Response detail(@PathParam("eventUUID") String eventUUID, @QueryParam("date") String date) 
 	  {
 		try
 		{
@@ -171,7 +174,7 @@ public class EventRestService
 		EventExtDTO eventExtDTO = null;
 		
 		if (es!=null && !es.isEmpty())
-			eventExtDTO = new EventExtDTO(es.get(0));
+			eventExtDTO = new EventExtDTO(es.get(0), sdf.parse(date));
 
 		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(eventExtDTO)))
 				.header("Access-Control-Allow-Origin", "*")

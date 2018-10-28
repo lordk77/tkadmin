@@ -1,10 +1,12 @@
 package io.ticketcoin.dashboard.persistence.dao;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -19,6 +21,7 @@ import org.hibernate.transform.AliasToBeanResultTransformer;
 import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
+import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.EventSearchResult;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
@@ -138,6 +141,22 @@ public class EventDAO extends GenericDAO<Event>{
 		}
 		
 		 return categories;
+	}
+
+	public TicketCategoryDetail getTicketCategoryDetail(String ticketCategoryUUID, Date date) {
+		
+		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
+				.createCriteria(TicketCategoryDetail.class)
+				.createAlias("ticketCategory", "ticketCategory");
+				
+		c.add(Restrictions.eq("ticketCategory.ticketCategoryUUID", ticketCategoryUUID));
+		
+		if(date!=null)
+			c.add(Restrictions.eq("startingDate", DateUtils.truncate(date, Calendar.DAY_OF_MONTH)));
+		
+		List<TicketCategoryDetail> tcd = c.list();
+		
+		return tcd.isEmpty() ? null : tcd.get(0);
 	}
 	
 	

@@ -8,8 +8,16 @@
 	<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
 	
 	
-		<property name="connection.datasource">java:/comp/env/jdbc/tkadmin</property>
+<!-- 		<property name="connection.datasource">java:/comp/env/jdbc/tkadmin</property> -->
 	
+	
+	  <!-- standalone -->
+	  <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+	  <property name="connection.url">jdbc:mysql://aa1firr4c1ljrg6.cnyt2n8xtrwa.eu-west-3.rds.amazonaws.com:3306/ebdb</property>
+	  <property name="connection.username">ticketcoin</property>
+	  <property name="connection.password">ticketcoin</property>
+	   
+   
 	
 	<property name="hibernate.connection.pool_size">10</property>
 
@@ -31,10 +39,14 @@
 	<mapping class="io.ticketcoin.dashboard.persistence.model.Role" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.Ticket" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.TicketCategory" />
+	<mapping class="io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.User" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.FileAttachment" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.PurchaseOrder" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail" />
+	<mapping class="io.ticketcoin.dashboard.persistence.model.Wallet" />
+	
+	
 
 
 

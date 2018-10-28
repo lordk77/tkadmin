@@ -3,6 +3,10 @@ package io.ticketcoin.dashboard.bean;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
@@ -12,6 +16,7 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
@@ -19,6 +24,7 @@ import org.primefaces.model.StreamedContent;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
+import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.service.EventService;
 
 
@@ -132,9 +138,55 @@ public class EventBean
 		if (this.event.getCategories()==null)
 			this.event.setCategories(new ArrayList<TicketCategory>());
 		
-		this.event.getCategories().add(new TicketCategory(true));
+		TicketCategory tc = new TicketCategory(true);
+
+		this.event.getCategories().add(tc);
+		
+//		generateCategoryDetail(this.event, tc) ;
 		
 		return null;
+	}
+	
+	
+	private void generateCategoryDetail(Event evt, TicketCategory tc) 
+	{
+		Date startDate = DateUtils.truncate(evt.getDateFrom(), Calendar.DAY_OF_MONTH);
+		Date endDate = DateUtils.truncate(evt.getDateTo(), Calendar.DAY_OF_MONTH);
+		Date cDate= startDate;
+		while (!cDate.after(endDate))
+		{
+			boolean present=false;
+			if(tc.getCategoryDetails()!=null)
+			{
+				for(TicketCategoryDetail tcd : tc.getCategoryDetails())
+				{
+					if (tcd.getStartingDate().equals(cDate))
+						present=true;
+						break;
+				}
+			}
+			else
+				tc.setCategoryDetails(new ArrayList<TicketCategoryDetail>());
+			
+			if(!present)
+			{
+				if(evt.getDaysOfWeek() !=null && evt.getDaysOfWeek().indexOf(""+DateUtils.toCalendar(cDate).get(Calendar.DAY_OF_WEEK))>=0)
+				{
+					TicketCategoryDetail tcd = new TicketCategoryDetail();
+					tcd.setAvailableTicket(tc.getTicketSupply());
+					tcd.setSoldTicket(0);
+					tcd.setStartingDate(cDate);
+					tcd.setTicketCategory(tc);
+					if(tc.getCategoryDetails()==null)
+						tc.setCategoryDetails(new ArrayList<TicketCategoryDetail>());;
+					tc.getCategoryDetails().add(tcd);
+				}
+			}
+			
+			cDate = DateUtils.addDays(cDate, 1);
+		}
+		
+		
 	}
 	
 
@@ -144,6 +196,69 @@ public class EventBean
 		return null;
 	}
 	
+	
+	public String removeCategoryDetail(TicketCategoryDetail tcd)
+	{
+		for (TicketCategory tc : event.getCategories())
+		{
+			if(tc.equals(tcd.getTicketCategory()))
+				tc.getCategoryDetails().remove(tcd);
+		}
+		return null;
+	}
+	
+	
+	
+	
+	
+	
+	public String regenerateCategoryDetail(TicketCategory tc)
+	{
+		generateCategoryDetail(this.event, tc);
+		return null;
+	}
+	
+	
+	
+	public List<TicketCategoryDetail> getCategoryDetails()
+	{
+		List<TicketCategoryDetail> categoryDetails = new ArrayList<>();
+		
+		if(event.getCategories()!=null)
+		{
+			for (TicketCategory tc : event.getCategories())
+			{
+				if(tc.getCategoryDetails()!=null)
+				{
+					categoryDetails.addAll(tc.getCategoryDetails());
+				}
+			}
+		}
+		
+		
+		categoryDetails.sort(new Comparator<TicketCategoryDetail>() {
+
+			@Override
+			public int compare(TicketCategoryDetail o1, TicketCategoryDetail o2) {
+				if(o1.getTicketCategory().getId()!=null && o2.getTicketCategory().getId()!=null && !o1.getTicketCategory().getId().equals(o2.getTicketCategory().getId()))
+					return o1.getTicketCategory().getId().compareTo(o2.getTicketCategory().getId());
+				else
+				{
+					return o1.getStartingDate().compareTo(o2.getStartingDate());
+				}
+//				if(!o1.getStartingDate().equals(o2.getStartingDate()))
+//					return o1.getStartingDate().compareTo(o2.getStartingDate());
+//				else
+//				{
+//					return o1.getTicketCategory().getId().compareTo(o2.getTicketCategory().getId());
+//				}
+//				
+				
+			}
+		});
+		
+		return categoryDetails;
+	}
 	
 	
 	public String eventCreation()
