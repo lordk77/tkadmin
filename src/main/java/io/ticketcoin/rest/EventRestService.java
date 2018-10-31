@@ -174,7 +174,7 @@ public class EventRestService
 		EventExtDTO eventExtDTO = null;
 		
 		if (es!=null && !es.isEmpty())
-			eventExtDTO = new EventExtDTO(es.get(0), sdf.parse(date));
+			eventExtDTO = new EventExtDTO(es.get(0), date !=null ? sdf.parse(date):null);
 
 		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(eventExtDTO)))
 				.header("Access-Control-Allow-Origin", "*")
