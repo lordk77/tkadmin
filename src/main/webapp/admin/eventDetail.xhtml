@@ -28,7 +28,11 @@
 					    			<b:panelGrid columns="1">
 								   		<b:inputText value="#{eventBean.event.name}" label="Event Name" render-label="true" required="true" >
 								   		</b:inputText>
-								    </b:panelGrid>					   
+								    </b:panelGrid>		
+								    			   
+					    			<b:panelGrid columns="1">
+					    				<b:inputText value="#{eventBean.event.shortDescription}" label="Short Description" render-label="true" required="false" />
+					    			</b:panelGrid>					    								    			   
 			
 								    <b:panelGrid columns="2">
 									    <b:dateTimePicker value="#{eventBean.event.dateFrom}"
@@ -94,7 +98,25 @@
 						    <b:inputTextarea placeholder="Event description..." value="#{eventBean.event.description}" label="Event description"/>
 					    </b:panelGrid>
 
+
+
+
 				    	</b:panel>
+
+
+			    		<b:panel>
+						   <f:facet name="heading">
+						     <i class="fa fa-tags" style="padding-right:20px" />
+						     <h:outputText value="Contacts" />
+						   </f:facet>		
+							<b:panelGrid columns="1">
+					    				<b:inputText value="#{eventBean.event.email}" label="Email" render-label="true" required="false" />
+					    				<b:inputText value="#{eventBean.event.phone}" label="Phone" render-label="true" required="false" />
+					    				<b:inputText value="#{eventBean.event.website}" label="Web site" render-label="true" required="false" />
+						    </b:panelGrid>
+						</b:panel>	
+					
+									    	
 				    	
 			    		<b:panel rendered="false">
 					   <f:facet name="heading">

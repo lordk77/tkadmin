@@ -2,6 +2,7 @@ package io.ticketcoin.dashboard.dto;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
@@ -25,6 +26,10 @@ public class EventDTO implements Serializable {
 		private String eventType;
 		private String urlShare;
 		
+		
+		private String email;
+		private String phone;
+		private String website;
 		
 		
 		public EventDTO() {}
@@ -143,6 +148,30 @@ public class EventDTO implements Serializable {
 
 		public void setImageURL(String imageURL) {
 			this.imageURL = imageURL;
+		}
+
+		public String getEmail() {
+			return email;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+
+		public String getPhone() {
+			return phone;
+		}
+
+		public void setPhone(String phone) {
+			this.phone = phone;
+		}
+
+		public String getWebsite() {
+			return website;
+		}
+
+		public void setWebsite(String website) {
+			this.website = website;
 		}
 
 }

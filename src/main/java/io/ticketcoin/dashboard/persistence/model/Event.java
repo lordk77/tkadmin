@@ -118,6 +118,20 @@ public class Event {
 	private List<EventCategory> eventCategories;
 	
 	
+	
+	//Contacts
+	@Column(name="EMAIL")
+	private String email;
+	
+	@Column(name="PHONE")
+	private String phone;
+	
+	@Column(name="WEBSITE")
+	private String website;
+	
+	
+	
+	
 	  private Date created;
 	  private Date updated;
 
@@ -125,7 +139,7 @@ public class Event {
 	  protected void onCreate() {
 	    created = new Date();
 	  }
-
+	
 	  @PrePersist
 	  @PreUpdate
 	  protected void onUpdate() {
@@ -390,5 +404,29 @@ public class Event {
 
 	public void setUrlShare(String urlShare) {
 		this.urlShare = urlShare;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
 	}
 }
