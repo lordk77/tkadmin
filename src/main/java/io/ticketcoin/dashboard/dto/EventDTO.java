@@ -1,9 +1,12 @@
 package io.ticketcoin.dashboard.dto;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
 
@@ -36,12 +39,13 @@ public class EventDTO implements Serializable {
 		
 		public EventDTO(Event event) 
 		{
-			this.eventUUID= event.getEventUUID();
-			this.name= event.getName();
-			this.description= event.getDescription();
-			this.shortDescription = event.getShortDescription();
-			this.eventType = event.getEventType();
-				
+			try {
+				BeanUtils.copyProperties(this, event);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
 			
 			this.organizationId=event.getOrganization()!=null?event.getOrganization().getId():null;
 			

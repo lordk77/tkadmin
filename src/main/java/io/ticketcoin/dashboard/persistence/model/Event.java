@@ -40,9 +40,9 @@ import emoji4j.EmojiUtils;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Event {
 	
-	public static String TYPE_SINGLE_DATE = "SINGLE_DATE";
-	public static String TYPE_PERIOD = "PERIOD";
-	public static String TYPE_OPEN = "OPEN";
+	public static String TYPE_SINGLE_DATE = "1";
+	public static String TYPE_PERIOD = "2";
+	public static String TYPE_OPEN = "3";
 	
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)

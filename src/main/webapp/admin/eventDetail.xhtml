@@ -61,6 +61,13 @@
 					    			<b:panelGrid columns="1" id="datePanel">
 					    			
 					    			
+					    					<b:selectOneMenu value="#{eventBean.event.eventType}" label="EventType"  >
+					    					 	<f:selectItem itemValue="2" itemLabel="Period"/>
+								            <f:selectItem itemValue="1" itemLabel="Single date"/>
+								            <f:selectItem itemValue="3" itemLabel="Open"/>
+								        </b:selectOneMenu>
+								        
+					    			
 				    					<b:selectMultiMenu value="#{eventBean.event.daysOfWeek}" label="Days of week" >
 								            <f:selectItem itemValue="1" itemLabel="Sunday"/>
 								            <f:selectItem itemValue="2" itemLabel="Monday"/>
@@ -70,6 +77,10 @@
 								            <f:selectItem itemValue="6" itemLabel="Friday"/>
 								            <f:selectItem itemValue="7" itemLabel="Saturday"/>
 								        </b:selectMultiMenu>
+								        
+
+								        
+								        
 										 <b:selectMultiMenu value="#{eventBean.event.eventCategoryAsString}" label="Event type" >
 									            <f:selectItems value="#{eventBean.event.eventCategory}"  var="cat" itemValue="#{cat.toString()}" itemLabel="#{cat.emoji} #{cat.description}"/>
 									        </b:selectMultiMenu>
@@ -135,6 +146,13 @@
 						   </f:facet>
 						   
 						   <b:dataTable value="#{eventBean.event.categories}" var="category"  paginated="false" class="editableCategoryTable" searching="false" id="editableCategoryTable">
+						        						        <b:dataTableColumn>
+						       	<f:facet name="header">
+							          <h:outputText value="Title"/>
+							        </f:facet>
+							        <b:inputText value="#{category.title}" required="true"/>
+						        </b:dataTableColumn>
+						        
 						        <b:dataTableColumn>
 						        	<f:facet name="header">
 							          <h:outputText value="Description"/>
@@ -196,6 +214,7 @@
 					   <b:dataTable value="#{eventBean.categoryDetails}"  var="detail"  paginated="false" class="editableCategoryDetailTable" searching="false" id="editableCategoryDetailTable">
 						        
 						        
+
 						        <b:dataTableColumn>
 						       	 	<f:facet name="header">
 							          <h:outputText value="Description"/>

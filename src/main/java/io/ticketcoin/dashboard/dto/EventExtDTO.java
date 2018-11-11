@@ -29,6 +29,9 @@ public class EventExtDTO extends EventDTO
 	{
 		super(event);
 		
+		if(date==null&&Event.TYPE_SINGLE_DATE.equals(event.getEventType()))
+			date = event.getDateFrom();
+		
 		if(event.getLocation()!=null && event.getLocation().getAddress()!=null)
 		{
 			this.country = event.getLocation().getAddress().getCountry();
