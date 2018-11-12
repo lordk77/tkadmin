@@ -14,7 +14,7 @@ contract Ownable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  function Ownable() {
+  constructor() public {
     owner = msg.sender;
   }
 
@@ -32,7 +32,7 @@ contract Ownable {
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param newOwner The address to transfer ownership to.
    */
-  function transferOwnership(address newOwner) onlyOwner {
+  function transferOwnership(address newOwner) onlyOwner public {
     if (newOwner != address(0)) {
       owner = newOwner;
     }
@@ -58,10 +58,10 @@ contract ERC721 {
     event Approval(address owner, address approved, uint256 tokenId);
 
     // Optional
-     function name() public view returns (string name);
-     function symbol() public view returns (string symbol);
-     function tokensOfOwner(address _owner) external view returns (uint256[] tokenIds);
-     function tokenMetadata(uint256 _tokenId, string _preferredTransport) public view returns (string infoUrl);
+     //function name() public view returns (string name);
+    // function symbol() public view returns (string symbol);
+    //function tokensOfOwner(address _owner) external view returns (uint256[] tokenIds);
+    // function tokenMetadata(uint256 _tokenId, string _preferredTransport) public view returns (string infoUrl);
 
     // ERC-165 Compatibility (https://github.com/ethereum/EIPs/issues/165)
     function supportsInterface(bytes4 _interfaceID) external view returns (bool);
@@ -84,7 +84,7 @@ contract TicketCoinAccessControl {
     //
     //     - The CFO: The CFO can withdraw funds from TicketCoin and its auction contracts.
     //
-    //     - The Organization: The Organization can mint ticket.
+    //     - The CTO: The CTO can supervise ticket lifecycle (creation/transfer/burn)
     //
     // It should be noted that these roles are distinct without overlap in their access abilities, the
     // abilities listed for each role above are exhaustive. In particular, while the CEO can assign any
@@ -99,7 +99,7 @@ contract TicketCoinAccessControl {
     // The addresses of the accounts (or contracts) that can execute actions within each roles.
     address public ceoAddress;
     address public cfoAddress;
-    address public organizationAddress;
+    address public ctoAddress;
 
     // @dev Keeps track whether the contract is paused. When that is true, most actions are blocked
     bool public paused = false;
@@ -116,15 +116,15 @@ contract TicketCoinAccessControl {
         _;
     }
 
-    /// @dev Access modifier for Organization-only functionality
-    modifier onlyOrganization() {
-        require(msg.sender == organizationAddress);
+    /// @dev Access modifier for CTO-only functionality
+    modifier onlyCTO() {
+        require(msg.sender == ctoAddress);
         _;
     }
 
     modifier onlyCLevel() {
         require(
-            msg.sender == organizationAddress ||
+            msg.sender == ctoAddress ||
             msg.sender == ceoAddress ||
             msg.sender == cfoAddress
         );
@@ -147,12 +147,12 @@ contract TicketCoinAccessControl {
         cfoAddress = _newCFO;
     }
 
-    /// @dev Assigns a new address to act as the Organization. Only available to the current CEO.
-    /// @param _newOrganization The address of the new Organization
-    function setOrganization(address _newOrganization) external onlyCEO {
-        require(_newOrganization != address(0));
+    /// @dev Assigns a new address to act as the CTO. Only available to the current CEO.
+    /// @param _newCTO The address of the new CTO
+    function setCTO(address _newCTO) external onlyCEO {
+        require(_newCTO != address(0));
 
-        organizationAddress = _newOrganization;
+        ctoAddress = _newCTO;
     }
 
     /*** Pausable functionality adapted from OpenZeppelin ***/
@@ -190,12 +190,6 @@ contract TicketCoinAccessControl {
 
 
 
-
-
-
-
-
-
 /// @title Base contract for Tickets. Holds all common structs, events and base variables.
 contract TicketBase is TicketCoinAccessControl {
     
@@ -208,10 +202,10 @@ contract TicketBase is TicketCoinAccessControl {
 
 
     /// @dev The Consume event is fired whenever a ticket is consumed at the gates of the vent.
-    event Consume(address owner, uint256 ticketId);
+    event Consume(uint256 ticketId);
 
     /// @dev The Birth event is fired whenever a ticket is consumed bat the event gate.
-    event Cancel(address owner, uint256 ticketId);
+    event Cancel(uint256 ticketId);
 
 
     /*** DATA TYPES ***/
@@ -223,34 +217,48 @@ contract TicketBase is TicketCoinAccessControl {
     ///  Ref: http://solidity.readthedocs.io/en/develop/miscellaneous.html
     struct Ticket {
         // The Ticket unique identifier.
-        uint256 ticketUUID;
-
+        uint128 ticketUUID;
+        
+        // The id of the organization that enrolled/owns the ticket
+        uint128 organizationUUID;
+        
+        //the price cap for transfer(expressed in Gwei)
+        uint64 priceCapGwai;
+      
         // The timestamp from the block when this ticket was enrolled.
-        uint64 enrollTime;
-        
-       // The timestamp from the block when this ticket was cancealed.
-        uint64 canceledTime;
+        uint32 enrollTime;
 
-       // The timestamp from the block when this ticket was consumed.
-        uint64 consumedTime;
+         // The date since whom the ticket can be spent.
+        uint32 validFrom;       
         
-       // The timestamp from the block when this ticket was spent.
-        uint32 eventID;
+         // The expiration date of the ticket.
+        uint32 validUntil;        
         
-       // The id of the organization
-        uint16 organizationID;
-        
-        
-       //The number of allowed transfers.
-       uint8 transferAllowed;
-        
-       // The timestamp from the block when this ticket was spent.
-       uint8 transferDone;
+       // The timestamp from the block when this ticket was consumed
+        uint32 consumedTime;
+
+       // The timestamp from the block when this ticket was canceled
+        uint32 canceledTime;
 
 
+        //The number remainig transfers allowed.  -1 means infinite transfers      
+        uint16 allowedTransfers;
+        
+        //The status of the ticket
+        uint8 ticketState;
+        
+        //The transfer rule to apply
+        uint8 transferRule;
+        
     }
 
     /*** CONSTANTS ***/
+    uint8 constant STATE_INVALID = 0;
+    uint8 constant STATE_VALID = 1;
+    uint8 constant STATE_SPENT = 2;
+
+    uint8 constant TRANSFER_RULE_ANY = 0;
+    uint8 constant TRANSFER_RULE_WHITE_LIST_ONLY = 1;
 
 
     /*** STORAGE ***/
@@ -270,8 +278,21 @@ contract TicketBase is TicketCoinAccessControl {
     ///  at any time. A zero value means no approval is outstanding.
     mapping (uint256 => address) public ticketIndexToApproved;
 
+
+    // @dev A mapping from ticketUUID to ticketIndex
+    mapping (uint256 => uint256) ticketUUIDToIndex;   
+
    
-   
+    // @dev A mapping from owner address to organizationUUID.
+    //  Used to grant obliterate and cancel function to organization granted addresses.
+    mapping (address => uint256) addressToOrganizationUUID;
+    
+    // @dev A white list of addresses. (eg. addresses with KYC complete)
+    mapping (address => bool) addressWhiteList;
+    
+    
+    TicketMarketPlace public ticketMarketPlace;
+        
 
     /// @dev Assigns ownership of a specific ticket to an address.
     function _transfer(address _from, address _to, uint256 _tokenId) internal {
@@ -286,33 +307,32 @@ contract TicketBase is TicketCoinAccessControl {
             // clear any previously approved ownership exchange
             delete ticketIndexToApproved[_tokenId];
         }
+
         // Emit the transfer event.
-        Transfer(_from, _to, _tokenId);
+        emit Transfer(_from, _to, _tokenId);
     }
 
     /// @dev Consume the validity of a ticket.
     function _consume(uint256 _tokenId) internal {
         // consume the ticket
-        ticketIndexToOwner[_tokenId].consumedTime=uint64(now);
-        
+        tickets[_tokenId].consumedTime=uint32(now);
+        tickets[_tokenId].ticketState = uint8(STATE_SPENT);
         // Emit the transfer event.
-        Consume(_tokenId);
+        emit Consume(_tokenId);
     }
 
     /// @dev Cancel the ticket
     function _cancel(uint256 _tokenId) internal {
         // cancel the ticket
-        ticketIndexToOwner[_tokenId].canceledTime=uint64(now);
+        tickets[_tokenId].canceledTime=uint32(now);
+        tickets[_tokenId].ticketState = uint8(STATE_INVALID);
 
         // Emit the transfer event.
-        Cancel(_tokenId);
+        emit Cancel(_tokenId);
     }
     
     
-    
-    
-    
-    
+
 
     /// @dev An internal method that creates a new ticket and stores it. This
     ///  method doesn't do any checking and should only be called when the
@@ -324,29 +344,45 @@ contract TicketBase is TicketCoinAccessControl {
     /// @param _owner The inital owner of this ticket, must be non-zero
     function _createTicket(
         uint256 _ticketUUID,
-        uint256 _organizationID,
-        uint256 _eventID,
-        uint256 _transferAllowed,
+        uint256 _organizationUUID,
+        uint256 _priceCapGwai,
+        uint256 _validFrom,
+        uint256 _validUntil,
+        uint256 _allowedTransfers,
+        uint256 _transferRule,
+        uint256 _ticketState,
         address _owner
     )
         internal
         returns (uint)
     {
+        
+
+        
         // These requires are not strictly necessary, our calling code should make
         // sure that these conditions are never broken. 
+        require(_ticketUUID == uint256(uint128(_ticketUUID)));
+        require(_organizationUUID == uint256(uint128(_organizationUUID)));
+        require(_priceCapGwai == uint256(uint128(_priceCapGwai)));
+        require(_allowedTransfers == uint256(uint8(_allowedTransfers)));
+        require(_transferRule == uint256(uint8(_transferRule)));
+        require(_ticketState == uint256(uint8(_ticketState)));        
         
-        require(_organizationID == uint256(uint16(_organizationID)));
-        require(_eventID == uint256(uint16(_eventID)));
-        require(_transferAllowed == uint256(uint8(_transferAllowed)));
-
+        
+   
+    //creates the ticket structure
         Ticket memory _ticket = Ticket({
-            ticketUUID: _ticketUUID,
-            enrollTime: uint64(now),
-            canceledTime: 0,
+            ticketUUID: uint128(_ticketUUID),
+            organizationUUID: uint128(_organizationUUID),
+            priceCapGwai: uint64(_priceCapGwai),
+            enrollTime: uint32(now),
+            validFrom: uint32(_validFrom),
+            validUntil: uint32(_validUntil),
             consumedTime: 0,
-            eventID: uint32(_eventID),
-            transferAllowed: uint8(_transferAllowed),
-            transferDone: 0
+            canceledTime: 0,
+            allowedTransfers: uint16(_allowedTransfers),
+            ticketState: uint8(STATE_VALID),
+            transferRule: uint8(_transferRule)
         });
         
         
@@ -357,7 +393,8 @@ contract TicketBase is TicketCoinAccessControl {
  		//avoid overflow
         require(newTicketId == uint256(uint32(newTicketId)));
 
-
+        //link the ticketID to ticketUUID
+        ticketUUIDToIndex[_ticketUUID]=newTicketId;
 
         // This will assign ownership, and also emit the Transfer event as
         // per ERC721 draft
@@ -378,20 +415,27 @@ contract TicketBase is TicketCoinAccessControl {
 contract ERC721Metadata {
     /// @dev Given a token Id, returns a byte array that is supposed to be converted into string.
     function getMetadata(uint256 _tokenId, string) public view returns (bytes32[4] buffer, uint256 count) {
-        if (_tokenId == 1) {
-            buffer[0] = "Hello World! :D";
-            count = 15;
-        } else if (_tokenId == 2) {
-            buffer[0] = "I would definitely choose a medi";
-            buffer[1] = "um length string.";
-            count = 49;
-        } else if (_tokenId == 3) {
-            buffer[0] = "Lorem ipsum dolor sit amet, mi e";
-            buffer[1] = "st accumsan dapibus augue lorem,";
-            buffer[2] = " tristique vestibulum id, libero";
-            buffer[3] = " suscipit varius sapien aliquam.";
-            count = 128;
+        
+            buffer[0] = "http://ticketcoin.io/public/tck/";
+            buffer[1] = uintToBytes(_tokenId);
+            count = 64;
+    }
+    
+ 
+    ///  This method is licenced under MIT License.
+    ///  Ref: https://github.com/pipermerriam/ethereum-string-utils
+    function uintToBytes(uint v)  constant  returns (bytes32 ret) {
+        if (v == 0) {
+            ret = '0';
         }
+        else {
+            while (v > 0) {
+                ret = bytes32(uint(ret) / (2 ** 8));
+                ret |= bytes32(((v % 10) + 48) * 2 ** (8 * 31));
+                v /= 10;
+            }
+        }
+        return ret;
     }
 }
 
@@ -404,7 +448,7 @@ contract TicketOwnership is TicketBase, ERC721 {
     string public constant name = "TicketCoinTicket";
     string public constant symbol = "TCKT";
 
-    // The contract that will return kitty metadata
+    // The contract that will return ticket metadata
     ERC721Metadata public erc721Metadata;
 
     bytes4 constant InterfaceSignature_ERC165 =
@@ -447,14 +491,14 @@ contract TicketOwnership is TicketBase, ERC721 {
 
     /// @dev Checks if a given address is the current owner of a particular Ticket.
     /// @param _claimant the address we are validating against.
-    /// @param _tokenId kitten id, only valid when > 0
+    /// @param _tokenId ticket id, only valid when > 0
     function _owns(address _claimant, uint256 _tokenId) internal view returns (bool) {
         return ticketIndexToOwner[_tokenId] == _claimant;
     }
 
     /// @dev Checks if a given address currently has transferApproval for a particular Ticket.
-    /// @param _claimant the address we are confirming kitten is approved for.
-    /// @param _tokenId kitten id, only valid when > 0
+    /// @param _claimant the address we are confirming ticket is approved for.
+    /// @param _tokenId ticket id, only valid when > 0
     function _approvedFor(address _claimant, uint256 _tokenId) internal view returns (bool) {
         return ticketIndexToApproved[_tokenId] == _claimant;
     }
@@ -489,16 +533,31 @@ contract TicketOwnership is TicketBase, ERC721 {
         // Safety check to prevent against an unexpected 0x0 default.
         require(_to != address(0));
         // Disallow transfers to this contract to prevent accidental misuse.
-        // The contract should never own any kitties (except very briefly
+        // The contract should never own any tickets (except very briefly
         // after a gen0 cat is created and before it goes on auction).
         require(_to != address(this));
 
-
         // You can only send your own Ticket.
         require(_owns(msg.sender, _tokenId));
+        
 
+        //verify that the sendendr is the owner of the message
+        require(_owns(msg.sender, _tokenId));
+
+        //Verify the transfer rule
+        require(tickets[_tokenId].transferRule!=TRANSFER_RULE_WHITE_LIST_ONLY || addressWhiteList[_to]);
+
+        //Verify if the ticket can be
+        require(tickets[_tokenId].allowedTransfers!=0);
+        
+        //Decrease the allowed transfers number
+        if(tickets[_tokenId].allowedTransfers>0)
+            tickets[_tokenId].allowedTransfers--;
+            
+            
         // Reassign ownership, clear pending approvals, emit Transfer event.
         _transfer(msg.sender, _to, _tokenId);
+   
     }
 
     /// @notice Grant another address the right to transfer a specific Ticket via
@@ -521,7 +580,7 @@ contract TicketOwnership is TicketBase, ERC721 {
         _approve(_tokenId, _to);
 
         // Emit approval event.
-        Approval(msg.sender, _to, _tokenId);
+        emit Approval(msg.sender, _to, _tokenId);
     }
 
     /// @notice Transfer a Ticket owned by another address, for which the calling address
@@ -624,12 +683,13 @@ contract TicketOwnership is TicketBase, ERC721 {
             mstore(_dest, or(destpart, srcpart))
         }
     }
+    
 
     /// @dev Adapted from toString(slice) by @arachnid (Nick Johnson <arachnid@notdot.net>)
     ///  This method is licenced under the Apache License.
     ///  Ref: https://github.com/Arachnid/solidity-stringutils/blob/2f6ca9accb48ae14c66f1437ec50ed19a0616f78/strings.sol
     function _toString(bytes32[4] _rawBytes, uint256 _stringLength) private view returns (string) {
-        var outputString = new string(_stringLength);
+        string memory outputString = new string(_stringLength);
         uint256 outputPtr;
         uint256 bytesPtr;
 
@@ -642,10 +702,11 @@ contract TicketOwnership is TicketBase, ERC721 {
 
         return outputString;
     }
+    
 
     /// @notice Returns a URI pointing to a metadata package for this token conforming to
     ///  ERC-721 (https://github.com/ethereum/EIPs/issues/721)
-    /// @param _tokenId The ID number of the Kitty whose metadata should be returned.
+    /// @param _tokenId The ID number of the Ticket whose metadata should be returned.
     function tokenMetadata(uint256 _tokenId, string _preferredTransport) external view returns (string infoUrl) {
         require(erc721Metadata != address(0));
         bytes32[4] memory buffer;
@@ -656,125 +717,204 @@ contract TicketOwnership is TicketBase, ERC721 {
     }
 }
 
+/// @title MarketPlace Core
+/// @dev Contains models, variables, and internal methods for the order.
+/// @notice We omit a fallback function to prevent accidental sends to this contract.
+contract TicketMarketPlace {
 
+    // Represents an auction on an NFT
+    struct Payment {
+        // Current owner of NFT
+        address buyer;
+        
+        // Price (in wei)
+        uint128 amount;
+        
+        // the block timestamp when the order was placed
+        uint32 placedTime;        
 
-
-
-
-
-
-
-
-
-/// @title all functions related to creating kittens
-contract KittyMinting is KittyAuction {
-
-    // Limits the number of cats the contract owner can ever create.
-    uint256 public constant PROMO_CREATION_LIMIT = 5000;
-    uint256 public constant GEN0_CREATION_LIMIT = 45000;
-
-    // Constants for gen0 auctions.
-    uint256 public constant GEN0_STARTING_PRICE = 10 finney;
-    uint256 public constant GEN0_AUCTION_DURATION = 1 days;
-
-    // Counts the number of cats the contract owner has created.
-    uint256 public promoCreatedCount;
-    uint256 public gen0CreatedCount;
-
-    /// @dev we can create promo kittens, up to a limit. Only callable by COO
-    /// @param _genes the encoded genes of the kitten to be created, any value is accepted
-    /// @param _owner the future owner of the created kittens. Default to contract COO
-    function createPromoKitty(uint256 _genes, address _owner) external onlyCOO {
-        address kittyOwner = _owner;
-        if (kittyOwner == address(0)) {
-             kittyOwner = cooAddress;
-        }
-        require(promoCreatedCount < PROMO_CREATION_LIMIT);
-
-        promoCreatedCount++;
-        _createKitty(0, 0, 0, _genes, kittyOwner);
+        // the block timestamp when the order was processed
+        uint32 processedTime;            
+        
     }
 
-    /// @dev Creates a new gen0 kitty with the given genes and
-    ///  creates an auction for it.
-    function createGen0Auction(uint256 _genes) external onlyCOO {
-        require(gen0CreatedCount < GEN0_CREATION_LIMIT);
+    // Reference to contract tracking NFT ownership
+    ERC721 public nonFungibleContract;
 
-        uint256 kittyId = _createKitty(0, 0, 0, _genes, address(this));
-        _approve(kittyId, saleAuction);
 
-        saleAuction.createAuction(
-            kittyId,
-            _computeNextGen0Price(),
-            0,
-            GEN0_AUCTION_DURATION,
-            address(this)
-        );
+    // Map from order id to order.
+    mapping (uint256 => Payment) payments;
 
-        gen0CreatedCount++;
-    }
+    event PaymentCreated(uint256 tokenId, uint256 startingPrice, uint256 endingPrice, uint256 duration);
+    event PaymentSuccessful(uint256 tokenId, uint256 totalPrice, address winner);
+    event PaymentCancelled(uint256 tokenId);
 
-    /// @dev Computes the next gen0 auction starting price, given
-    ///  the average of the past 5 prices + 50%.
-    function _computeNextGen0Price() internal view returns (uint256) {
-        uint256 avePrice = saleAuction.averageGen0SalePrice();
 
-        // Sanity check to ensure we don't overflow arithmetic
-        require(avePrice == uint256(uint128(avePrice)));
 
-        uint256 nextPrice = avePrice + (avePrice / 2);
+    
 
-        // We never auction for less than starting price
-        if (nextPrice < GEN0_STARTING_PRICE) {
-            nextPrice = GEN0_STARTING_PRICE;
-        }
 
-        return nextPrice;
-    }
+   
+
+
 }
 
 
-/// @title CryptoKitties: Collectible, breedable, and oh-so-adorable cats on the Ethereum blockchain.
-/// @author Axiom Zen (https://www.axiomzen.co)
-/// @dev The main CryptoKitties contract, keeps track of kittens so they don't wander around and get lost.
-contract KittyCore is KittyMinting {
 
-    // This is the main CryptoKitties contract. In order to keep our code seperated into logical sections,
-    // we've broken it up in two ways. First, we have several seperately-instantiated sibling contracts
-    // that handle auctions and our super-top-secret genetic combination algorithm. The auctions are
-    // seperate since their logic is somewhat complex and there's always a risk of subtle bugs. By keeping
-    // them in their own contracts, we can upgrade them without disrupting the main contract that tracks
-    // kitty ownership. The genetic combination algorithm is kept seperate so we can open-source all of
-    // the rest of our code without making it _too_ easy for folks to figure out how the genetics work.
-    // Don't worry, I'm sure someone will reverse engineer it soon enough!
-    //
-    // Secondly, we break the core contract into multiple files using inheritence, one for each major
-    // facet of functionality of CK. This allows us to keep related code bundled together while still
-    // avoiding a single giant file with everything in it. The breakdown is as follows:
-    //
-    //      - TicketBase: This is where we define the most fundamental code shared throughout the core
-    //             functionality. This includes our main data storage, constants and data types, plus
-    //             internal functions for managing these items.
-    //
-    //      - TicketCoinAccessControl: This contract manages the various addresses and constraints for operations
-    //             that can be executed only by specific roles. Namely CEO, CFO and Organization.
-    //
-    //      - TicketOwnership: This provides the methods required for basic non-fungible token
-    //             transactions, following the draft ERC-721 spec (https://github.com/ethereum/EIPs/issues/721).
-    //
-    //
-    //      - KittyMinting: This final facet contains the functionality we use for creating new gen0 cats.
-    //             We can make up to 5000 "promo" cats that can be given away (especially important when
-    //             the community is new), and all others can only be created and then immediately put up
-    //             for auction via an algorithmically determined starting price. Regardless of how they
-    //             are created, there is a hard limit of 50k gen0 cats. After that, it's all up to the
-    //             community to breed, breed, breed!
 
+
+
+/// @title The core contract to manage tickets
+contract TicketManagement is TicketOwnership {
+
+    /// @notice this function is used to enroll a new token
+    /// @param _ticketUUID ticketUUID
+    /// @param _organizationUUID organization uuid
+    /// @param _priceCapGwai price cap
+    /// @param _validFrom validity from 
+    /// @param  _validUntil expiration date
+    /// @param  _allowedTransfers number of allowed transfer
+    /// @param  _transferRule rules applied for transferring title
+    /// @param  _ticketState status of the ticket
+    /// @param  _owner  owber if the ticket
+    function enrollTicket(
+        uint256 _ticketUUID,
+        uint256 _organizationUUID,
+        uint256 _priceCapGwai,
+        uint256 _validFrom,
+        uint256 _validUntil,
+        uint256 _allowedTransfers,
+        uint256 _transferRule,
+        uint256 _ticketState,
+        address _owner    )
+        external
+        whenNotPaused
+    {
+        
+        //OnlyCTO o MarketPlace
+        require(msg.sender == ctoAddress || msg.sender == address(ticketMarketPlace));
+        
+        _createTicket(_ticketUUID,
+        _organizationUUID,
+        _priceCapGwai,
+        _validFrom,
+        _validUntil,
+        _allowedTransfers,
+        _transferRule,
+        _ticketState,
+        _owner );
+    }
+        
+        
+
+    /// @notice this function is used to cancel a token when it should't be usable
+    /// @param _tokenId The ID of the Ticket to transfer.
+    function cancel(
+        uint256 _tokenId
+    )
+        external
+        whenNotPaused
+    {
+ 
+        // Only CTO and organizator can consume ticket
+        require(msg.sender == ctoAddress || uint128(addressToOrganizationUUID[msg.sender]) == tickets[_tokenId].organizationUUID);
+        
+        
+        // cancel the token.
+        _cancel(_tokenId);
+    }
+    
+
+    /// @notice this function is used to consume a token when it should't be usable
+    /// @param _tokenId The ID of the Ticket to transfer.
+    function consume(
+        uint256 _tokenId
+    )
+        external
+        whenNotPaused
+    {
+
+        // Only CTO and organizator can consume ticket
+        require(msg.sender == ctoAddress || uint128(addressToOrganizationUUID[msg.sender]) == tickets[_tokenId].organizationUUID);
+
+        // cancel the token.
+        _consume(_tokenId);
+    }
+       
+       
+    /// @notice this function is used to authorize an address to conusme a ticket
+    /// @param addressToGrant the address to grant.
+    /// @param organizationUUID the organizationUUID to grant device to.
+    function authorize(
+        address addressToGrant,
+        uint256 organizationUUID
+    )
+        external
+        onlyCTO
+        whenNotPaused
+    {
+        addressToOrganizationUUID[addressToGrant]=organizationUUID;
+    }
+
+
+   /// @notice this function is used to revoke an address to conusme a ticket
+    /// @param addressToRevoke The address to revoke
+    function revoke(
+        address addressToRevoke
+    )
+        external
+        onlyCTO
+        whenNotPaused
+    {
+        delete addressToOrganizationUUID[addressToRevoke];
+    }
+                                
+
+ /// @notice this function is used to authorize an address to conusme a ticket
+    /// @param _address the address to insert in white list.
+    function insertInWhiteList(
+        address _address
+    )
+        external
+        onlyCTO
+        whenNotPaused
+    {
+        addressWhiteList[_address]=true;
+    }
+
+
+   /// @notice this function is used to revoke an address to conusme a ticket
+    /// @param _address The address to remove from white list
+    function removeFromWhiteList(
+        address _address
+    )
+        external
+        onlyCTO
+        whenNotPaused
+    {
+        delete addressWhiteList[_address];
+    }
+        
+        
+        
+    
+    
+}
+
+
+
+
+
+/// @title TicketCoinCore: TicketCoin tickets in blockchain.
+/// @dev The main TicketCoin contract, keeps track of tickets emitted by ticketcoin.io
+contract TicketCoinCore is TicketManagement {
+
+   
     // Set in case the core contract is broken and an upgrade is required
     address public newContractAddress;
 
     /// @notice Creates the main CryptoKitties smart contract instance.
-    function KittyCore() public {
+    constructor() public {
         // Starts paused.
         paused = true;
 
@@ -782,10 +922,9 @@ contract KittyCore is KittyMinting {
         ceoAddress = msg.sender;
 
         // the creator of the contract is also the initial COO
-        cooAddress = msg.sender;
+        ctoAddress = msg.sender;        
 
-        // start with the mythical kitten 0 - so we don't have generation-0 parent issues
-        _createKitty(0, 0, 0, uint256(-1), address(0));
+
     }
 
     /// @dev Used to mark the smart contract as upgraded, in case there is a serious
@@ -797,49 +936,56 @@ contract KittyCore is KittyMinting {
     function setNewAddress(address _v2Address) external onlyCEO whenPaused {
         // See README.md for updgrade plan
         newContractAddress = _v2Address;
-        ContractUpgrade(_v2Address);
+        emit ContractUpgrade(_v2Address);
     }
 
     /// @notice No tipping!
-    /// @dev Reject all Ether from being sent here, unless it's from one of the
-    ///  two auction contracts. (Hopefully, we can prevent user accidents.)
+    /// @dev Reject all Ether from being sent here, unless it's from the
+    /// ticketMarketPlace contract
     function() external payable {
         require(
-            msg.sender == address(saleAuction) ||
-            msg.sender == address(siringAuction)
+            msg.sender == address(ticketMarketPlace) 
         );
     }
 
     /// @notice Returns all the relevant information about a specific kitty.
     /// @param _id The ID of the kitty of interest.
-    function getKitty(uint256 _id)
+    function getTicket(uint256 _id)
         external
         view
         returns (
-        bool isGestating,
-        bool isReady,
-        uint256 cooldownIndex,
-        uint256 nextActionAt,
-        uint256 siringWithId,
-        uint256 birthTime,
-        uint256 matronId,
-        uint256 sireId,
-        uint256 generation,
-        uint256 genes
+        bool isValid,
+        uint256 ticketUUID,
+        uint256 organizationUUID,
+        uint256 priceCapGwai,
+        uint256 enrollTime,
+        uint256 validFrom,
+        uint256 validUntil,
+        uint256 consumedTime,
+        uint256 canceledTime,
+        uint256 allowedTransfers,
+        uint256 ticketState,
+        uint256 transferRule
     ) {
-        Kitty storage kit = kitties[_id];
+        
+        
+        Ticket storage ticket = tickets[_id];
 
-        // if this variable is 0 then it's not gestating
-        isGestating = (kit.siringWithId != 0);
-        isReady = (kit.cooldownEndBlock <= block.number);
-        cooldownIndex = uint256(kit.cooldownIndex);
-        nextActionAt = uint256(kit.cooldownEndBlock);
-        siringWithId = uint256(kit.siringWithId);
-        birthTime = uint256(kit.birthTime);
-        matronId = uint256(kit.matronId);
-        sireId = uint256(kit.sireId);
-        generation = uint256(kit.generation);
-        genes = kit.genes;
+        // show if the ticket s valid
+        isValid = (ticket.ticketState == STATE_VALID);
+    
+        ticketUUID = uint256(ticket.ticketUUID);
+        organizationUUID = uint256(ticket.organizationUUID);
+        priceCapGwai = uint256(ticket.priceCapGwai);
+        enrollTime = uint256(ticket.enrollTime);
+        validFrom = uint256(ticket.validFrom);
+        validUntil = uint256(ticket.validUntil);
+        consumedTime = uint256(ticket.consumedTime);
+        canceledTime = uint256(ticket.canceledTime);
+        allowedTransfers = uint256(ticket.allowedTransfers);
+        ticketState = uint256(ticket.ticketState);
+        transferRule = uint256(ticket.transferRule);
+     
     }
 
     /// @dev Override unpause so it requires all external contract addresses
@@ -848,9 +994,6 @@ contract KittyCore is KittyMinting {
     /// @notice This is public rather than external so we can call super.unpause
     ///  without using an expensive CALL.
     function unpause() public onlyCEO whenPaused {
-        require(saleAuction != address(0));
-        require(siringAuction != address(0));
-        require(geneScience != address(0));
         require(newContractAddress == address(0));
 
         // Actually unpause the contract.
@@ -859,12 +1002,7 @@ contract KittyCore is KittyMinting {
 
     // @dev Allows the CFO to capture the balance available to the contract.
     function withdrawBalance() external onlyCFO {
-        uint256 balance = this.balance;
-        // Subtract all the currently pregnant kittens we have, plus 1 of margin.
-        uint256 subtractFees = (pregnantKitties + 1) * autoBirthFee;
-
-        if (balance > subtractFees) {
-            cfoAddress.send(balance - subtractFees);
-        }
+        uint256 balance = address(this).balance;
+        cfoAddress.transfer(balance);
     }
 }
