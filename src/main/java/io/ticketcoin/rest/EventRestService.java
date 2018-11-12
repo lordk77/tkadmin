@@ -15,6 +15,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import com.google.gson.Gson;
 
 import io.ticketcoin.dashboard.dto.EventCategoryDTO;
@@ -32,7 +34,6 @@ public class EventRestService
 {
 
 	private static final int MAX_RESULTS =50;
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@GET
 	@Path("/list/{timeStamp}")
@@ -174,7 +175,7 @@ public class EventRestService
 		EventExtDTO eventExtDTO = null;
 		
 		if (es!=null && !es.isEmpty())
-			eventExtDTO = new EventExtDTO(es.get(0), date !=null ? sdf.parse(date):null);
+			eventExtDTO = new EventExtDTO(es.get(0), date !=null ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.parse(date):null);
 
 		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(eventExtDTO)))
 				.header("Access-Control-Allow-Origin", "*")

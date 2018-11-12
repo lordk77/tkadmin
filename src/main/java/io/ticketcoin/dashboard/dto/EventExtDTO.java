@@ -1,11 +1,14 @@
 package io.ticketcoin.dashboard.dto;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.commons.lang3.StringUtils;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
 
@@ -16,8 +19,8 @@ public class EventExtDTO extends EventDTO
 	private String country;
 	private String city;
 	private String address;
-	private String coordX;
-	private String coordY;
+	private BigDecimal coordX;
+	private BigDecimal coordY;
 	
 	private List<TicketCategoryDTO> ticketCategories;
 
@@ -37,8 +40,12 @@ public class EventExtDTO extends EventDTO
 			this.country = event.getLocation().getAddress().getCountry();
 			this.city = event.getLocation().getAddress().getCity();
 			this.address = event.getLocation().getAddress().getAddress();
-			this.coordX = event.getLocation().getAddress().getCoordX();
-			this.coordY = event.getLocation().getAddress().getCoordY();
+			try {//resolve coordinates
+				this.coordX = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordX()) ? new BigDecimal(event.getLocation().getAddress().getCoordX()) : null;
+				this.coordY = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordY()) ? new BigDecimal(event.getLocation().getAddress().getCoordY()) : null;
+			}
+			catch (Exception e) {
+			}
 		}
 
 		
@@ -100,19 +107,12 @@ public class EventExtDTO extends EventDTO
 		this.address = address;
 	}
 
-	public String getCoordX() {
-		return coordX;
-	}
 
-	public void setCoordX(String coordX) {
+	public void setCoordX(BigDecimal coordX) {
 		this.coordX = coordX;
 	}
 
-	public String getCoordY() {
-		return coordY;
-	}
-
-	public void setCoordY(String coordY) {
+	public void setCoordY(BigDecimal coordY) {
 		this.coordY = coordY;
 	}
 }

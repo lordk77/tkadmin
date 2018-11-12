@@ -2,11 +2,12 @@ package io.ticketcoin.dashboard.dto;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 
-import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
 
@@ -33,6 +34,11 @@ public class EventDTO implements Serializable {
 		private String email;
 		private String phone;
 		private String website;
+
+		
+		private String dateFrom;
+		private String dateTo;
+		
 		
 		
 		public EventDTO() {}
@@ -66,7 +72,6 @@ public class EventDTO implements Serializable {
 				this.updatedOn=event.getUpdated().getTime();
 //			else if (event.getCreated()!=null)
 //				this.updatedOn=event.getCreated().getTime();
-			
 			
 		}
 		
@@ -176,6 +181,37 @@ public class EventDTO implements Serializable {
 
 		public void setWebsite(String website) {
 			this.website = website;
+		}
+
+
+		public void setDateFrom(Date dateFrom) {
+			if(dateFrom!=null)
+			{
+				this.dateFrom = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(dateFrom);
+			}
+			else
+				this.dateFrom = null;
+		}
+
+		public void setDateTo(Date dateTo) {
+			this.dateTo = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(dateTo);
+			
+		}
+
+		public String getDateFrom() {
+			return dateFrom;
+		}
+
+		public void setDateFrom(String dateFrom) {
+			this.dateFrom = dateFrom;
+		}
+
+		public String getDateTo() {
+			return dateTo;
+		}
+
+		public void setDateTo(String dateTo) {
+			this.dateTo = dateTo;
 		}
 
 }
