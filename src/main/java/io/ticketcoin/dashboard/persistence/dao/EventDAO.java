@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.h2.command.ddl.CreateFunctionAlias;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -159,6 +160,23 @@ public class EventDAO extends GenericDAO<Event>{
 		return tcd.isEmpty() ? null : tcd.get(0);
 	}
 	
+	
+	public Date getFirstAvailableDate(String eventUUID) {
+		
+		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
+				.createCriteria(TicketCategoryDetail.class)
+				.createAlias("ticketCategory", "ticketCategory")
+				.createAlias("ticketCategory.event", "event");
+				
+		c.add(Restrictions.eq("event.eventUUID", eventUUID));
+		c.add(Restrictions.gt("availableTicket", 0));
+		c.add(Restrictions.ge("startingDate", DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)));
+		c.setProjection(Projections.min("startingDate"));
+		
+		
+		return (Date)c.uniqueResult();
+		
+	}
 	
 	
 

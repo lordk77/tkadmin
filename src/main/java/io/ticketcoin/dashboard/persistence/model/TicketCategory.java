@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -42,6 +43,11 @@ public class TicketCategory {
 	
 	@Enumerated(EnumType.STRING)
 	private SupplyType supplyType;
+	
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="EVENT_ID")
+	private Event event;
 	
 	public enum SupplyType {
 	    LEGACY_CODE, NORMAL;
@@ -140,6 +146,8 @@ public class TicketCategory {
 	public void setTicketSupply(Integer ticketSupply) {
 		this.ticketSupply = ticketSupply;
 	}
+
+
 	
 	
 	

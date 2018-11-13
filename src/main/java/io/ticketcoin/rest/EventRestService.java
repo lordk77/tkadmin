@@ -175,7 +175,7 @@ public class EventRestService
 		EventExtDTO eventExtDTO = null;
 		
 		if (es!=null && !es.isEmpty())
-			eventExtDTO = new EventExtDTO(es.get(0), date !=null ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.parse(date):null);
+			eventExtDTO = new EventExtDTO(es.get(0), date !=null ? DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.parse(date):null);
 
 		 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(eventExtDTO)))
 				.header("Access-Control-Allow-Origin", "*")

@@ -9,8 +9,10 @@ import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
+import io.ticketcoin.dashboard.persistence.service.EventService;
 
 @XmlRootElement
 public class EventExtDTO extends EventDTO 
@@ -21,6 +23,7 @@ public class EventExtDTO extends EventDTO
 	private String address;
 	private BigDecimal coordX;
 	private BigDecimal coordY;
+	private String date; 
 	
 	private List<TicketCategoryDTO> ticketCategories;
 
@@ -32,8 +35,21 @@ public class EventExtDTO extends EventDTO
 	{
 		super(event);
 		
-		if(date==null&&Event.TYPE_SINGLE_DATE.equals(event.getEventType()))
-			date = event.getDateFrom();
+		if(date==null)
+		{
+			if(Event.TYPE_SINGLE_DATE.equals(event.getEventType()))
+				date = event.getDateFrom();
+			else if (Event.TYPE_PERIOD.equals(event.getEventType()))
+			{
+				date = new EventService().getFirstAvailableDate(event.getEventUUID());
+				if(date == null)
+					date =  event.getDateFrom()!=null && event.getDateFrom().after(new Date()) ? event.getDateFrom() : new Date();
+			}
+		}
+		
+		if(date!=null)
+			this.setDate(DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.format(date));
+		
 		
 		if(event.getLocation()!=null && event.getLocation().getAddress()!=null)
 		{
@@ -114,5 +130,21 @@ public class EventExtDTO extends EventDTO
 
 	public void setCoordY(BigDecimal coordY) {
 		this.coordY = coordY;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public BigDecimal getCoordX() {
+		return coordX;
+	}
+
+	public BigDecimal getCoordY() {
+		return coordY;
 	}
 }

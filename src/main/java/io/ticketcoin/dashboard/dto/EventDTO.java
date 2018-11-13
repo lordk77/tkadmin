@@ -53,6 +53,15 @@ public class EventDTO implements Serializable {
 				e.printStackTrace();
 			}
 			
+			
+//			//Imposta le date col formato esteso ISO
+//			if(event.getDateFrom()!=null)
+//				this.dateFrom = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(event.getDateFrom());
+//			if(event.getDateTo()!=null)
+//				this.dateTo = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(event.getDateTo());	
+			
+		
+			
 			this.organizationId=event.getOrganization()!=null?event.getOrganization().getId():null;
 			
 			if(event.getImages()!=null && event.getImages().size()>0)
@@ -183,20 +192,6 @@ public class EventDTO implements Serializable {
 			this.website = website;
 		}
 
-
-		public void setDateFrom(Date dateFrom) {
-			if(dateFrom!=null)
-			{
-				this.dateFrom = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(dateFrom);
-			}
-			else
-				this.dateFrom = null;
-		}
-
-		public void setDateTo(Date dateTo) {
-			this.dateTo = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(dateTo);
-			
-		}
 
 		public String getDateFrom() {
 			return dateFrom;

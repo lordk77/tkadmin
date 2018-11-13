@@ -83,6 +83,24 @@ public class EventService extends GenericService<Event> {
 	}
 	
 	
+	public Date getFirstAvailableDate(String eventUUID) {
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			Date retval = new EventDAO().getFirstAvailableDate(eventUUID);
+
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
 	
 	
 	public EventSearchResult searchEvents(EventFilter filter)
