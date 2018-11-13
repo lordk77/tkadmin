@@ -612,7 +612,7 @@ contract TicketOwnership is TicketBase, ERC721 {
     /// @notice Returns the total number of Tickets currently in existence.
     /// @dev Required for ERC-721 compliance.
     function totalSupply() public view returns (uint) {
-        return tickets.length - 1;
+        return tickets.length;
     }
 
     /// @notice Returns the address currently assigned ownership of a given Ticket.
@@ -648,7 +648,7 @@ contract TicketOwnership is TicketBase, ERC721 {
             // sequentially up to the totalTicket count.
             uint256 ticketId;
 
-            for (ticketId = 1; ticketId <= totalTickets; ticketId++) {
+            for (ticketId = 1; ticketId < totalTickets; ticketId++) {
                 if (ticketIndexToOwner[ticketId] == _owner) {
                     result[resultIndex] = ticketId;
                     resultIndex++;
@@ -1167,6 +1167,9 @@ contract TicketCoinCore is TicketCoinPayable {
 
         // the creator of the contract is the initial CEO
         ceoAddress = msg.sender;
+
+        // the creator of the contract is also the initial CFO
+        cfoAddress = msg.sender;             
 
         // the creator of the contract is also the initial COO
         ctoAddress = msg.sender;        
