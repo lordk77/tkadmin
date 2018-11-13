@@ -253,9 +253,9 @@ contract TicketBase is TicketCoinAccessControl {
     }
 
     /*** CONSTANTS ***/
-    uint8 constant STATE_INVALID = 0;
-    uint8 constant STATE_VALID = 1;
-    uint8 constant STATE_SPENT = 2;
+    uint8 constant STATE_VALID = 0;
+    uint8 constant STATE_SPENT = 1;
+    uint8 constant STATE_INVALID = 2;
 
     uint8 constant TRANSFER_RULE_ANY = 0;
     uint8 constant TRANSFER_RULE_WHITE_LIST_ONLY = 1;
@@ -541,9 +541,6 @@ contract TicketOwnership is TicketBase, ERC721 {
         require(_owns(msg.sender, _tokenId));
         
 
-        //verify that the sendendr is the owner of the message
-        //require(_owns(msg.sender, _tokenId));
-
         //Verify the transfer rule
         require(tickets[_tokenId].transferRule!=TRANSFER_RULE_WHITE_LIST_ONLY || addressWhiteList[_to]);
 
@@ -733,10 +730,8 @@ contract TicketPaymentGateway is Ownable{
     ///  and verifies the owner cut is in the valid range.
     /// @param _nftAddress - address of a deployed contract implementing
     ///  the Nonfungible Interface.
-    /// @param _cut - percent cut the owner takes on each auction, must be
-    ///  between 0-10,000.
     constructor(address _nftAddress) public payable {
-        ERC721 candidateContract = ERC721(_nftAddress);
+        TicketCoinCore candidateContract = TicketCoinCore(_nftAddress);
         require(candidateContract.supportsInterface(InterfaceSignature_ERC721));
         nonFungibleContract = candidateContract;
     }
@@ -772,15 +767,41 @@ contract TicketPaymentGateway is Ownable{
     }
 
     // Reference to contract tracking NFT ownership
-    ERC721 public nonFungibleContract;
+    TicketCoinCore public nonFungibleContract;
 
 
     // Mapping paymentUUID to 
     mapping (uint256 => uint256) public orderUUIDToPaymentId;
 
     event PaymentInserted(uint256 cartUUID, uint256 price, address buyer, uint256 newPaymentId);
-    event PaymentSuccessfull(uint256 cartUUID, address buyer, uint256 paymentId);
+    event PaymentSuccessfull(uint256 cartUUID, address buyer, uint256 paymentId, uint256 _tokenId);
     event PaymentRejected(uint256 cartUUID,  address buyer, uint256 paymentId);
+    
+
+ /// @notice Returns all the relevant information about a specific kitty.
+    /// @param _id The ID of the kitty of interest.
+    function getPayment(uint256 _id)
+        external
+        view
+        returns (
+        address buyer,
+        uint256 amount,
+        uint256 placedTime,
+        uint256 processedTime,
+        uint256 paymentState
+    ) {
+    
+        
+        Payment storage payment = payments[_id];
+
+        buyer = payment.buyer;
+        amount = uint256(payment.amount);
+        placedTime = uint256(payment.placedTime);
+        processedTime = uint256(payment.processedTime);
+        paymentState = uint256(payment.paymentState);
+
+     
+    }
     
     
     /// @notice this function is used to purchase the content of a shopping cart 
@@ -820,54 +841,36 @@ contract TicketPaymentGateway is Ownable{
 
     /// @notice this function is used to confirm a payment
     /// @param _cartUUID The ID of the cart containig items
-    /// @param _ticketUUID ticketUUID
-    /// @param _organizationUUID organization uuid
-    /// @param _priceCapGwai price cap
-    /// @param _validFrom validity from 
-    /// @param  _validUntil expiration date
-    /// @param  _allowedTransfers number of allowed transfer
-    /// @param  _transferRule rules applied for transferring title
-    /// @param  _ticketState status of the ticket  
+    /// @param _tokenId the id of the token to trnasfer to
     function confirmPayment (
         uint256 _cartUUID,
-        uint256 _ticketUUID,
-        uint256 _organizationUUID,
-        uint256 _priceCapGwai,
-        uint256 _validFrom,
-        uint256 _validUntil,
-        uint256 _allowedTransfers,
-        uint256 _transferRule,
-        uint256 _ticketState )
+        uint256 _tokenId )
         external
-        onlyOwner
         returns (uint)
     {
 
         uint256 paymentId = orderUUIDToPaymentId[_cartUUID];
         
+        //Only the main contract can confirm a payment 
+        //require(msg.sender==address(nonFungibleContract));
+        
         //Only pending order are processed
-        require(payments[paymentId]. paymentState == STATE_PENDING);
+        require(payments[paymentId].paymentState == STATE_PENDING);
         
         //Verify the payment amount
         require(payments[paymentId].amount>0);
         
-        //updates the 
+        nonFungibleContract.transfer(payments[paymentId].buyer, _tokenId);
+        
+        //transfer funds to main contract
+        address(nonFungibleContract).transfer(payments[paymentId].amount);
+        
+        //updates the ayment state
         payments[paymentId].paymentState=STATE_COMPLETED;
         payments[paymentId].processedTime=uint32(now);
-        
-        /*nonFungibleContract.enrollTicket(_ticketUUID,
-        _organizationUUID,
-        _priceCapGwai,
-        _validFrom,
-        _validUntil,
-        _allowedTransfers,
-        _transferRule,
-        _ticketState,
-        payments[paymentId].buyer );*/
-        
 
         //Emits the payment inserted event
-        emit PaymentSuccessfull(_cartUUID, msg.sender, paymentId);
+        emit PaymentSuccessfull(_cartUUID, payments[paymentId].buyer, paymentId, _tokenId);
     }    
     
 
@@ -878,11 +881,13 @@ contract TicketPaymentGateway is Ownable{
         uint256 _cartUUID
     )
         external
-        onlyOwner
         returns (uint)
     {
 
         uint256 paymentId = orderUUIDToPaymentId[_cartUUID];
+
+        //Only the main contract can confirm a payment 
+        require(msg.sender==address(nonFungibleContract));        
         
         //Only pending order are processed
         require(payments[paymentId]. paymentState == STATE_PENDING);
@@ -899,35 +904,82 @@ contract TicketPaymentGateway is Ownable{
 
     }    
     
+    /*
+    /// @dev Confirms the payment in gateway contract.
+
+    /// @param _ticketUUID the unique identifier of the ticket
+    /// @param _organizationUUID the unique identifier of the organization
+    /// @param _priceCapGwai the price cap
+    /// @param _validFrom validity date
+    /// @param _validUntil expriation date
+    /// @param _allowedTransfers alloed transfers
+    /// @param _transferRule transfer tule
+    /// @param _ticketState ticket status
+     function confirmPayment (
+        uint256 _cartUUID,
+        uint256 _paymentId,
+        uint256 _ticketUUID,
+        uint256 _organizationUUID,
+        uint256 _priceCapGwai,
+        uint256 _validFrom,
+        uint256 _validUntil,
+        int256 _allowedTransfers,
+        uint256 _transferRule,
+        uint256 _ticketState)
+        external
+        returns (uint)
+    {
+
+        uint256 paymentId = orderUUIDToPaymentId[_cartUUID];
+        
+        //Only the main contract can confirm a payment 
+        //require(msg.sender==address(nonFungibleContract));
+        
+        //Only pending order are processed
+        require(payments[paymentId].paymentState == STATE_PENDING);
+        
+        //Verify the payment amount
+        require(payments[paymentId].amount>0);
+        
+
+        address buyer = payments[_paymentId].buyer;
+        
+       uint ticketId = nonFungibleContract.enrollTicket(
+        _ticketUUID,
+        _organizationUUID,
+        _priceCapGwai,
+        _validFrom,
+        _validUntil,
+        _allowedTransfers,
+        _transferRule,
+        _ticketState,
+        buyer);
+        
+        
+        //transfer funds to main contract
+        address(nonFungibleContract).transfer(payments[paymentId].amount);
+        
+        //updates the ayment state
+        payments[paymentId].paymentState=STATE_COMPLETED;
+        payments[paymentId].processedTime=uint32(now);
+
+        //Emits the payment inserted event
+        emit PaymentSuccessfull(_cartUUID, payments[paymentId].buyer, paymentId, ticketId);        
+        
+
+    
+        
+    } 
+    
+    */
 
 }
 
-
-/// @title Handles payment gateway for buy tickets 
-contract TicketCoinPayable is TicketOwnership {
-
-    // @notice The auction contract variables are defined in KittyBase to allow
-    //  us to refer to them in KittyOwnership to prevent accidental transfers.
-    // `saleAuction` refers to the auction for gen0 and p2p sale of kitties.
-    // `siringAuction` refers to the auction for siring rights of kitties.
-
-    /// @dev Sets the reference to the Ticket Payment Gateway.
-    /// @param _address - Address of gateway contract.
-    function setTicketPaymentGatewayAddress(address _address) external onlyCTO {
-        TicketPaymentGateway candidateContract = TicketPaymentGateway(_address);
-
-        // NOTE: verify that a contract is what we expect - https://github.com/Lunyr/crowdsale-contracts/blob/cfadd15986c30521d8ba7d5b6f57b4fefcc7ac38/contracts/LunyrToken.sol#L117
-        require(candidateContract.isTicketPaymentGateway());
-
-        // Set the new contract address
-        ticketPaymentGateway = candidateContract;
-    }
-}
 
 
 
  /// @title The core contract to manage tickets
-contract TicketManagement is TicketCoinPayable  {
+contract TicketManagement is TicketOwnership  {
 
     /// @notice this function is used to enroll a new token
     /// @param _ticketUUID ticketUUID
@@ -953,10 +1005,9 @@ contract TicketManagement is TicketCoinPayable  {
         whenNotPaused
         returns (uint)
     {
-        
         //OnlyCTO o MarketPlace
         require(msg.sender == ctoAddress || msg.sender == address(ticketPaymentGateway));
-        
+
         //checks the ticket existence
         require(ticketUUIDToIndex[_ticketUUID]==0);
         
@@ -986,6 +1037,8 @@ contract TicketManagement is TicketCoinPayable  {
         // Only CTO and organizator can consume ticket
         require(msg.sender == ctoAddress || uint128(addressToOrganizationUUID[msg.sender]) == tickets[_tokenId].organizationUUID);
         
+        //Ticket must be valid
+        require(tickets[_tokenId].ticketState==STATE_VALID);
         
         // cancel the token.
         _cancel(_tokenId);
@@ -1003,7 +1056,10 @@ contract TicketManagement is TicketCoinPayable  {
 
         // Only CTO and organizator can consume ticket
         require(msg.sender == ctoAddress || uint128(addressToOrganizationUUID[msg.sender]) == tickets[_tokenId].organizationUUID);
-
+        
+        //Ticket must be valid
+        require(tickets[_tokenId].ticketState==STATE_VALID);
+        
         // cancel the token.
         _consume(_tokenId);
     }
@@ -1068,11 +1124,37 @@ contract TicketManagement is TicketCoinPayable  {
 
 
 
+/// @title Handles payment gateway for buy tickets 
+contract TicketCoinPayable is TicketManagement {
+
+    // @notice The auction contract variables are defined in KittyBase to allow
+    //  us to refer to them in KittyOwnership to prevent accidental transfers.
+    // `saleAuction` refers to the auction for gen0 and p2p sale of kitties.
+    // `siringAuction` refers to the auction for siring rights of kitties.
+
+    /// @dev Sets the reference to the Ticket Payment Gateway.
+    /// @param _address - Address of gateway contract.
+    function setTicketPaymentGatewayAddress(address _address) external onlyCTO {
+        TicketPaymentGateway candidateContract = TicketPaymentGateway(_address);
+
+        // NOTE: verify that a contract is what we expect - https://github.com/Lunyr/crowdsale-contracts/blob/cfadd15986c30521d8ba7d5b6f57b4fefcc7ac38/contracts/LunyrToken.sol#L117
+        require(candidateContract.isTicketPaymentGateway());
+
+        // Set the new contract address
+        ticketPaymentGateway = candidateContract;
+    }
+    
+    
+    
+    
+}
+
+
 
 
 /// @title TicketCoinCore: TicketCoin tickets in blockchain.
 /// @dev The main TicketCoin contract, keeps track of tickets emitted by ticketcoin.io
-contract TicketCoinCore is TicketManagement {
+contract TicketCoinCore is TicketCoinPayable {
 
    
     // Set in case the core contract is broken and an upgrade is required
@@ -1088,7 +1170,6 @@ contract TicketCoinCore is TicketManagement {
 
         // the creator of the contract is also the initial COO
         ctoAddress = msg.sender;        
-
 
     }
 
