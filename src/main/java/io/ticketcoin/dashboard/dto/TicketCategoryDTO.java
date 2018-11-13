@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
 import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.service.EventService;
@@ -18,7 +20,7 @@ public class TicketCategoryDTO {
 	private String currency;
 	private String title;
 	private Integer maxQty;
-	
+	private String date; 	
 	
 	public TicketCategoryDTO(){}
 	
@@ -31,7 +33,13 @@ public class TicketCategoryDTO {
 		this.title = tc.getTitle();
 		
 		TicketCategoryDetail tcd = new EventService().getTicketCategoryDetail(ticketCategoryUUID, date);
-		maxQty =  tcd!=null ? tcd.getAvailableTicket() : 0;
+		if(tcd!=null)
+		{
+			maxQty = tcd.getAvailableTicket();
+			this.date = tcd.getStartingDate()!=null ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(tcd.getStartingDate()) : null;
+		}
+		else
+			maxQty = 0;
 	}
 	
 	public String getTicketCategoryUUID() {
