@@ -69,7 +69,12 @@ public class EventExtDTO extends EventDTO
 		if(event.getCategories()!=null && event.getCategories().size()>0)
 		{
 			for(int i =0; i < event.getCategories().size();i++)
-				this.ticketCategories.add(new TicketCategoryDTO(event.getCategories().get(i), date));
+			{
+				TicketCategoryDTO tcDTO = new TicketCategoryDTO(event.getCategories().get(i), date);
+				//Inserts only ticket category available
+				if((Event.TYPE_OPEN.equals(event.getEventType())) || ( tcDTO!=null && tcDTO.getDate()!=null))
+					this.ticketCategories.add(tcDTO);
+			}
 		}
 		
 		
