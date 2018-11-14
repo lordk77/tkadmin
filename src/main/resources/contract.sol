@@ -155,6 +155,13 @@ contract TicketCoinAccessControl {
         ctoAddress = _newCTO;
     }
 
+    /// @dev Returns the CTO address
+    function getCTO()  public view  returns(address)
+    {
+        return ctoAddress;
+    }
+   
+   
     /*** Pausable functionality adapted from OpenZeppelin ***/
 
     /// @dev Modifier to allow actions only when the contract IS NOT paused
@@ -337,10 +344,13 @@ contract TicketBase is TicketCoinAccessControl {
     /// @dev An internal method that creates a new ticket and stores it. This
     ///  method doesn't do any checking and should only be called when the
     ///  input data is known to be valid. Will generate a Transfer event.
-    /// @param ticketUUID The ticket ID 
-    /// @param _organizationID The organization ID 
-    /// @param _eventID The event ID 
-    /// @param _transferAllowed The number transfers allowed for this ticket.
+    /// @param _ticketUUID The ticket ID 
+    /// @param _organizationUUID The organization ID 
+    /// @param _priceCapGwai price cap 
+    /// @param _validFrom validiy date
+    /// @param _validUntil expiration date
+    /// @param _allowedTransfers The number transfers allowed for this ticket.
+    /// @param _ticketState The stats of the ticket
     /// @param _owner The inital owner of this ticket, must be non-zero
     function _createTicket(
         uint256 _ticketUUID,
@@ -764,6 +774,9 @@ contract TicketPaymentGateway is Ownable{
         //The status of the payment
         uint64 paymentState;
         
+        // Ticket request
+        uint128 ticketRequestUUID;
+        
     }
 
     // Reference to contract tracking NFT ownership
@@ -771,7 +784,7 @@ contract TicketPaymentGateway is Ownable{
 
 
     // Mapping paymentUUID to 
-    mapping (uint256 => uint256) public orderUUIDToPaymentId;
+    mapping (uint256 => uint256) public ticketRequestUUIDToPaymentId;
 
     event PaymentInserted(uint256 cartUUID, uint256 price, address buyer, uint256 newPaymentId);
     event PaymentSuccessfull(uint256 cartUUID, address buyer, uint256 paymentId, uint256 _tokenId);
@@ -788,50 +801,55 @@ contract TicketPaymentGateway is Ownable{
         uint256 amount,
         uint256 placedTime,
         uint256 processedTime,
-        uint256 paymentState
+        uint256 paymentState,
+        uint256 ticketRequestUUID
     ) {
-    
-        
         Payment storage payment = payments[_id];
-
         buyer = payment.buyer;
         amount = uint256(payment.amount);
         placedTime = uint256(payment.placedTime);
         processedTime = uint256(payment.processedTime);
         paymentState = uint256(payment.paymentState);
-
-     
+        ticketRequestUUID = uint256(payment.ticketRequestUUID);
     }
     
     
     /// @notice this function is used to purchase the content of a shopping cart 
-    /// @param _cartUUID The ID of the cart containig items
+    /// @param _ticketRequestUUID The ID of the cart containig items
     function buy (
-        uint256 _cartUUID
+        uint256 _ticketRequestUUID
     )
         external
         payable
         returns (uint)
     {
 
+        //avoid error on call
+        require((msg.value>0)
+        
         // Check if the order was already paied
-        require(!(orderUUIDToPaymentId[_cartUUID]>0));
+        require(!(ticketRequestUUIDToPaymentId[_ticketRequestUUID]>0));
+        
+        //Check that the ticket wasn't already enrolled
+        require(nonFungibleContract.getTicketID(_ticketRequestUUID) == 0);
         
         Payment memory _payment = Payment({
             buyer: msg.sender,
             amount: uint128(msg.value),
             placedTime: uint32(now),
             processedTime: 0,
-            paymentState: STATE_PENDING
+            paymentState: STATE_PENDING,
+            ticketRequestUUID: uint128(_ticketRequestUUID)
         });
 
         //register the payment
         uint256 newPaymentId = payments.push(_payment) - 1;
-        //map the cart id to payment id
-        orderUUIDToPaymentId[_cartUUID] = newPaymentId;
+        
+        //map the ticket request id to payment id
+        ticketRequestUUIDToPaymentId[_ticketRequestUUID] = newPaymentId;
         
         //Emits the payment inserted event
-        emit PaymentInserted(_cartUUID, msg.value, msg.sender, newPaymentId);
+        emit PaymentInserted(_ticketRequestUUID, msg.value, msg.sender, newPaymentId);
         
         return newPaymentId;
 
@@ -840,26 +858,26 @@ contract TicketPaymentGateway is Ownable{
 
 
     /// @notice this function is used to confirm a payment
-    /// @param _cartUUID The ID of the cart containig items
-    /// @param _tokenId the id of the token to trnasfer to
+    /// @param _ticketRequestUUID The ID of the ticket request
     function confirmPayment (
-        uint256 _cartUUID,
-        uint256 _tokenId )
+        uint256 _ticketRequestUUID)
         external
         returns (uint)
     {
 
-        uint256 paymentId = orderUUIDToPaymentId[_cartUUID];
+        uint256 paymentId = ticketRequestUUIDToPaymentId[_ticketRequestUUID];
+        uint256 _tokenId = nonFungibleContract.getTicketID(_ticketRequestUUID);
         
-        //Only the main contract can confirm a payment 
-        //require(msg.sender==address(nonFungibleContract));
+        //Check that the ticket was enrolled
+        require(_tokenId > 0);   
         
         //Only pending order are processed
         require(payments[paymentId].paymentState == STATE_PENDING);
-        
+
         //Verify the payment amount
         require(payments[paymentId].amount>0);
         
+        //trnsfer ntf to cutomer
         nonFungibleContract.transfer(payments[paymentId].buyer, _tokenId);
         
         //transfer funds to main contract
@@ -870,21 +888,25 @@ contract TicketPaymentGateway is Ownable{
         payments[paymentId].processedTime=uint32(now);
 
         //Emits the payment inserted event
-        emit PaymentSuccessfull(_cartUUID, payments[paymentId].buyer, paymentId, _tokenId);
+        emit PaymentSuccessfull(_ticketRequestUUID, payments[paymentId].buyer, paymentId, _tokenId);
     }    
     
 
   /// @notice this function is used to reject a payment
-    /// @param _cartUUID The ID of the cart containig items
+    /// @param _ticketRequestUUID The ID of the ticket request
     
     function rejectPayment (
-        uint256 _cartUUID
+        uint256 _ticketRequestUUID
     )
         external
         returns (uint)
     {
 
-        uint256 paymentId = orderUUIDToPaymentId[_cartUUID];
+        //only CTO can reject payments
+        require(msg.sender == nonFungibleContract.getCTO());
+        
+        
+        uint256 paymentId = ticketRequestUUIDToPaymentId[_ticketRequestUUID];
 
         //Only the main contract can confirm a payment 
         require(msg.sender==address(nonFungibleContract));        
@@ -900,78 +922,10 @@ contract TicketPaymentGateway is Ownable{
         payments[paymentId].processedTime=uint32(now);
 
         //Emits the payment inserted event
-        emit PaymentRejected(_cartUUID, msg.sender, paymentId);
+        emit PaymentRejected(_ticketRequestUUID, msg.sender, paymentId);
 
     }    
     
-    /*
-    /// @dev Confirms the payment in gateway contract.
-
-    /// @param _ticketUUID the unique identifier of the ticket
-    /// @param _organizationUUID the unique identifier of the organization
-    /// @param _priceCapGwai the price cap
-    /// @param _validFrom validity date
-    /// @param _validUntil expriation date
-    /// @param _allowedTransfers alloed transfers
-    /// @param _transferRule transfer tule
-    /// @param _ticketState ticket status
-     function confirmPayment (
-        uint256 _cartUUID,
-        uint256 _paymentId,
-        uint256 _ticketUUID,
-        uint256 _organizationUUID,
-        uint256 _priceCapGwai,
-        uint256 _validFrom,
-        uint256 _validUntil,
-        int256 _allowedTransfers,
-        uint256 _transferRule,
-        uint256 _ticketState)
-        external
-        returns (uint)
-    {
-
-        uint256 paymentId = orderUUIDToPaymentId[_cartUUID];
-        
-        //Only the main contract can confirm a payment 
-        //require(msg.sender==address(nonFungibleContract));
-        
-        //Only pending order are processed
-        require(payments[paymentId].paymentState == STATE_PENDING);
-        
-        //Verify the payment amount
-        require(payments[paymentId].amount>0);
-        
-
-        address buyer = payments[_paymentId].buyer;
-        
-       uint ticketId = nonFungibleContract.enrollTicket(
-        _ticketUUID,
-        _organizationUUID,
-        _priceCapGwai,
-        _validFrom,
-        _validUntil,
-        _allowedTransfers,
-        _transferRule,
-        _ticketState,
-        buyer);
-        
-        
-        //transfer funds to main contract
-        address(nonFungibleContract).transfer(payments[paymentId].amount);
-        
-        //updates the ayment state
-        payments[paymentId].paymentState=STATE_COMPLETED;
-        payments[paymentId].processedTime=uint32(now);
-
-        //Emits the payment inserted event
-        emit PaymentSuccessfull(_cartUUID, payments[paymentId].buyer, paymentId, ticketId);        
-        
-
-    
-        
-    } 
-    
-    */
 
 }
 
@@ -1119,6 +1073,15 @@ contract TicketManagement is TicketOwnership  {
         delete addressWhiteList[_address];
     }
         
+   
+   function getTicketID(uint256 _ticketUUID ) 
+   public view 
+   returns(uint256)
+   {
+       return ticketUUIDToIndex[_ticketUUID];
+   }
+   
+
    
 }
 
