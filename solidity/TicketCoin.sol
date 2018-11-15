@@ -315,6 +315,11 @@ contract TicketBase is TicketCoinAccessControl {
             delete ticketIndexToApproved[_tokenId];
         }
 
+        //Decrease the allowed transfers number
+        if(msg.sender != address(ticketPaymentGateway) && tickets[_tokenId].allowedTransfers>0)
+            tickets[_tokenId].allowedTransfers--;
+            
+
         // Emit the transfer event.
         emit Transfer(_from, _to, _tokenId);
     }
@@ -391,7 +396,7 @@ contract TicketBase is TicketCoinAccessControl {
             consumedTime: 0,
             canceledTime: 0,
             allowedTransfers: int16(_allowedTransfers),
-            ticketState: uint8(STATE_VALID),
+            ticketState: uint8(_ticketState),
             transferRule: uint8(_transferRule)
         });
         
@@ -423,11 +428,26 @@ contract TicketBase is TicketCoinAccessControl {
 
 /// @title The external contract that is responsible for generating metadata for the tickets,
 contract ERC721Metadata {
+    
+    /// @dev The ERC-165 interface signature for ERC-721.
+    ///  Ref: https://github.com/ethereum/EIPs/issues/165
+    ///  Ref: https://github.com/ethereum/EIPs/issues/721
+    bytes4 constant InterfaceSignature_ERC721 = bytes4(0x9a20483d);
+    
+    constructor(address _nftAddress) public payable {
+        TicketCoinCore candidateContract = TicketCoinCore(_nftAddress);
+        require(candidateContract.supportsInterface(InterfaceSignature_ERC721));
+        nonFungibleContract = candidateContract;
+    }
+        // Reference to contract tracking NFT ownership
+    TicketCoinCore public nonFungibleContract;
+    
+    
     /// @dev Given a token Id, returns a byte array that is supposed to be converted into string.
     function getMetadata(uint256 _tokenId, string) public view returns (bytes32[4] buffer, uint256 count) {
         
             buffer[0] = "http://ticketcoin.io/public/tck/";
-            buffer[1] = uintToBytes(_tokenId);
+            buffer[1] = uintToBytes(nonFungibleContract.getTicketUUID(_tokenId));
             count = 64;
     }
     
@@ -554,13 +574,9 @@ contract TicketOwnership is TicketBase, ERC721 {
         //Verify the transfer rule
         require(tickets[_tokenId].transferRule!=TRANSFER_RULE_WHITE_LIST_ONLY || addressWhiteList[_to]);
 
-        //Verify if the ticket can be
-        require(tickets[_tokenId].allowedTransfers!=0);
-        
-        //Decrease the allowed transfers number
-        if(tickets[_tokenId].allowedTransfers>0)
-            tickets[_tokenId].allowedTransfers--;
-            
+        //Verify if the ticket can be transferred
+        require(msg.sender == address(ticketPaymentGateway) ||  tickets[_tokenId].allowedTransfers!=0);
+
             
         // Reassign ownership, clear pending approvals, emit Transfer event.
         _transfer(msg.sender, _to, _tokenId);
@@ -622,7 +638,7 @@ contract TicketOwnership is TicketBase, ERC721 {
     /// @notice Returns the total number of Tickets currently in existence.
     /// @dev Required for ERC-721 compliance.
     function totalSupply() public view returns (uint) {
-        return tickets.length;
+        return tickets.length -1;
     }
 
     /// @notice Returns the address currently assigned ownership of a given Ticket.
@@ -658,7 +674,7 @@ contract TicketOwnership is TicketBase, ERC721 {
             // sequentially up to the totalTicket count.
             uint256 ticketId;
 
-            for (ticketId = 1; ticketId < totalTickets; ticketId++) {
+            for (ticketId = 1; ticketId <= totalTickets; ticketId++) {
                 if (ticketIndexToOwner[ticketId] == _owner) {
                     result[resultIndex] = ticketId;
                     resultIndex++;
@@ -730,12 +746,19 @@ contract TicketOwnership is TicketBase, ERC721 {
 contract TicketPaymentGateway is Ownable{
 
 
+    /*** CONSTANTS ***/
+    uint8 constant STATE_PENDING = 0;
+    uint8 constant STATE_COMPLETED = 1;
+    uint8 constant STATE_REJECTED = 2;
 
     /// @dev The ERC-165 interface signature for ERC-721.
     ///  Ref: https://github.com/ethereum/EIPs/issues/165
     ///  Ref: https://github.com/ethereum/EIPs/issues/721
     bytes4 constant InterfaceSignature_ERC721 = bytes4(0x9a20483d);
 
+
+
+    /*** CONSTRUCTOR ***/
     /// @dev Constructor creates a reference to the NFT ownership contract
     ///  and verifies the owner cut is in the valid range.
     /// @param _nftAddress - address of a deployed contract implementing
@@ -744,19 +767,22 @@ contract TicketPaymentGateway is Ownable{
         TicketCoinCore candidateContract = TicketCoinCore(_nftAddress);
         require(candidateContract.supportsInterface(InterfaceSignature_ERC721));
         nonFungibleContract = candidateContract;
+        //Set minimum amount to 0.001 ETH
+        minAmount = 0.001 ether;
     }
     
+
+    /*** VARIABLES AND STRUCT ***/
+    bool public isTicketPaymentGateway = true;
    
-   bool public isTicketPaymentGateway = true;
+   
+    /// @dev the minimum amount (in wei) acceppted for place a buy call
+    uint256 minAmount;
    
    
     Payment[] payments; 
-
-    /*** CONSTANTS ***/
-    uint8 constant STATE_PENDING = 0;
-    uint8 constant STATE_COMPLETED = 1;
-    uint8 constant STATE_REJECTED = 2;
     
+
     // Represents an auction on an NFT
     struct Payment {
         // Current owner of NFT
@@ -791,8 +817,8 @@ contract TicketPaymentGateway is Ownable{
     event PaymentRejected(uint256 cartUUID,  address buyer, uint256 paymentId);
     
 
- /// @notice Returns all the relevant information about a specific kitty.
-    /// @param _id The ID of the kitty of interest.
+ /// @notice Returns all the relevant information about a specific payment.
+    /// @param _id The ID of the payment of interest.
     function getPayment(uint256 _id)
         external
         view
@@ -823,10 +849,9 @@ contract TicketPaymentGateway is Ownable{
         payable
         returns (uint)
     {
-
         //avoid error on call
-        require((msg.value>0)
-        
+        require((msg.value>minAmount));
+
         // Check if the order was already paied
         require(!(ticketRequestUUIDToPaymentId[_ticketRequestUUID]>0));
         
@@ -926,6 +951,26 @@ contract TicketPaymentGateway is Ownable{
 
     }    
     
+    
+    
+    /// @notice this function is used to modify the minimum amount accepted in buy call
+    /// @param _minAmount The minimum amount accepted for buy orde
+    function setMinAmount (
+        uint256 _minAmount
+    )
+        external
+        returns (uint)
+    {
+        //only CTO can modify  the minimum amount 
+        require(msg.sender == nonFungibleContract.getCTO());
+        
+        //prevent higher amounts
+        require(_minAmount == uint256(uint128(_minAmount)));
+        
+        minAmount = _minAmount;
+        
+    }
+    
 
 }
 
@@ -957,12 +1002,12 @@ contract TicketManagement is TicketOwnership  {
         address _owner    )
         external
         whenNotPaused
+        onlyCTO
         returns (uint)
     {
-        //OnlyCTO o MarketPlace
-        require(msg.sender == ctoAddress || msg.sender == address(ticketPaymentGateway));
 
-        //checks the ticket existence
+
+        //checks that the ticket does not exist
         require(ticketUUIDToIndex[_ticketUUID]==0);
         
         return 
@@ -976,6 +1021,8 @@ contract TicketManagement is TicketOwnership  {
         _ticketState,
         _owner );
     }
+
+    
         
         
 
@@ -1050,7 +1097,7 @@ contract TicketManagement is TicketOwnership  {
            
                             
 
- /// @notice this function is used to authorize an address to conusme a ticket
+    /// @notice this function is used to authorize an address to conusme a ticket
     /// @param _address the address to insert in white list.
     function insertInWhiteList(
         address _address
@@ -1062,7 +1109,8 @@ contract TicketManagement is TicketOwnership  {
         addressWhiteList[_address]=true;
     }
 
-
+    /// @notice this function is used to remove an address from white list
+    /// @param _address the address to remove from white list.
     function removeFromWhiteList(
         address _address
     )
@@ -1073,14 +1121,28 @@ contract TicketManagement is TicketOwnership  {
         delete addressWhiteList[_address];
     }
         
-   
+    /// @notice this function returns the token id of the corresponding ticketUUID
+    /// @param _ticketUUID the ticketUUID
    function getTicketID(uint256 _ticketUUID ) 
    public view 
    returns(uint256)
    {
        return ticketUUIDToIndex[_ticketUUID];
    }
-   
+
+    /// @notice this function returns the ticketUUID  of the corresponding token id
+    /// @param _tokenID the token Id   
+   function getTicketUUID(uint256 _tokenID ) 
+   public view 
+   returns(uint256)
+   {
+       require(tickets.length-1<=_tokenID);
+       
+       return tickets[_tokenID].ticketUUID;
+   }
+
+
+
 
    
 }
@@ -1090,10 +1152,6 @@ contract TicketManagement is TicketOwnership  {
 /// @title Handles payment gateway for buy tickets 
 contract TicketCoinPayable is TicketManagement {
 
-    // @notice The auction contract variables are defined in KittyBase to allow
-    //  us to refer to them in KittyOwnership to prevent accidental transfers.
-    // `saleAuction` refers to the auction for gen0 and p2p sale of kitties.
-    // `siringAuction` refers to the auction for siring rights of kitties.
 
     /// @dev Sets the reference to the Ticket Payment Gateway.
     /// @param _address - Address of gateway contract.
@@ -1136,6 +1194,19 @@ contract TicketCoinCore is TicketCoinPayable {
 
         // the creator of the contract is also the initial COO
         ctoAddress = msg.sender;        
+        
+        
+        //Generate ticket 0
+        _createTicket(
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            STATE_INVALID,
+            address(this));
 
     }
 
@@ -1160,8 +1231,8 @@ contract TicketCoinCore is TicketCoinPayable {
         );
     }
 
-    /// @notice Returns all the relevant information about a specific kitty.
-    /// @param _id The ID of the kitty of interest.
+    /// @notice Returns all the relevant information about a specific Ticket.
+    /// @param _id The ID of the Ticket of interest.
     function getTicket(uint256 _id)
         external
         view
