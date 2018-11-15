@@ -329,6 +329,7 @@ contract TicketBase is TicketCoinAccessControl {
         // consume the ticket
         tickets[_tokenId].consumedTime=uint32(now);
         tickets[_tokenId].ticketState = uint8(STATE_SPENT);
+        tickets[_tokenId].allowedTransfers = 0;
         // Emit the transfer event.
         emit Consume(_tokenId);
     }
@@ -338,7 +339,7 @@ contract TicketBase is TicketCoinAccessControl {
         // cancel the ticket
         tickets[_tokenId].canceledTime=uint32(now);
         tickets[_tokenId].ticketState = uint8(STATE_INVALID);
-
+        tickets[_tokenId].allowedTransfers = 0;
         // Emit the transfer event.
         emit Cancel(_tokenId);
     }
