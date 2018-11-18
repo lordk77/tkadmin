@@ -2,11 +2,13 @@ package io.ticketcoin.dashboard.dto;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
@@ -39,6 +41,14 @@ public class EventDTO implements Serializable {
 		private String dateFrom;
 		private String dateTo;
 		
+		private String country;
+		private String city;
+		private String address;
+		private BigDecimal coordX;
+		private BigDecimal coordY;	
+		
+		private String currency;
+		
 		
 		
 		public EventDTO() {}
@@ -60,7 +70,18 @@ public class EventDTO implements Serializable {
 //			if(event.getDateTo()!=null)
 //				this.dateTo = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(event.getDateTo());	
 			
-		
+			if(event.getLocation()!=null && event.getLocation().getAddress()!=null)
+			{
+				this.country = event.getLocation().getAddress().getCountry();
+				this.city = event.getLocation().getAddress().getCity();
+				this.address = event.getLocation().getAddress().getAddress();
+				try {//resolve coordinates
+					this.coordX = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordX()) ? new BigDecimal(event.getLocation().getAddress().getCoordX()) : null;
+					this.coordY = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordY()) ? new BigDecimal(event.getLocation().getAddress().getCoordY()) : null;
+				}
+				catch (Exception e) {
+				}
+			}
 			
 			this.organizationId=event.getOrganization()!=null?event.getOrganization().getId():null;
 			
@@ -207,6 +228,54 @@ public class EventDTO implements Serializable {
 
 		public void setDateTo(String dateTo) {
 			this.dateTo = dateTo;
+		}
+
+		public String getCountry() {
+			return country;
+		}
+
+		public void setCountry(String country) {
+			this.country = country;
+		}
+
+		public String getCity() {
+			return city;
+		}
+
+		public void setCity(String city) {
+			this.city = city;
+		}
+
+		public String getAddress() {
+			return address;
+		}
+
+		public void setAddress(String address) {
+			this.address = address;
+		}
+
+		public BigDecimal getCoordX() {
+			return coordX;
+		}
+
+		public void setCoordX(BigDecimal coordX) {
+			this.coordX = coordX;
+		}
+
+		public BigDecimal getCoordY() {
+			return coordY;
+		}
+
+		public void setCoordY(BigDecimal coordY) {
+			this.coordY = coordY;
+		}
+
+		public String getCurrency() {
+			return currency;
+		}
+
+		public void setCurrency(String currency) {
+			this.currency = currency;
 		}
 
 }

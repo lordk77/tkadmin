@@ -56,7 +56,13 @@
          <property name="handler" ref="clientCredsHandler"/>
         <property name="dataProvider" ref="oauthProvider"/>
   </bean>
-  <bean id="braintreeService" class="io.ticketcoin.rest.integration.braintree.BraintreeService" />
+  
+  
+    <bean id="stripeService" class="io.ticketcoin.rest.integration.stripe.StripeService" />
+    
+    
+    
+    
 
      <bean id="oAuthFilter" class="org.apache.cxf.rs.security.oauth2.filters.OAuthRequestFilter">
          <property name="dataProvider" ref="oauthProvider"/>
@@ -68,7 +74,7 @@
 	      <ref bean="eventServiceBean" />
 	      <ref bean="imageServiceBean" />
 	      <ref bean="userServiceBean" />
-	       <ref bean="braintreeService" />
+	       <ref bean="stripeService" />
 	    </jaxrs:serviceBeans>
 	    <jaxrs:providers>
 	    	  <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthContextProvider"/>

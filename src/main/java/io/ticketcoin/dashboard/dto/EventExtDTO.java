@@ -1,14 +1,11 @@
 package io.ticketcoin.dashboard.dto;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import io.ticketcoin.dashboard.persistence.model.Event;
@@ -18,11 +15,7 @@ import io.ticketcoin.dashboard.persistence.service.EventService;
 public class EventExtDTO extends EventDTO 
 {
 
-	private String country;
-	private String city;
-	private String address;
-	private BigDecimal coordX;
-	private BigDecimal coordY;
+
 	private String date; 
 	
 	private List<TicketCategoryDTO> ticketCategories;
@@ -51,18 +44,18 @@ public class EventExtDTO extends EventDTO
 			this.setDate(DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.format(date));
 		
 		
-		if(event.getLocation()!=null && event.getLocation().getAddress()!=null)
-		{
-			this.country = event.getLocation().getAddress().getCountry();
-			this.city = event.getLocation().getAddress().getCity();
-			this.address = event.getLocation().getAddress().getAddress();
-			try {//resolve coordinates
-				this.coordX = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordX()) ? new BigDecimal(event.getLocation().getAddress().getCoordX()) : null;
-				this.coordY = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordY()) ? new BigDecimal(event.getLocation().getAddress().getCoordY()) : null;
-			}
-			catch (Exception e) {
-			}
-		}
+//		if(event.getLocation()!=null && event.getLocation().getAddress()!=null)
+//		{
+//			this.country = event.getLocation().getAddress().getCountry();
+//			this.city = event.getLocation().getAddress().getCity();
+//			this.address = event.getLocation().getAddress().getAddress();
+//			try {//resolve coordinates
+//				this.coordX = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordX()) ? new BigDecimal(event.getLocation().getAddress().getCoordX()) : null;
+//				this.coordY = StringUtils.isNoneBlank(event.getLocation().getAddress().getCoordY()) ? new BigDecimal(event.getLocation().getAddress().getCoordY()) : null;
+//			}
+//			catch (Exception e) {
+//			}
+//		}
 
 		
 		this.ticketCategories=new ArrayList<TicketCategoryDTO>();
@@ -104,39 +97,7 @@ public class EventExtDTO extends EventDTO
 		this.eventCategories = eventCategories;
 	}
 
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-
-	public void setCoordX(BigDecimal coordX) {
-		this.coordX = coordX;
-	}
-
-	public void setCoordY(BigDecimal coordY) {
-		this.coordY = coordY;
-	}
-
+	
 	public String getDate() {
 		return date;
 	}
@@ -145,11 +106,4 @@ public class EventExtDTO extends EventDTO
 		this.date = date;
 	}
 
-	public BigDecimal getCoordX() {
-		return coordX;
-	}
-
-	public BigDecimal getCoordY() {
-		return coordY;
-	}
 }

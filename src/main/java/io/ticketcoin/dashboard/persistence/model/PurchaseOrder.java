@@ -37,7 +37,12 @@ public class PurchaseOrder implements Serializable{
 	private String eventUUID;
 	private String status;
 	
+	
+	private String currency;
 	private BigDecimal totalAmount;
+	private BigDecimal totalAmountETH;
+	
+	
 	
 	
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -132,6 +137,22 @@ public class PurchaseOrder implements Serializable{
 
 	public void setReservationDate(Date reservationDate) {
 		this.reservationDate = reservationDate;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public BigDecimal getTotalAmountETH() {
+		return totalAmountETH;
+	}
+
+	public void setTotalAmountETH(BigDecimal totalAmountETH) {
+		this.totalAmountETH = totalAmountETH;
 	}
 	
 

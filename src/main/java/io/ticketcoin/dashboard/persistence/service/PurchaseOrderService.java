@@ -1,13 +1,17 @@
 package io.ticketcoin.dashboard.persistence.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.Hibernate;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 
+import io.ticketcoin.currency.CryptoConverter;
 import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
 import io.ticketcoin.dashboard.dto.PurchaseOrderDetailDTO;
 import io.ticketcoin.dashboard.persistence.dao.EventDAO;
@@ -18,13 +22,14 @@ import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail;
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
+import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.exception.EventNotFoundException;
 import io.ticketcoin.dashboard.persistence.service.exception.TicketCategoryNotFoundException;
 import io.ticketcoin.dashboard.persistence.service.exception.UserNotFoundException;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
-public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
+public class PurchaseOrderService extends GenericService<PurchaseOrder>{
 
 	
 	public static String STATUS_PENDING = "PENDING";
@@ -33,7 +38,7 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 	public static String STATUS_COMLPETED = "COMLPETED";
 	
 	
-	public PurhchaseOrderService() {
+	public PurchaseOrderService() {
 		super(PurchaseOrder.class);
 	}
 	
@@ -45,12 +50,33 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 		{
 			session = HibernateUtils.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
+			
+			
 			EventDAO eventDao = new EventDAO();
 			EventFilter filter= new EventFilter();
 			filter.setEventUUID(purchaseOrderDTO.getEventUUID());
 			List<Event> events = eventDao.searchEvents(filter).getResults();
 			if(events == null || events.size()!=1)
 				throw new EventNotFoundException();
+			
+			
+			for(PurchaseOrderDetailDTO pod : purchaseOrderDTO.getOrderDetail())
+			{
+				TicketCategoryDetail tcd =
+				(TicketCategoryDetail)HibernateUtils.getSessionFactory().getCurrentSession()
+				.createCriteria(TicketCategoryDetail.class)
+				.createAlias("ticketCategory", "ticketCategory")
+				.add(Restrictions.eq("ticketCategory.ticketCategoryUUID", pod.getTicketCategoryUUID()))
+				.add(Restrictions.eq("startingDate", purchaseOrderDTO.getReservationDate()))
+				.uniqueResult();
+				if(tcd==null)
+					throw new Exception("error.ticketCategoryUUID.not.found");
+				else if (tcd.getAvailableTicket()< pod.getQuantity())
+					throw new Exception("error.insufficient.ticket");
+					 
+			}
+			
+
 			
 			
 			PurchaseOrder purchaseOrder= new PurchaseOrder();
@@ -60,6 +86,7 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 			purchaseOrder.setCreated(new Date());
 			purchaseOrder.setOrderUUID(UUID.randomUUID().toString());
 			purchaseOrder.setReservationDate(purchaseOrderDTO.getReservationDate());
+			purchaseOrder.setCurrency(events.get(0).getCurrency());
 			
 			for (PurchaseOrderDetailDTO dto : purchaseOrderDTO.getOrderDetail())
 			{
@@ -74,6 +101,7 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 						detail.setAmount(category.getStreetPrice().multiply(BigDecimal.valueOf(dto.getQuantity())));
 						detail.setDescription(category.getDescription());
 						purchaseOrder.setTotalAmount(purchaseOrder.getTotalAmount().add(detail.getAmount()));
+						purchaseOrder.getOrderDetail().add(detail);
 						found=true;
 						break;
 					}
@@ -89,6 +117,16 @@ public class PurhchaseOrderService extends GenericService<PurchaseOrder>{
 				throw new UserNotFoundException(purchaseOrderDTO.getUsername());
 			else
 				purchaseOrder.setUser(user);
+			
+			//Calculates crypto price
+			purchaseOrder.setTotalAmountETH(
+					CryptoConverter.convert(
+							//Add commission (for the test phase is fixed to 1 eur
+							purchaseOrder.getTotalAmount().add(BigDecimal.ONE), purchaseOrder.getCurrency(), CryptoConverter.CryptoCurrency.ETH))
+					;
+			;
+			
+			
 			session.save(purchaseOrder);
 			session.getTransaction().commit();
 			return purchaseOrder;

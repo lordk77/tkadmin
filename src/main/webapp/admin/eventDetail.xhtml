@@ -43,7 +43,7 @@
 									        label="Date from" 
 									        required="true"
 									        update="datePanel"
-									        process="@this"									        
+									        process="@this"			 format="DD/MM/YYYY"						        
 									        />
 								    <b:dateTimePicker value="#{eventBean.event.dateTo}"
 								        icon-position="right"
@@ -53,7 +53,7 @@
 								        label="Date to"
 								        required="true"
 								        update="datePanel"
-								        process="@this"
+								        process="@this"		 format="DD/MM/YYYY"
 								        />						        
 			
 								    </b:panelGrid>
@@ -236,7 +236,7 @@
 									        show-icon="true" 
 									        required="true"
 									        process="@this"	
-									        readonly="#{not empty detail.startingDate }"								        
+									        readonly="#{not empty detail.startingDate }"		 format="DD/MM/YYYY"								        
 									        />
 						        </b:dataTableColumn>
 					       		

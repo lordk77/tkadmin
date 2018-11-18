@@ -75,6 +75,9 @@ public class Event {
 	@Column(name = "EVENT_TYPE")
 	private String eventType;
 	
+
+	@Column(name = "CURRENCY")
+	private String currency = "EUR";
 	
 	
 	@Column(name = "URL_SHARE")
@@ -428,5 +431,13 @@ public class Event {
 
 	public void setWebsite(String website) {
 		this.website = website;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
 	}
 }

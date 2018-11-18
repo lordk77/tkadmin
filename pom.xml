@@ -23,6 +23,7 @@
 	   <jersey.version>1.19.4</jersey.version>
 	   <myfaces.version>2.2.12</myfaces.version>
 	   <spring.version>5.1.1.RELEASE</spring.version>
+	   <hibernate.version>5.2.12.Final</hibernate.version>
 	   
 	</properties>
 
@@ -39,8 +40,16 @@
 	<dependency>
 	    <groupId>org.hibernate</groupId>
 	    <artifactId>hibernate-core</artifactId>
-	    <version>5.2.12.Final</version>
+	    <version>${hibernate.version}</version>
 	</dependency>
+
+
+	<dependency>
+	    <groupId>org.hibernate</groupId>
+	    <artifactId>hibernate-c3p0</artifactId>
+	    <version>${hibernate.version}</version>
+	</dependency>
+
 
 
 	<dependency>
@@ -201,14 +210,7 @@
 		</dependency>
 		
 		
-		
-		<!-- braintree payments -->
-		<dependency>
-		  <groupId>com.braintreepayments.gateway</groupId>
-		  <artifactId>braintree-java</artifactId>
-		  <version>2.84.0</version>
-		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/com.facebook.api/facebook-java-api -->
 		<dependency>
 		    <groupId>com.facebook.api</groupId>
@@ -229,7 +231,19 @@
 	    <version>3.6.0</version>
 	</dependency>
 		
-		
+	<dependency>
+	    <groupId>com.stripe</groupId>
+	    <artifactId>stripe-java</artifactId>
+	    <version>4.2.0</version>
+	</dependency>
+
+
+	<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+	<dependency>
+	    <groupId>org.apache.httpcomponents</groupId>
+	    <artifactId>httpclient</artifactId>
+	    <version>4.5</version>
+	</dependency>
 		
 
 

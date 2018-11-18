@@ -19,18 +19,27 @@ public class PurchaseOrderDTO implements Serializable{
 	private static final long serialVersionUID = -6180250644038091899L;
 	private String eventUUID;
 	private Date reservationDate;
-	private List<PurchaseOrderDetailDTO> orderDetail = new ArrayList<PurchaseOrderDetailDTO>();
+	private List<PurchaseOrderDetailDTO> orderDetail;
 	private String orderUUID;
-	private BigDecimal amount;
+	private BigDecimal totalAmount;
+	private BigDecimal totalAmountETH;
+	
 	private String description;
 	private String status;
 	private String username;
+	private String stripePublicKey;
+	private String currency;
+	
+	
+    
 	
 	public PurchaseOrderDTO() {}
 	
 	public PurchaseOrderDTO(PurchaseOrder order) {
 		try {
-			BeanUtils.copyProperties(this, order);
+			 BeanUtils.copyProperties(this, order);
+			 orderDetail = new ArrayList<PurchaseOrderDetailDTO>();
+			 
 			if(order.getUser()!=null)
 				this.setUsername(order.getUser().getUsername());
 			if(order.getOrderDetail()!=null) {
@@ -66,13 +75,6 @@ public class PurchaseOrderDTO implements Serializable{
 		this.orderUUID = orderUUID;
 	}
 
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
 
 	public String getDescription() {
 		return description;
@@ -104,6 +106,38 @@ public class PurchaseOrderDTO implements Serializable{
 
 	public void setReservationDate(Date reservationDate) {
 		this.reservationDate = reservationDate;
+	}
+
+	public String getStripePublicKey() {
+		return stripePublicKey;
+	}
+
+	public void setStripePublicKey(String stripePublicKey) {
+		this.stripePublicKey = stripePublicKey;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public BigDecimal getTotalAmountETH() {
+		return totalAmountETH;
+	}
+
+	public void setTotalAmountETH(BigDecimal totalAmountETH) {
+		this.totalAmountETH = totalAmountETH;
+	}
+
+	public BigDecimal getTotalAmount() {
+		return totalAmount;
+	}
+
+	public void setTotalAmount(BigDecimal totalAmount) {
+		this.totalAmount = totalAmount;
 	}
 	
 	

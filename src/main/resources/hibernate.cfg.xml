@@ -17,9 +17,17 @@
 	  <property name="connection.username">ticketcoin</property>
 	  <property name="connection.password">ticketcoin</property>
 	   
-   
-	
-	<property name="hibernate.connection.pool_size">10</property>
+   	
+	<property name="hibernate.c3p0.validate">true</property>
+	<property name="hibernate.c3p0.min_size">3</property>
+	<property name="hibernate.c3p0.max_size">20</property>
+	<property name="hibernate.c3p0.timeout">300</property>
+	<property name="hibernate.c3p0.max_statements">50</property>
+	<property name="hibernate.c3p0.preferredTestQuery">SELECT 1;</property> 
+	<property name="hibernate.c3p0.testConnectionOnCheckout">true</property>
+
+
+
 
 <!-- 		<property name="hibernate.show_sql">true</property> -->
 <!-- 		<property name="hibernate.format_sql">true</property> -->
@@ -46,6 +54,9 @@
 	<mapping class="io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.Wallet" />
 	
+	
+	<mapping class="io.ticketcoin.rest.integration.stripe.model.StripeChargeRequest" />
+	<mapping class="io.ticketcoin.rest.integration.stripe.model.StripeChargeResponse" />
 	
 
 

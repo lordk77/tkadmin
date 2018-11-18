@@ -21,7 +21,7 @@ import io.ticketcoin.dashboard.dto.UserDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.User;
-import io.ticketcoin.dashboard.persistence.service.PurhchaseOrderService;
+import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
 
@@ -50,12 +50,12 @@ public class UserRestService {
 		
 		
 		@POST
-		@Path("/me/buy")
+		@Path("/me/checkout")
 		@Consumes(MediaType.APPLICATION_JSON)
-		public Response buy(PurchaseOrderDTO order) {
+		public Response checkout(PurchaseOrderDTO order) {
 			
 			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
-			PurhchaseOrderService pos = new PurhchaseOrderService();
+			PurchaseOrderService pos = new PurchaseOrderService();
 				try {
 					PurchaseOrder createdOrder = pos.placeOrder(order, userName);
 					
@@ -69,7 +69,7 @@ public class UserRestService {
 					
 				} catch (Exception e) {
 					e.printStackTrace();
-					return Response.status(200).build();
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
 				}
 			
 
@@ -82,7 +82,7 @@ public class UserRestService {
 		  public Response detail(@PathParam("orderUUID") String orderUUID) 
 		  {
 			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
-			PurchaseOrder order = new PurhchaseOrderService().getOrder(orderUUID);
+			PurchaseOrder order = new PurchaseOrderService().getOrder(orderUUID);
 
 			if(userName.equals(order.getUser().getUsername()))
 			{
