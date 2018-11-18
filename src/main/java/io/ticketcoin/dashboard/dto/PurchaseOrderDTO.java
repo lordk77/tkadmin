@@ -13,6 +13,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail;
+import io.ticketcoin.rest.integration.stripe.StripeService;
 
 @XmlRootElement
 public class PurchaseOrderDTO implements Serializable{
@@ -38,6 +39,7 @@ public class PurchaseOrderDTO implements Serializable{
 	public PurchaseOrderDTO(PurchaseOrder order) {
 		try {
 			 BeanUtils.copyProperties(this, order);
+			 stripePublicKey = StripeService.getPublicKey();
 			 orderDetail = new ArrayList<PurchaseOrderDetailDTO>();
 			 
 			if(order.getUser()!=null)

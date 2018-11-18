@@ -46,7 +46,10 @@ public class StripeService {
         } 
     }
     
-
+    public static String getPublicKey()
+    {
+        return properties.getProperty(properties.getProperty("STRIPE_ENV") + "_" + "PUBLIC_KEY");
+    }
     
     
     
