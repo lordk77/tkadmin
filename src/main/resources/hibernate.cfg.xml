@@ -49,6 +49,7 @@
 	<mapping class="io.ticketcoin.dashboard.persistence.model.TicketCategory" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.User" />
+	<mapping class="io.ticketcoin.dashboard.persistence.model.UserDocument" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.FileAttachment" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.PurchaseOrder" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail" />

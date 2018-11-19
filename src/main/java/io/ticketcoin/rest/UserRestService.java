@@ -15,6 +15,7 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
 
 import com.google.gson.Gson;
+import com.stripe.model.EphemeralKey;
 
 import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
 import io.ticketcoin.dashboard.dto.UserDTO;
@@ -60,9 +61,9 @@ public class UserRestService {
 			PurchaseOrderService pos = new PurchaseOrderService();
 				try {
 
-					String stripeEphemeralKeys = null;
+					EphemeralKey stripeEphemeralKeys = null;
 					if(PurchaseOrder.PAYMENT_TYPE_STRIPE.equals(order.getPaymentType()))
-						stripeEphemeralKeys= new StripeService().createEphemeralKeys(new EphemeralKeysRequest(order.getStripe_api_version(), null), userName).getId();
+						stripeEphemeralKeys= new StripeService().createEphemeralKeys(new EphemeralKeysRequest(order.getStripe_api_version(), null), userName);
 						
 						
 					PurchaseOrder createdOrder = pos.placeOrder(order, userName);

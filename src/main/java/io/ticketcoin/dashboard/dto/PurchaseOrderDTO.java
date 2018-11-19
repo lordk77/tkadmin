@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import com.stripe.model.EphemeralKey;
+
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail;
 import io.ticketcoin.rest.integration.stripe.StripeService;
@@ -28,14 +30,13 @@ public class PurchaseOrderDTO implements Serializable{
 	private String description;
 	private String status;
 	private String username;
-	private String stripeEphemeralKeys;
 	private String currency;
 	
 	private String paymentType;
-	
 	private String stripe_api_version;
 	
-	
+	private EphemeralKey stripeEphemeralKeys;
+
 	
     
 	
@@ -139,13 +140,6 @@ public class PurchaseOrderDTO implements Serializable{
 		this.totalAmount = totalAmount;
 	}
 
-	public String getStripeEphemeralKeys() {
-		return stripeEphemeralKeys;
-	}
-
-	public void setStripeEphemeralKeys(String stripeEphemeralKeys) {
-		this.stripeEphemeralKeys = stripeEphemeralKeys;
-	}
 
 	public String getPaymentType() {
 		return paymentType;
@@ -161,6 +155,10 @@ public class PurchaseOrderDTO implements Serializable{
 
 	public void setStripe_api_version(String stripe_api_version) {
 		this.stripe_api_version = stripe_api_version;
+	}
+
+	public void setStripeEphemeralKeys(EphemeralKey stripeEphemeralKeys) {
+		this.stripeEphemeralKeys = stripeEphemeralKeys;
 	}
 	
 	

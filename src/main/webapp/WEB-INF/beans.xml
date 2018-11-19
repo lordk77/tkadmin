@@ -45,6 +45,7 @@
 	</jaxrs:server>
 
   <bean id="eventServiceBean" class="io.ticketcoin.rest.EventRestService" />
+  <bean id="userDocumentBean" class="io.ticketcoin.rest.UserDocumentRestService" />
   <bean id="imageServiceBean" class="io.ticketcoin.rest.ImageRestService" />
   <bean id="userServiceBean" class="io.ticketcoin.rest.UserRestService" />
   <bean id="registrationBean" class="io.ticketcoin.rest.RegistrationRestService" >
@@ -74,7 +75,8 @@
 	      <ref bean="eventServiceBean" />
 	      <ref bean="imageServiceBean" />
 	      <ref bean="userServiceBean" />
-	       <ref bean="stripeService" />
+	      <ref bean="stripeService" />
+	      <ref bean="userDocumentBean" /> 
 	    </jaxrs:serviceBeans>
 	    <jaxrs:providers>
 	    	  <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthContextProvider"/>
