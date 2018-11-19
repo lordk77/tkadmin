@@ -29,6 +29,11 @@ public class PurchaseOrder implements Serializable{
 
 	private static final long serialVersionUID = 6728445760213803385L;
 	
+	public static String PAYMENT_TYPE_STRIPE="stripe";
+	public static String PAYMENT_TYPE_ETH="eth";
+
+	
+	
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
@@ -41,7 +46,7 @@ public class PurchaseOrder implements Serializable{
 	private String currency;
 	private BigDecimal totalAmount;
 	private BigDecimal totalAmountETH;
-	
+	private String paymentType;
 	
 	
 	
@@ -153,6 +158,14 @@ public class PurchaseOrder implements Serializable{
 
 	public void setTotalAmountETH(BigDecimal totalAmountETH) {
 		this.totalAmountETH = totalAmountETH;
+	}
+
+	public String getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(String paymentType) {
+		this.paymentType = paymentType;
 	}
 	
 

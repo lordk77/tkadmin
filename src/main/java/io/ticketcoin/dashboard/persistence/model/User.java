@@ -48,7 +48,8 @@ public class User implements Serializable{
 	
 	private String fb_identifier;
 	private String bt_identifier;
-    
+	private String stripe_identifier;
+
     
     
     /*
@@ -244,6 +245,14 @@ public class User implements Serializable{
 
 	public void setBt_identifier(String bt_identifier) {
 		this.bt_identifier = bt_identifier;
+	}
+
+	public String getStripe_identifier() {
+		return stripe_identifier;
+	}
+
+	public void setStripe_identifier(String stripe_identifier) {
+		this.stripe_identifier = stripe_identifier;
 	}
 	
 }

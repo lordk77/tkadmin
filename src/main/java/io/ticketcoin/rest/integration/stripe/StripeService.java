@@ -10,19 +10,29 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.ext.MessageContext;
+import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
 
 import com.google.gson.Gson;
 import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import com.stripe.model.Customer;
+import com.stripe.model.EphemeralKey;
+import com.stripe.net.RequestOptions;
 
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
+import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.ChargeService;
 import io.ticketcoin.dashboard.persistence.service.GenericService;
 import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
+import io.ticketcoin.dashboard.persistence.service.UserService;
+import io.ticketcoin.rest.integration.stripe.dto.EphemeralKeysRequest;
 import io.ticketcoin.rest.integration.stripe.model.StripeChargeRequest;
 import io.ticketcoin.rest.integration.stripe.model.StripeChargeResponse;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
@@ -30,6 +40,10 @@ import io.ticketcoin.rest.response.JSONResponseWrapper;
 
 @Path("/stripe")
 public class StripeService {
+	
+	@Context
+    private MessageContext mc;
+
 	
 	private static Properties properties = new Properties();
 	public static String DEFAULT_CONFIG_FILENAME = "config.properties";
@@ -55,16 +69,9 @@ public class StripeService {
     
 	@POST
 	@Path("/charge")
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response charge(@FormParam("amount") Integer amount, @FormParam("stripeToken") String stripeToken , @FormParam("stripeTokenType") String stripeTokenType, @FormParam("stripeEmail") String stripeEmail, @FormParam("orderUUID") String orderUUID) 
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response charge(StripeChargeRequest chargeRequest) 
 	{
-		
-			StripeChargeRequest chargeRequest = new StripeChargeRequest();
-			chargeRequest.setAmount(amount);
-			chargeRequest.setStripeToken(stripeToken);
-			chargeRequest.setStripeTokenType(stripeTokenType);
-			chargeRequest.setStripeEmail(stripeEmail);
-			chargeRequest.setOrderUUID(orderUUID);
 			chargeRequest.setRequestDate(new Date());
 			
 			try 
@@ -92,6 +99,9 @@ public class StripeService {
 				chargeParams.put("currency", "EUR");
 				chargeParams.put("description", chargeRequest.getDescription());
 				chargeParams.put("source", chargeRequest.getStripeToken());
+				chargeParams.put("statement_descriptor", "Ticketcoin");
+
+				
 				Charge charge = new ChargeService().carge(o, chargeParams);
 		            
 		            
@@ -115,6 +125,79 @@ public class StripeService {
 				return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
 			}
 	}
+	
+	
+	@POST
+	@Path("/ephemeral_keys")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response ephemeral_keys(EphemeralKeysRequest ephemeralKeysRequest) 
+	{
+			
+			try 
+			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+				EphemeralKey ephemeralKey = createEphemeralKeys(ephemeralKeysRequest, userName);
+				
+				return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(ephemeralKey.getRawJson()))).build();
+
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+			}
+	}
+
+	
+	
+	public EphemeralKey createEphemeralKeys(EphemeralKeysRequest ephemeralKeysRequest, String userName) throws StripeException
+	{
+		//Check the user
+		User user = new UserService().getUser(userName);	
+		
+		//Register the user to Stripe if not yet registered
+		if(StringUtils.isBlank(user.getStripe_identifier()))
+		{
+			Map<String, Object> customerParams = new HashMap<String, Object>();
+			customerParams.put("description", "Customer " + (StringUtils.isNotBlank(user.getEmail()) ? user.getEmail() : user.getUsername()));
+			if(ephemeralKeysRequest.getSource()!=null)
+				customerParams.put("source", ephemeralKeysRequest.getSource());
+			Customer c = Customer.create(customerParams);
+			user.setStripe_identifier(c.getId());
+			new UserService().saveOrUpdate(user);
+		}
+		
+		//Creates the ephemeralKeys
+		Map<String, Object> ephemeralKeyParams = new HashMap<String, Object>();
+		ephemeralKeyParams.put("customer", user.getStripe_identifier());
+//		ephemeralKeyParams.put("stripe_version", ephemeralKeysRequest.getApi_version());
+		
+		RequestOptions opt = RequestOptions.builder()
+				//.setApiKey(ephemeralKeysRequest.getApi_version())
+				.setStripeVersion(ephemeralKeysRequest.getApi_version())
+				//.setClientId(user.getStripe_identifier())
+				.build();
+		
+		EphemeralKey ephemeralKey = EphemeralKey.create(ephemeralKeyParams, opt);
+		return ephemeralKey;
+	}
+
+	
+	
+
+	public MessageContext getMc() {
+		return mc;
+	}
+
+
+
+	public void setMc(MessageContext mc) {
+		this.mc = mc;
+	}
+	
+	
+	
+
+	
 	
 
 }

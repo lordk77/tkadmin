@@ -81,6 +81,7 @@ public class PurchaseOrderService extends GenericService<PurchaseOrder>{
 			
 			PurchaseOrder purchaseOrder= new PurchaseOrder();
 			purchaseOrder.setEventUUID(purchaseOrderDTO.getEventUUID());
+			purchaseOrder.setPaymentType(purchaseOrderDTO.getPaymentType());
 			purchaseOrder.setTotalAmount(new BigDecimal("0"));
 			purchaseOrder.setStatus(STATUS_PENDING);
 			purchaseOrder.setCreated(new Date());

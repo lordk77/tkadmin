@@ -28,8 +28,13 @@ public class PurchaseOrderDTO implements Serializable{
 	private String description;
 	private String status;
 	private String username;
-	private String stripePublicKey;
+	private String stripeEphemeralKeys;
 	private String currency;
+	
+	private String paymentType;
+	
+	private String stripe_api_version;
+	
 	
 	
     
@@ -39,7 +44,6 @@ public class PurchaseOrderDTO implements Serializable{
 	public PurchaseOrderDTO(PurchaseOrder order) {
 		try {
 			 BeanUtils.copyProperties(this, order);
-			 stripePublicKey = StripeService.getPublicKey();
 			 orderDetail = new ArrayList<PurchaseOrderDetailDTO>();
 			 
 			if(order.getUser()!=null)
@@ -110,13 +114,6 @@ public class PurchaseOrderDTO implements Serializable{
 		this.reservationDate = reservationDate;
 	}
 
-	public String getStripePublicKey() {
-		return stripePublicKey;
-	}
-
-	public void setStripePublicKey(String stripePublicKey) {
-		this.stripePublicKey = stripePublicKey;
-	}
 
 	public String getCurrency() {
 		return currency;
@@ -140,6 +137,30 @@ public class PurchaseOrderDTO implements Serializable{
 
 	public void setTotalAmount(BigDecimal totalAmount) {
 		this.totalAmount = totalAmount;
+	}
+
+	public String getStripeEphemeralKeys() {
+		return stripeEphemeralKeys;
+	}
+
+	public void setStripeEphemeralKeys(String stripeEphemeralKeys) {
+		this.stripeEphemeralKeys = stripeEphemeralKeys;
+	}
+
+	public String getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(String paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	public String getStripe_api_version() {
+		return stripe_api_version;
+	}
+
+	public void setStripe_api_version(String stripe_api_version) {
+		this.stripe_api_version = stripe_api_version;
 	}
 	
 	

@@ -23,6 +23,8 @@ import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
+import io.ticketcoin.rest.integration.stripe.StripeService;
+import io.ticketcoin.rest.integration.stripe.dto.EphemeralKeysRequest;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
 
 @Path("/user")
@@ -57,7 +59,17 @@ public class UserRestService {
 			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
 			PurchaseOrderService pos = new PurchaseOrderService();
 				try {
+
+					String stripeEphemeralKeys = null;
+					if(PurchaseOrder.PAYMENT_TYPE_STRIPE.equals(order.getPaymentType()))
+						stripeEphemeralKeys= new StripeService().createEphemeralKeys(new EphemeralKeysRequest(order.getStripe_api_version(), null), userName).getId();
+						
+						
 					PurchaseOrder createdOrder = pos.placeOrder(order, userName);
+					
+					order = new PurchaseOrderDTO(createdOrder);
+					order.setStripeEphemeralKeys(stripeEphemeralKeys);
+
 					
 					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new PurchaseOrderDTO(createdOrder))))
 							.header("Access-Control-Allow-Origin", "*")
