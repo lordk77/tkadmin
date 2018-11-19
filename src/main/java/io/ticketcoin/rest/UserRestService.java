@@ -71,7 +71,7 @@ public class UserRestService {
 					order.setStripeEphemeralKeys(stripeEphemeralKeys);
 
 					
-					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new PurchaseOrderDTO(createdOrder))))
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(order)))
 							.header("Access-Control-Allow-Origin", "*")
 								.header("Access-Control-Allow-Methods", "POST")
 								.type(MediaType.APPLICATION_JSON)
