@@ -3,12 +3,18 @@ package io.ticketcoin.dashboard.persistence.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name="PURCHASE_ORDER_DETAIL")
@@ -26,7 +32,12 @@ public class PurchaseOrderDetail implements Serializable{
 	private BigDecimal amount;
 	private String description;
 	
+	@Column(name="IS_GROUP_TICKET")
+	private Boolean groupTicket = Boolean.TRUE;
 	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="PURCHASE_ORDER_ID")
+	private PurchaseOrder order;
 
 	
 	public Long getId() {
@@ -58,6 +69,18 @@ public class PurchaseOrderDetail implements Serializable{
 	}
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
+	}
+	public Boolean getGroupTicket() {
+		return groupTicket;
+	}
+	public void setGroupTicket(Boolean groupTicket) {
+		this.groupTicket = groupTicket;
+	}
+	public PurchaseOrder getOrder() {
+		return order;
+	}
+	public void setOrder(PurchaseOrder order) {
+		this.order = order;
 	}
 
 }

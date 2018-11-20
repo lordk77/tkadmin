@@ -176,6 +176,7 @@ public class EventBean
 					tcd.setAvailableTicket(tc.getTicketSupply());
 					tcd.setSoldTicket(0);
 					tcd.setStartingDate(cDate);
+					tcd.setEndingDate(cDate);
 					tcd.setTicketCategory(tc);
 					if(tc.getCategoryDetails()==null)
 						tc.setCategoryDetails(new ArrayList<TicketCategoryDetail>());;

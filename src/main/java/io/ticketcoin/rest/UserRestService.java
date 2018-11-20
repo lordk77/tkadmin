@@ -1,11 +1,15 @@
 package io.ticketcoin.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -20,11 +24,15 @@ import com.google.gson.JsonParser;
 import com.stripe.model.EphemeralKey;
 
 import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
+import io.ticketcoin.dashboard.dto.TicketDTO;
 import io.ticketcoin.dashboard.dto.UserDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
+import io.ticketcoin.dashboard.persistence.filter.TicketFilter;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
+import io.ticketcoin.dashboard.persistence.model.Ticket;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
+import io.ticketcoin.dashboard.persistence.service.TicketService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
 import io.ticketcoin.rest.integration.stripe.StripeService;
 import io.ticketcoin.rest.integration.stripe.dto.EphemeralKeysRequest;
@@ -168,46 +176,40 @@ public class UserRestService {
 		}
 		
 		
-		
-		
-		
-		
-		
-		
-		/*
-		@GET
-		@Path("/{id}")
-		@Produces(MediaType.APPLICATION_JSON)
-		public User getUser(@PathParam("id") Long id) {
-			return new UserService().findById(id);
-		}
 
-		
-	    @POST
+		@GET
+		@Path("/me/tickets")
 	    @Produces(MediaType.APPLICATION_JSON)
-	    @Consumes(MediaType.APPLICATION_JSON)
-		public User addUser(User user) {
-			return new UserService().saveOrUpdate(user);
-		}
+		  public Response tickets(@QueryParam("include_expired") Boolean includeExpired) 
+		  {
+			try
+			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+				
+				
+				TicketFilter filter = new TicketFilter();
+				filter.setUsername(userName);
+				filter.setIncludeExpired(Boolean.TRUE.equals(includeExpired));
+				
+				List<TicketDTO> ticketDTOs = new TicketService().searchTicketsDTO(filter);
+				
+	
+				
+				 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(ticketDTOs)))
+						.header("Access-Control-Allow-Origin", "*")
+							.header("Access-Control-Allow-Methods", "GET")
+							.type(MediaType.APPLICATION_JSON)
+							.build();
+			  } catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}				 
+		  }
 		
-	    
-	    @PUT
-	    @Produces(MediaType.APPLICATION_JSON)
-	    @Consumes(MediaType.APPLICATION_JSON)
-		public User updateUser(User user) {
-			return new UserService().saveOrUpdate(user);
-		}
-	    
-	    
-	    @DELETE
-	    @Path("/{id}")
-	    public Response deleteUser(@PathParam("id") Long id) {
-	    	new UserService().delete(id);
-	    	return Response.status(200).build();
-		}
 		
-		*/
 		
+		
+				
 		public static void main(String[] args) {
 			System.out.println(UserService.hashPassword("admin"));
 		}

@@ -24,13 +24,20 @@ public class TicketCategoryDTO {
 	
 	public TicketCategoryDTO(){}
 	
-	public TicketCategoryDTO(TicketCategory tc, Date date)
+	public TicketCategoryDTO(TicketCategory tc)
 	{
 		this.ticketCategoryUUID=tc.getTicketCategoryUUID();
 		this.description=tc.getDescription();
 		this.price=tc.getStreetPrice();
 		this.currency=tc.getCurrency();
 		this.title = tc.getTitle();
+		
+	}
+	
+	
+	public TicketCategoryDTO(TicketCategory tc, Date date)
+	{
+		this(tc);
 		
 		TicketCategoryDetail tcd = new EventService().getTicketCategoryDetail(ticketCategoryUUID, date);
 		if(tcd!=null)

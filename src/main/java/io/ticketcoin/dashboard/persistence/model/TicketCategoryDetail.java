@@ -33,6 +33,10 @@ public class TicketCategoryDetail {
 	@Column(name="STARTING_DATE")
 	private Date startingDate;
 	
+	@Temporal(TemporalType.DATE)
+	@Column(name="ENDING_DATE")
+	private Date endingDate;	
+	
 	@Column(name="AVAILABLE_TICKETS")
 	private Integer availableTicket = 0;
 	
@@ -83,6 +87,14 @@ public class TicketCategoryDetail {
 	public void setStartingDate(Date startingDate) {
 		
 		this.startingDate = startingDate!=null ? DateUtils.truncate(startingDate, Calendar.DAY_OF_MONTH) : startingDate;
+	}
+
+	public Date getEndingDate() {
+		return endingDate;
+	}
+
+	public void setEndingDate(Date endingDate) {
+		this.endingDate = endingDate!=null ? DateUtils.truncate(endingDate, Calendar.DAY_OF_MONTH) : endingDate;
 	}
 
 

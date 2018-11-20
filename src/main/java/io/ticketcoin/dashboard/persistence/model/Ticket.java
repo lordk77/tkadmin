@@ -1,6 +1,5 @@
 package io.ticketcoin.dashboard.persistence.model;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -12,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -27,6 +24,38 @@ import org.hibernate.annotations.GenericGenerator;
 @XmlRootElement
 public class Ticket 
 {
+	
+    public static int STATE_VALID = 0;
+    public static int STATE_SPENT = 1;
+    public static int STATE_INVALID = 2;
+
+    public static int TRANSFER_RULE_ANY = 0;
+    public static int TRANSFER_RULE_WHITE_LIST_ONLY = 1;
+    
+    public Ticket() 
+    {
+    	super();
+    }
+
+    public Ticket(PurchaseOrderDetail pod, TicketCategoryDetail categoryDetail) 
+    {
+//    	this.ticketUUID;
+    	this.ownedBy = pod.getOrder().getUser();
+    	this.currency = pod.getOrder().getCurrency() ;
+    	this.validFrom = categoryDetail.getStartingDate();
+    	this.validTo= categoryDetail.getEndingDate();
+    	this.allowedTransfers = -1;
+    	this.enrollTime = new Date();
+    	this.ticketState = STATE_VALID;
+    	this.transferRule = TRANSFER_RULE_ANY;
+    	this.allowedEntrances= Boolean.TRUE.equals(pod.getGroupTicket()) ? pod.getQuantity() : 1;
+    	this.category = categoryDetail.getTicketCategory();
+    	this.order = pod.getOrder();
+    }
+    
+    
+    
+    
 	@Id 
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;	
@@ -35,175 +64,206 @@ public class Ticket
     @GenericGenerator(name = "uuid", strategy = "uuid")
     @Column(name = "TICKET_UUID")
 	private String ticketUUID;
-	
-    
-	private Date issuedOn;
-	private String issuedTo;
-	private String ownedBy;
-	
-	private BigDecimal price;
-	private String currency;
-	
-	
-	private Date spentOn;
-	
+
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="EVENT_ID")
-	private Event event;
-	
+	@JoinColumn(name="OWNED_BY")
+	private User ownedBy;
+
+    @Column(name = "CURRENCY")
+	private String currency;
+    
+    @Column(name = "SPENT_ON")
+	private Date spentOn;
+
+    @Column(name = "CANCELED_ON")
+	private Date canceledOn;
+    
+    @Column(name = "VALID_FROM")
+	private Date validFrom;
+    
+    @Column(name = "VALID_TO")
+	private Date validTo;
+    
+    @Column(name = "ALLOWED_TRANSFERS")
+	private Integer allowedTransfers;
+    
+    @Column(name = "ENROLLED_ON")
+	private Date enrollTime;
+    
+    @Column(name = "TICKET_STATE")
+	private Integer ticketState;
+    
+    @Column(name = "TRANSFER_RULE")
+	private Integer transferRule;
+
+    @Column(name = "ALLOWED_ENTRANCES")
+	private Integer allowedEntrances;
+    
+    
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="CATEGORY_ID")
 	private TicketCategory category;
-	
-	
-	private Date validFrom;
-	private Date validTo;
 
-	private boolean resellable;
-	private BigDecimal resellPriceCap;
 	
-	
-	  private Date created;
-	  private Date updated;
-	  @PrePersist
-	  protected void onCreate() {
-	    created = new Date();
-	  }
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ORDER_ID")
+	private PurchaseOrder order;
 
-	  @PrePersist
-	  @PreUpdate
-	  protected void onUpdate() {
-	    updated = new Date();
-	  }
-	  
-	
+
 	public Long getId() {
 		return id;
 	}
+
 
 	public void setId(Long id) {
 		this.id = id;
 	}
 
+
 	public String getTicketUUID() {
 		return ticketUUID;
 	}
+
 
 	public void setTicketUUID(String ticketUUID) {
 		this.ticketUUID = ticketUUID;
 	}
 
-	public Date getIssuedOn() {
-		return issuedOn;
-	}
 
-	public void setIssuedOn(Date issuedOn) {
-		this.issuedOn = issuedOn;
-	}
-
-	public String getIssuedTo() {
-		return issuedTo;
-	}
-
-	public void setIssuedTo(String issuedTo) {
-		this.issuedTo = issuedTo;
-	}
-
-	public String getOwnedBy() {
-		return ownedBy;
-	}
-
-	public void setOwnedBy(String ownedBy) {
-		this.ownedBy = ownedBy;
-	}
-
-	public BigDecimal getPrice() {
-		return price;
-	}
-
-	public void setPrice(BigDecimal price) {
-		this.price = price;
-	}
 
 	public String getCurrency() {
 		return currency;
 	}
 
+
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
+
 
 	public Date getSpentOn() {
 		return spentOn;
 	}
 
+
 	public void setSpentOn(Date spentOn) {
 		this.spentOn = spentOn;
 	}
 
-	public Event getEvent() {
-		return event;
+
+	public Date getCanceledOn() {
+		return canceledOn;
 	}
 
-	public void setEvent(Event event) {
-		this.event = event;
+
+	public void setCanceledOn(Date canceledOn) {
+		this.canceledOn = canceledOn;
 	}
 
-	public TicketCategory getCategory() {
-		return category;
-	}
-
-	public void setCategory(TicketCategory category) {
-		this.category = category;
-	}
 
 	public Date getValidFrom() {
 		return validFrom;
 	}
 
+
 	public void setValidFrom(Date validFrom) {
 		this.validFrom = validFrom;
 	}
+
 
 	public Date getValidTo() {
 		return validTo;
 	}
 
+
 	public void setValidTo(Date validTo) {
 		this.validTo = validTo;
 	}
 
-	public boolean isResellable() {
-		return resellable;
+
+	public Integer getAllowedTransfers() {
+		return allowedTransfers;
 	}
 
-	public void setResellable(boolean resellable) {
-		this.resellable = resellable;
+
+	public void setAllowedTransfers(Integer allowedTransfers) {
+		this.allowedTransfers = allowedTransfers;
 	}
 
-	public BigDecimal getResellPriceCap() {
-		return resellPriceCap;
+
+	public Date getEnrollTime() {
+		return enrollTime;
 	}
 
-	public void setResellPriceCap(BigDecimal resellPriceCap) {
-		this.resellPriceCap = resellPriceCap;
+
+	public void setEnrollTime(Date enrollTime) {
+		this.enrollTime = enrollTime;
 	}
 
-	public Date getCreated() {
-		return created;
+
+	public Integer getTicketState() {
+		return ticketState;
 	}
 
-	public void setCreated(Date created) {
-		this.created = created;
+
+	public void setTicketState(Integer ticketState) {
+		this.ticketState = ticketState;
 	}
 
-	public Date getUpdated() {
-		return updated;
+
+	public Integer getTransferRule() {
+		return transferRule;
 	}
 
-	public void setUpdated(Date updated) {
-		this.updated = updated;
+
+	public void setTransferRule(Integer transferRule) {
+		this.transferRule = transferRule;
 	}
+
+
+	public TicketCategory getCategory() {
+		return category;
+	}
+
+
+	public void setCategory(TicketCategory category) {
+		this.category = category;
+	}
+
+
+	public PurchaseOrder getOrder() {
+		return order;
+	}
+
+
+	public void setOrder(PurchaseOrder order) {
+		this.order = order;
+	}
+
+
+	public User getOwnedBy() {
+		return ownedBy;
+	}
+
+
+	public void setOwnedBy(User ownedBy) {
+		this.ownedBy = ownedBy;
+	}
+
+
+	public Integer getAllowedEntrances() {
+		return allowedEntrances;
+	}
+
+
+	public void setAllowedEntrances(Integer allowedEntrances) {
+		this.allowedEntrances = allowedEntrances;
+	}
+
+	
+	
+	  
+	  
 
 	
 }

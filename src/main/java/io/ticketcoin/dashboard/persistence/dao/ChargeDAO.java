@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.LockMode;
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrderDetail;
+import io.ticketcoin.dashboard.persistence.model.Ticket;
 import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
@@ -17,7 +19,7 @@ public class ChargeDAO {
 
 	public void processOrder(PurchaseOrder order) throws Exception {
 		
-		
+		Session session = HibernateUtils.getSessionFactory().getCurrentSession();
 		List<String> ticketCategoryUUIDs = new ArrayList<>();
 		for(PurchaseOrderDetail pod : order.getOrderDetail())
 			ticketCategoryUUIDs.add(pod.getTicketCategoryUUID());
@@ -44,7 +46,12 @@ public class ChargeDAO {
 							else
 							{
 								tcd.setAvailableTicket(tcd.getAvailableTicket() - pod.getQuantity());
-								HibernateUtils.getSessionFactory().getCurrentSession().save(tcd);
+								session.save(tcd);
+								
+								//Creates the tickets
+								for (int i = 0; i < (Boolean.TRUE.equals(pod.getGroupTicket()) ? pod.getQuantity(): 1);i++)
+									session.save(new Ticket(pod,tcd));
+								
 							}
 							
 							found = true;
@@ -57,7 +64,7 @@ public class ChargeDAO {
 						throw new Exception("error.ticketCategoryUUID.not.found");
 				}
 				
-				//Creates the tickets
+				
 				
 				
 
