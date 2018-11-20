@@ -25,6 +25,7 @@ public class UserDocumentService extends GenericService<UserDocument>{
 			session = HibernateUtils.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			List<UserDocument> retval = new UserDocumentDAO().searchDocuments(filter);
+
 			session.getTransaction().commit();
 			return retval;
 		}

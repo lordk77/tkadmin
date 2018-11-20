@@ -61,11 +61,11 @@ public class UserDocument implements Serializable{
 	@JoinColumn(name="USER_ID")
 	private User user;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+	@OneToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name="FRONT_IMAGE_ID")	
 	private FileAttachment frontImage;
 	
-	@OneToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+	@OneToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name="BACK_IMAGE_ID")	
 	private FileAttachment backImage;
 

@@ -13,7 +13,6 @@ public class UserDocumentInput implements Serializable {
 	 */
 	private static final long serialVersionUID = -3086757156442663030L;
 	
-	private Long id;
 	private String name;
 	private String documentType;
 	private byte[] front_photo;
@@ -35,12 +34,6 @@ public class UserDocumentInput implements Serializable {
 	}
 	public void setBack_photo(byte[] back_photo) {
 		this.back_photo = back_photo;
-	}
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
 	}
 	public String getDocumentType() {
 		return documentType;

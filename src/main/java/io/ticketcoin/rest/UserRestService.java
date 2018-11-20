@@ -15,6 +15,8 @@ import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.stripe.model.EphemeralKey;
 
 import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
@@ -69,9 +71,14 @@ public class UserRestService {
 					PurchaseOrder createdOrder = pos.placeOrder(order, userName);
 					
 					order = new PurchaseOrderDTO(createdOrder);
-					order.setStripeEphemeralKeys(stripeEphemeralKeys);
-
 					
+					
+					if(stripeEphemeralKeys!=null)
+					{
+						JsonParser parser = new JsonParser();
+						JsonObject obj = parser.parse(stripeEphemeralKeys.getRawJson()).getAsJsonObject();
+						order.setStripeEphemeralKeys(obj);
+					}
 					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(order)))
 							.header("Access-Control-Allow-Origin", "*")
 								.header("Access-Control-Allow-Methods", "POST")

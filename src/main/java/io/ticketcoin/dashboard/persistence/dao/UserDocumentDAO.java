@@ -26,7 +26,7 @@ public class UserDocumentDAO extends GenericDAO<UserDocument>{
 			c.add(Restrictions.idEq(filter.getId()));
 
 		if (!StringUtils.isEmpty(filter.getUsername()))
-			c.add(Restrictions.eq("username", filter.getUsername()));
+			c.add(Restrictions.eq("user.username", filter.getUsername()));
 		
 		
 		 return c.list();

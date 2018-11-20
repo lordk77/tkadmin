@@ -28,6 +28,7 @@ import io.ticketcoin.dashboard.persistence.filter.UserDocumentFilter;
 import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.model.UserDocument;
+import io.ticketcoin.dashboard.persistence.service.FileAttachmentService;
 import io.ticketcoin.dashboard.persistence.service.UserDocumentService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
@@ -121,10 +122,102 @@ public class UserDocumentRestService {
 		
 	    
 	    @PUT
+	    @Path("/{id}")
 	    @Produces(MediaType.APPLICATION_JSON)
 	    @Consumes(MediaType.APPLICATION_JSON)
-		public User updateUser(User user) {
-			return new UserService().saveOrUpdate(user);
+		public Response updateDocument(@PathParam("id") Long id, UserDocumentInput input) {
+	    	
+			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+			try
+			{
+
+				UserDocumentFilter filter = new UserDocumentFilter();
+				filter.setUsername(userName);
+				filter.setId(id);
+				List<UserDocument> documents = new UserDocumentService().searchDocuments(filter);
+				
+				if(documents.size()>0)
+				{
+					UserDocument document = documents.get(0);
+
+					if(input.getName()!=null)
+						document.setName(input.getName());
+					
+					document.setUpdated(new Date());
+					document.setUser(new UserService().getUser(userName));
+
+					if(input.getFront_photo()!=null)
+					{
+						
+						if(input.getFront_photo().length>0) 
+						{
+							FileAttachment fa = new FileAttachment();
+							
+							if(document.getFrontImage()!=null)
+								fa = document.getFrontImage();
+							else
+								fa= prepareFileAttachment(input.getFront_photo());
+							
+							fa.setContent(input.getFront_photo());
+							
+							document.setFrontImage(fa);
+						}
+						else if (document.getFrontImage()!=null)
+						{
+							new FileAttachmentService().delete(document.getFrontImage());
+							document.setFrontImage(null);
+						}
+					}
+					
+					if(input.getBack_photo()!=null)
+					{
+						if(input.getBack_photo().length>0) 
+						{
+							FileAttachment fa = new FileAttachment();
+							
+							if(document.getBackImage()!=null)
+								fa = document.getBackImage();
+							else
+								fa= prepareFileAttachment(input.getBack_photo());
+							
+							fa.setContent(input.getBack_photo());
+							
+							document.setBackImage(fa);
+						}
+						else if (document.getBackImage()!=null)
+						{
+							new FileAttachmentService().delete(document.getBackImage());
+							document.setBackImage(null);
+						}
+					}
+					
+					
+					try {
+						if(input.getDocumentType()!=null)
+							document.setDocType(UserDocument.DocTypes.valueOf(input.getDocumentType()));	}
+					catch (Exception e) {
+						document.setDocType(UserDocument.DocTypes.OTHER);	
+						}
+				
+					new UserDocumentService().saveOrUpdate(document);
+
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(new UserDocumentOutput(document))))
+							.header("Access-Control-Allow-Origin", "*")
+								.header("Access-Control-Allow-Methods", "POST")
+								.type(MediaType.APPLICATION_JSON)
+								.build();
+					
+				}
+				else
+					throw new Exception("error.file.not.found");
+				
+				
+
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+			}
 		}
 	    
 	    
@@ -206,7 +299,7 @@ public class UserDocumentRestService {
 				 //TODO:metodo temporaneo per impostare la attachment url
 				 HttpServletRequest request = mc.getHttpServletRequest();
 				 String attachmentURL = request.getScheme() + "://" +  request.getServerName()+":"+request.getServerPort() + "/" + (request.getContextPath()!=null ? request.getContextPath():"") +  
-						 "services/image/"+fa.getAttachmentUUID();
+						 "/services/image/"+fa.getAttachmentUUID();
 				 fa.setAttachmentURL(attachmentURL);
 				 fa.setContent(content);
 				 return fa;
