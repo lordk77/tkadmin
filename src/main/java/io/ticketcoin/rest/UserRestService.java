@@ -1,6 +1,8 @@
 package io.ticketcoin.rest;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -15,10 +17,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.stripe.model.EphemeralKey;
@@ -70,6 +74,9 @@ public class UserRestService {
 			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
 			PurchaseOrderService pos = new PurchaseOrderService();
 				try {
+					
+					if(order.getReservationDate()==null || order.getReservationDate().before(DateUtils.round(new Date(), Calendar.DAY_OF_MONTH)))
+						throw new Exception("error.invalid.date");
 
 					EphemeralKey stripeEphemeralKeys = null;
 					if(PurchaseOrder.PAYMENT_TYPE_STRIPE.equals(order.getPaymentType()))
@@ -87,7 +94,7 @@ public class UserRestService {
 						JsonObject obj = parser.parse(stripeEphemeralKeys.getRawJson()).getAsJsonObject();
 						order.setStripeEphemeralKeys(obj);
 					}
-					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(order)))
+					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(order)))
 							.header("Access-Control-Allow-Origin", "*")
 								.header("Access-Control-Allow-Methods", "POST")
 								.type(MediaType.APPLICATION_JSON)
@@ -195,14 +202,14 @@ public class UserRestService {
 				
 	
 				
-				 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(ticketDTOs)))
+				 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(ticketDTOs)))
 						.header("Access-Control-Allow-Origin", "*")
 							.header("Access-Control-Allow-Methods", "GET")
 							.type(MediaType.APPLICATION_JSON)
 							.build();
 			  } catch (Exception e) {
 					e.printStackTrace();
-					return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
 				}				 
 		  }
 		

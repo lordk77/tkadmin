@@ -36,7 +36,7 @@ public class CryptoConverter {
 	
 	public static BigDecimal convert(BigDecimal amount, String fromCurrency, CryptoCurrency toCurrency )
 	{
-		refreshCrossValues();
+		refreshCrossValues(true);
 		if(crossTable.containsKey(fromCurrency)) 
 		{
 			if(CryptoCurrency.BTC.equals(toCurrency))
@@ -54,33 +54,54 @@ public class CryptoConverter {
 	}
 	
 	
-	private static void refreshCrossValues()
+	private static void refreshCrossValues(boolean testData)
 	{
 
 		synchronized (crossTable) {
 			
-			//update cross every 30 minutes
-			if(new Date().getTime() - lastReadTime > 30*60*1000);
+			if(testData)
 			{
-			
-				try 
+				crossTable.clear();
 				{
-					
-					
-					CryptoCrossDTO crossEUR = getCross("EUR", "BTC,ETH,LTC");
-					CryptoCrossDTO crossUSD = getCross("USD", "BTC,ETH,LTC");
-		
-					crossTable.clear();
-					crossTable.put("EUR", crossEUR);
-					crossTable.put("USD", crossUSD);
-		
-					lastReadTime = new Date().getTime();
+					CryptoCrossDTO cryptoCrossDTO= new CryptoCrossDTO();
+		            cryptoCrossDTO.setBTC(new BigDecimal("0.0002559"));
+		            cryptoCrossDTO.setETH(new BigDecimal("0.008578"));
+		            cryptoCrossDTO.setLTC(new BigDecimal("0.03458"));
+		            crossTable.put("EUR", cryptoCrossDTO);
 				}
-				catch (Exception e) {
-					e.printStackTrace();
+
+				{
+					CryptoCrossDTO cryptoCrossDTO= new CryptoCrossDTO();
+		            cryptoCrossDTO.setBTC(new BigDecimal("0.0002227"));
+		            cryptoCrossDTO.setETH(new BigDecimal("0.007447"));
+		            cryptoCrossDTO.setLTC(new BigDecimal("0.02999"));
+		            crossTable.put("USD", cryptoCrossDTO);
 				}
 			}
+			else
+			{
+				//update cross every 30 minutes
+				if(new Date().getTime() - lastReadTime > 30*60*1000);
+				{
+				
+					try 
+					{
+						
+						
+						CryptoCrossDTO crossEUR = getCross("EUR", "BTC,ETH,LTC");
+						CryptoCrossDTO crossUSD = getCross("USD", "BTC,ETH,LTC");
 			
+						crossTable.clear();
+						crossTable.put("EUR", crossEUR);
+						crossTable.put("USD", crossUSD);
+			
+						lastReadTime = new Date().getTime();
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 	

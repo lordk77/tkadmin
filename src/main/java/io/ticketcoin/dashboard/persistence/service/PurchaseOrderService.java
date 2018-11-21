@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
@@ -37,6 +38,7 @@ public class PurchaseOrderService extends GenericService<PurchaseOrder>{
 	public static String STATUS_CANCELED = "CANCELED";
 	public static String STATUS_COMLPETED = "COMLPETED";
 	
+	public static BigDecimal ETH_COMMISSION = new BigDecimal("0.2");
 	
 	public PurchaseOrderService() {
 		super(PurchaseOrder.class);
@@ -83,6 +85,7 @@ public class PurchaseOrderService extends GenericService<PurchaseOrder>{
 			purchaseOrder.setEventUUID(purchaseOrderDTO.getEventUUID());
 			purchaseOrder.setPaymentType(purchaseOrderDTO.getPaymentType());
 			purchaseOrder.setTotalAmount(new BigDecimal("0"));
+			purchaseOrder.setTotalAmountETH(new BigDecimal("0"));
 			purchaseOrder.setStatus(STATUS_PENDING);
 			purchaseOrder.setCreated(new Date());
 			purchaseOrder.setOrderUUID(UUID.randomUUID().toString());
@@ -97,11 +100,18 @@ public class PurchaseOrderService extends GenericService<PurchaseOrder>{
 					if(category.getTicketCategoryUUID().equals(dto.getTicketCategoryUUID()))
 					{
 						PurchaseOrderDetail detail = new PurchaseOrderDetail();
+						detail.setDescription(category.getDescription());
 						detail.setQuantity(dto.getQuantity());
 						detail.setTicketCategoryUUID(category.getTicketCategoryUUID());
+						
 						detail.setAmount(category.getStreetPrice().multiply(BigDecimal.valueOf(dto.getQuantity())));
-						detail.setDescription(category.getDescription());
+						detail.setAmountETH(
+							CryptoConverter.convert(
+									//Add commission (for the test phase is fixed to 20 euro cents
+									detail.getAmount().add(ETH_COMMISSION), purchaseOrder.getCurrency(), CryptoConverter.CryptoCurrency.ETH));
+						
 						purchaseOrder.setTotalAmount(purchaseOrder.getTotalAmount().add(detail.getAmount()));
+						purchaseOrder.setTotalAmountETH(purchaseOrder.getTotalAmountETH().add(detail.getAmountETH()));
 						purchaseOrder.getOrderDetail().add(detail);
 						found=true;
 						break;
@@ -119,13 +129,6 @@ public class PurchaseOrderService extends GenericService<PurchaseOrder>{
 			else
 				purchaseOrder.setUser(user);
 			
-			//Calculates crypto price
-			purchaseOrder.setTotalAmountETH(
-					CryptoConverter.convert(
-							//Add commission (for the test phase is fixed to 1 eur
-							purchaseOrder.getTotalAmount().add(BigDecimal.ONE), purchaseOrder.getCurrency(), CryptoConverter.CryptoCurrency.ETH))
-					;
-			;
 			
 			
 			session.save(purchaseOrder);

@@ -76,6 +76,8 @@ public class StripeService {
 			
 			try 
 			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+				User u = new UserService().getUser(userName);
 				
 				if(StringUtils.isBlank(chargeRequest.getOrderUUID()))
 					throw new Exception("error.missing.data");
@@ -86,21 +88,18 @@ public class StripeService {
 				if(o==null)
 					throw new Exception("error.missing.order");
 				
-				else if (o.getTotalAmount().compareTo(new BigDecimal(chargeRequest.getAmount()).divide(new BigDecimal("100")))>0)
-					throw new Exception("error.insuficent.amount");
-				
 		        chargeRequest.setDescription("Order no." + chargeRequest.getOrderUUID());
 		        
 		        new GenericService<>(StripeChargeRequest.class).save(chargeRequest);
 		        	
 				
 				Map<String, Object> chargeParams = new HashMap<>();
-				chargeParams.put("amount", chargeRequest.getAmount());
-				chargeParams.put("currency", "EUR");
+				chargeParams.put("amount", o.getTotalAmount().multiply(new BigDecimal("100")).intValue());
+				chargeParams.put("currency", o.getCurrency());
 				chargeParams.put("description", chargeRequest.getDescription());
 				chargeParams.put("source", chargeRequest.getStripeToken());
 				chargeParams.put("statement_descriptor", "Ticketcoin");
-
+				chargeParams.put("customer", u.getStripe_identifier());
 				
 				Charge charge = new ChargeService().carge(o, chargeParams);
 		            

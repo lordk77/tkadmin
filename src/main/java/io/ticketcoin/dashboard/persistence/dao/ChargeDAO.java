@@ -29,7 +29,7 @@ public class ChargeDAO {
 				.createAlias("ticketCategory", "ticketCategory")
 				.setLockMode(LockMode.PESSIMISTIC_WRITE)
 				.add(Restrictions.in("ticketCategory.ticketCategoryUUID", ticketCategoryUUIDs))
-				//.add(Restrictions.eq("startingDate", order.getReservationDate()))
+				.add(Restrictions.eq("startingDate", order.getReservationDate()))
 				.list()
 				;
 				

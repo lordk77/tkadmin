@@ -30,6 +30,8 @@ public class PurchaseOrderDetail implements Serializable{
 	private String ticketCategoryUUID;
 	private Integer quantity;
 	private BigDecimal amount;
+	private BigDecimal amountETH;
+	
 	private String description;
 	
 	@Column(name="IS_GROUP_TICKET")
@@ -81,6 +83,12 @@ public class PurchaseOrderDetail implements Serializable{
 	}
 	public void setOrder(PurchaseOrder order) {
 		this.order = order;
+	}
+	public BigDecimal getAmountETH() {
+		return amountETH;
+	}
+	public void setAmountETH(BigDecimal amountETH) {
+		this.amountETH = amountETH;
 	}
 
 }

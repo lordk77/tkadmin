@@ -7,9 +7,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import io.ticketcoin.currency.CryptoConverter;
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
 import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.service.EventService;
+import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
 
 @XmlRootElement
 public class TicketCategoryDTO {
@@ -17,6 +19,7 @@ public class TicketCategoryDTO {
 	private String ticketCategoryUUID;
 	private String description;
 	private BigDecimal price;
+	private BigDecimal priceETH;
 	private String currency;
 	private String title;
 	private Integer maxQty;
@@ -28,8 +31,11 @@ public class TicketCategoryDTO {
 	{
 		this.ticketCategoryUUID=tc.getTicketCategoryUUID();
 		this.description=tc.getDescription();
-		this.price=tc.getStreetPrice();
 		this.currency=tc.getCurrency();
+		this.price=tc.getStreetPrice();
+		this.priceETH = 
+		CryptoConverter.convert(
+				this.price.add(PurchaseOrderService.ETH_COMMISSION), currency !=null ? currency : tc.getEvent().getCurrency(), CryptoConverter.CryptoCurrency.ETH);
 		this.title = tc.getTitle();
 		
 	}
@@ -98,6 +104,14 @@ public class TicketCategoryDTO {
 
 	public void setDate(String date) {
 		this.date = date;
+	}
+
+	public BigDecimal getPriceETH() {
+		return priceETH;
+	}
+
+	public void setPriceETH(BigDecimal priceETH) {
+		this.priceETH = priceETH;
 	}
 
 	

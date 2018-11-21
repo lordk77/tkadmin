@@ -32,7 +32,6 @@ public class StripeChargeRequest {
 		private Date requestDate;
 		
 	    private String description;
-	    private Integer amount;
 	    private Currency currency;
 	    private String stripeEmail;
 	    private String stripeToken;
@@ -54,12 +53,6 @@ public class StripeChargeRequest {
 		}
 		public void setDescription(String description) {
 			this.description = description;
-		}
-		public Integer getAmount() {
-			return amount;
-		}
-		public void setAmount(Integer amount) {
-			this.amount = amount;
 		}
 		public Currency getCurrency() {
 			return currency;
