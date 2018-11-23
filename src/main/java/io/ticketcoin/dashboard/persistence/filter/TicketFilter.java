@@ -4,6 +4,12 @@ public class TicketFilter {
 	
 	private String username;
 	private Long id;
+	
+	private String ticketUUID;
+	private Long organizationId;
+	
+	
+	
 	private boolean includeExpired;
 	
 	public String getUsername() {
@@ -23,6 +29,18 @@ public class TicketFilter {
 	}
 	public void setIncludeExpired(boolean includeExpired) {
 		this.includeExpired = includeExpired;
+	}
+	public String getTicketUUID() {
+		return ticketUUID;
+	}
+	public void setTicketUUID(String ticketUUID) {
+		this.ticketUUID = ticketUUID;
+	}
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+	public void setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
 	}
 	
 }

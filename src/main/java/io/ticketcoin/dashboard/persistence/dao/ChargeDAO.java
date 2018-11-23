@@ -49,7 +49,7 @@ public class ChargeDAO {
 								session.save(tcd);
 								
 								//Creates the tickets
-								for (int i = 0; i < (Boolean.TRUE.equals(pod.getGroupTicket()) ? pod.getQuantity(): 1);i++)
+								for (int i = 0; i < (Boolean.TRUE.equals(pod.getGroupTicket()) ? 1 : pod.getQuantity());i++)
 									session.save(new Ticket(pod,tcd));
 								
 							}

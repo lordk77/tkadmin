@@ -53,6 +53,9 @@
 	  <property name="dataProvider" ref="oauthProvider"/>
   </bean>
   
+    <bean id="merchantBean" class="io.ticketcoin.rest.MerchantRestService" />
+  
+  
   <bean id="facebookLoginService" class="io.ticketcoin.rest.integration.facebook.FacebookLoginService">
          <property name="handler" ref="clientCredsHandler"/>
         <property name="dataProvider" ref="oauthProvider"/>
@@ -77,6 +80,8 @@
 	      <ref bean="userServiceBean" />
 	      <ref bean="stripeService" />
 	      <ref bean="userDocumentBean" /> 
+	      <ref bean="merchantBean" /> 
+	      
 	    </jaxrs:serviceBeans>
 	    <jaxrs:providers>
 	    	  <bean class="org.apache.cxf.rs.security.oauth2.provider.OAuthContextProvider"/>

@@ -37,6 +37,9 @@ public class UserDTO implements Serializable
 	private String app_version;
 	private Wallet wallet;
 	
+	
+	private boolean merchant;
+	
 	private List<Role> roles;
 	
 	public UserDTO() {}
@@ -46,6 +49,14 @@ public class UserDTO implements Serializable
 			BeanUtils.copyProperties(this, user);
 			if(user.getOrganization()!=null)
 				organizationInfo = new OrganizationDTO(user.getOrganization());
+			
+			if(user.getRoles()!=null)
+			{
+				this.merchant = false;
+				for (Role r:user.getRoles())
+					if("merchant".equalsIgnoreCase(r.getRolename()))
+						this.merchant=true;
+			}
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
@@ -169,6 +180,13 @@ public class UserDTO implements Serializable
 	public void setWallet(Wallet wallet) {
 		this.wallet = wallet;
 	}
+	public boolean isMerchant() {
+		return merchant;
+	}
+	public void setMerchant(boolean merchant) {
+		this.merchant = merchant;
+	}
+
 	
 	
 	  

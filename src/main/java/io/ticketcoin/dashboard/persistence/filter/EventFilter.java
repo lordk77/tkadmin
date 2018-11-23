@@ -16,7 +16,7 @@ public class EventFilter {
 	private Integer skip;
 	private Integer limit;
 	
-	
+	private Long organizationId;
 	
 	public String getGenericTxt() {
 		return genericTxt;
@@ -72,6 +72,14 @@ public class EventFilter {
 
 	public void setLimit(Integer limit) {
 		this.limit = limit;
+	}
+
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+
+	public void setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
 	}
 	
 	

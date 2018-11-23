@@ -1,6 +1,7 @@
 package io.ticketcoin.dashboard.persistence.model;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,7 +40,7 @@ public class Ticket
 
     public Ticket(PurchaseOrderDetail pod, TicketCategoryDetail categoryDetail) 
     {
-//    	this.ticketUUID;
+    	this.ticketUUID = UUID.randomUUID().toString();
     	this.ownedBy = pod.getOrder().getUser();
     	this.currency = pod.getOrder().getCurrency() ;
     	this.validFrom = categoryDetail.getStartingDate();

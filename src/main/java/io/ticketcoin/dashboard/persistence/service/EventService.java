@@ -1,5 +1,6 @@
 package io.ticketcoin.dashboard.persistence.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 import io.ticketcoin.dashboard.dto.EventCategoryDTO;
+import io.ticketcoin.dashboard.dto.EventDTO;
+import io.ticketcoin.dashboard.dto.EventSearchResultDTO;
 import io.ticketcoin.dashboard.persistence.dao.EventDAO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
@@ -140,6 +143,40 @@ public class EventService extends GenericService<Event> {
 			throw e;
 		}
 	}
+	
+	
+	public EventSearchResultDTO searchEventsDTO(EventFilter filter)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			EventSearchResult searchResult = new EventDAO().searchEvents(filter);
+
+			List<EventDTO> events = new ArrayList<>();
+			for (Event e:searchResult.getResults())
+				events.add(new EventDTO(e));
+			
+			
+			EventSearchResultDTO resDTO = new EventSearchResultDTO();
+			resDTO.setResults(events);
+			resDTO.setRowCount(searchResult.getRowCount());
+			
+			session.getTransaction().commit();
+			return resDTO;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	
+
+	
 	
 	public Event findById(Long id)
 	{

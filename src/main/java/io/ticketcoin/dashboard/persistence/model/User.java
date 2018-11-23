@@ -19,6 +19,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
@@ -52,15 +53,6 @@ public class User implements Serializable{
 
     
     
-    /*
-    "wallet" : {
-      "version": 1,
-      "ticketcoin_ethereum" : {
-        "address": "8cDBF70E278e95a60E57eD389522Fbb6cc96474d",
-        "private_key" : "698d120ec98081a80fd0288088db97163a123434a7b6d308fdd142ac1abba13e"
-      }
-    }
-    */
 	
 	  private Date created;
 	  private Date updated;
@@ -254,5 +246,20 @@ public class User implements Serializable{
 	public void setStripe_identifier(String stripe_identifier) {
 		this.stripe_identifier = stripe_identifier;
 	}
+	
+	@Transient
+	public  boolean isMerchant()
+	{
+		boolean merchant = false;
+		
+		if(this.getRoles()!=null)
+		{
+			for (Role r:this.getRoles())
+				if("merchant".equalsIgnoreCase(r.getRolename()))
+					merchant=true;
+		}
+		return merchant;
+	}
+			
 	
 }

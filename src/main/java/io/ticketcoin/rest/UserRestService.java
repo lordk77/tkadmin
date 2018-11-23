@@ -75,7 +75,7 @@ public class UserRestService {
 			PurchaseOrderService pos = new PurchaseOrderService();
 				try {
 					
-					if(order.getReservationDate()==null || order.getReservationDate().before(DateUtils.round(new Date(), Calendar.DAY_OF_MONTH)))
+					if(order.getReservationDate()!=null && order.getReservationDate().before(DateUtils.round(new Date(), Calendar.DAY_OF_MONTH)))
 						throw new Exception("error.invalid.date");
 
 					EphemeralKey stripeEphemeralKeys = null;

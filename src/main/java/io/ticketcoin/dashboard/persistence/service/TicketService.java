@@ -67,5 +67,30 @@ public class TicketService extends GenericService<Ticket>{
 		}
 	}
 	
+	public TicketDTO consumeTicket(String ticketUUID, Long organizationId) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+
+			Ticket ticket = new TicketDAO().consumeTicket(ticketUUID, organizationId);
+			
+			TicketDTO ticketDTO = new TicketDTO(ticket);
+			
+			session.getTransaction().commit();
+			return ticketDTO;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	
+	
 	
 }

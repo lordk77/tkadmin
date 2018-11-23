@@ -136,14 +136,7 @@ public class EventRestService
 		try 
 		{
 			filter.setMaxResult(MAX_RESULTS);
-			EventSearchResult searchResult = new EventService().searchEvents(filter);
-			List<EventDTO> events = new ArrayList<>();
-			for (Event e:searchResult.getResults())
-				events.add(new EventDTO(e));
-	
-			EventSearchResultDTO resDTO = new EventSearchResultDTO();
-			resDTO.setResults(events);
-			resDTO.setRowCount(searchResult.getRowCount());
+			EventSearchResultDTO resDTO = new EventService().searchEventsDTO(filter);
 			
 			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(resDTO)))
 					 .header("Access-Control-Allow-Origin", "*")
