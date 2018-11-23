@@ -1,5 +1,8 @@
 package io.ticketcoin.rest;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,6 +24,8 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
+import org.web3j.crypto.Credentials;
+import org.web3j.crypto.Sign;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -184,5 +189,50 @@ public class MerchantRestService {
 		  }
 		
 		
+		
+		private boolean TicketData(TicketData td) throws SignatureException
+		{
+			BigInteger  signedMessageToKey = Sign.signedMessageToKey((td.getEventUUID() + td.getAddress() + td.getTicketUUID()+td.getUtc()).getBytes(), new Sign.SignatureData(
+					hexStringToByteArray(td.getV())[0], 
+					hexStringToByteArray(td.getR()), 
+					hexStringToByteArray(td.getS())));
+			
+			System.out.println(signedMessageToKey.toString(16));
+			return ("0x"+signedMessageToKey.toString(16)).equals(td.getAddress());
+
+					
+			
+		}
+		
+		
+		public static byte[] hexStringToByteArray(String s) {
+		    int len = s.length();
+		    byte[] data = new byte[len / 2];
+		    for (int i = 0; i < len; i += 2) {
+		        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+		                             + Character.digit(s.charAt(i+1), 16));
+		    }
+		    return data;
+		}
+		
+		
+		
+		public static void main(String[] args)
+		{
+			Credentials.create(
+					"", 
+					"");
+			/*
+					val address = credentials.address
+					val ticketUUID = item.ticketUUID
+					val eventUUID = item.eventDetail.eventUUID!!
+					val utc =  Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis()
+					val data = (eventUUID+address+ticketUUID+utc.toString()).toByteArray()
+					val signature = Sign.signMessage(data, credentials.ecKeyPair)
+					val r = Numeric.toHexString(signature.r)
+					val s = Numeric.toHexString(signature.s)
+					val v =  Numeric.toHexString(byteArrayOf(signature.v))*/
+					
+		}
 		
 }
