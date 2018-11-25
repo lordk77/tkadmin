@@ -37,6 +37,17 @@ public class Test {
 			//loads credential
 			Credentials credentials = WalletUtils.loadCredentials("burubu",fileName);
 			System.out.println(credentials.getAddress());
+			
+			
+			 ECKeyPair ecKeyPair = Keys.createEcKeyPair();
+	            BigInteger privateKeyInDec = ecKeyPair.getPrivateKey();
+	            WalletFile aWallet = Wallet.createLight(UUID.randomUUID().toString(), ecKeyPair);
+	            String sAddress = aWallet.getAddress();
+	            
+	            String sPrivatekeyInHex = privateKeyInDec.toString(16);
+			 System.out.println(sPrivatekeyInHex + ":" + "0x" +sAddress);
+			 
+			 
 			//Checks balance
 			System.out.println("Balance: " + getETHBalance(credentials.getAddress()).getBalance());			
 

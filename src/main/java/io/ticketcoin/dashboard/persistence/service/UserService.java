@@ -11,6 +11,7 @@ import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.filter.UserFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.User;
+import io.ticketcoin.dashboard.persistence.model.Wallet;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
 public class UserService extends GenericService<User>{
@@ -72,7 +73,7 @@ public class UserService extends GenericService<User>{
 	
 
 	
-	public User createUser(User user)
+	public User createUser(User user) throws Exception
 	{
 		Session session = null;
 		try
@@ -81,7 +82,10 @@ public class UserService extends GenericService<User>{
 			session.beginTransaction();
 			
 			//crea lo wallet
-			user.setWallet(new WalletService().createEthereumWallet());
+			Wallet mainWallet = new WalletService().createEthereumWallet();
+			mainWallet.setUser(user);
+			mainWallet.setDescription("Ticketcoin main wallet");
+			user.setWallet(mainWallet);
 			
 			//assegna il profilo
 			

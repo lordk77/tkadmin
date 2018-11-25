@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,13 +32,22 @@ import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
 import io.ticketcoin.dashboard.dto.TicketDTO;
 import io.ticketcoin.dashboard.dto.UserDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
+import io.ticketcoin.dashboard.dto.WalletItemDTO;
+import io.ticketcoin.dashboard.dto.WalletItemData;
 import io.ticketcoin.dashboard.persistence.filter.TicketFilter;
+import io.ticketcoin.dashboard.persistence.model.Card;
+import io.ticketcoin.dashboard.persistence.model.Card.CardType;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
-import io.ticketcoin.dashboard.persistence.model.Ticket;
 import io.ticketcoin.dashboard.persistence.model.User;
+import io.ticketcoin.dashboard.persistence.model.Wallet;
+import io.ticketcoin.dashboard.persistence.model.Wallet.WalletType;
+import io.ticketcoin.dashboard.persistence.model.WalletItem;
+import io.ticketcoin.dashboard.persistence.service.CardService;
 import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
 import io.ticketcoin.dashboard.persistence.service.TicketService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
+import io.ticketcoin.dashboard.persistence.service.WalletItemService;
+import io.ticketcoin.dashboard.persistence.service.WalletService;
 import io.ticketcoin.rest.integration.stripe.StripeService;
 import io.ticketcoin.rest.integration.stripe.dto.EphemeralKeysRequest;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
@@ -212,12 +222,132 @@ public class UserRestService {
 					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
 				}				 
 		  }
+	
+
+		@GET
+		@Path("/me/wallet/items")
+	    @Produces(MediaType.APPLICATION_JSON)
+		  public Response walletItems() 
+		  {
+			try
+			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+				
+
+				List walletItems = new ArrayList<>();
+				List walletItemsDTO = new ArrayList<>();
+				
+				walletItems.addAll(new WalletService().getUserWallets(userName));
+				walletItems.addAll(new CardService().getUserCards(userName));
+				
+				for (WalletItem walletItem : (List<WalletItem>)walletItems)
+					walletItemsDTO.add(new WalletItemDTO(walletItem));
+	
+				
+				 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(walletItemsDTO)))
+						.header("Access-Control-Allow-Origin", "*")
+							.header("Access-Control-Allow-Methods", "GET")
+							.type(MediaType.APPLICATION_JSON)
+							.build();
+				 
+				 
+			  } catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}				 
+		  }
+
+		@POST
+		@Path("/me/wallet/items")
+		@Consumes(MediaType.APPLICATION_JSON)
+	    @Produces(MediaType.APPLICATION_JSON)
+		  public Response addItem(WalletItemData itemData) 
+		  {
+			try
+			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+				User user = new UserService().getUser(userName);
+				
+				if(new WalletItemService().getWalletItemByAddress(itemData.getAddress())!=null)
+					throw new Exception("error.item.already.associated");
+				else if (WalletType.BTC_WALLET.toString().equals(itemData.getType()))
+				{
+					Wallet wallet = new Wallet();
+					wallet.setAddress(itemData.getAddress());
+					wallet.setDescription(itemData.getDescription()!=null ? itemData.getDescription():"BTC wallet");
+					wallet.setType(WalletType.BTC_WALLET);
+					wallet.setUser(user);
+					new WalletService().save(wallet);
+				}
+				else if (WalletType.ETH_WALLET.toString().equals(itemData.getType())) 
+				{
+					Wallet wallet = new Wallet();
+					wallet.setAddress(itemData.getAddress());
+					wallet.setDescription(itemData.getDescription()!=null ? itemData.getDescription():"ETH wallet");
+					wallet.setType(WalletType.ETH_WALLET);
+					wallet.setUser(user);
+					new WalletService().save(wallet);
+				}
+				else if (CardType.CARD.toString().equals(itemData.getType())) 
+				{
+					Card card = new Card();
+					card.setAddress(itemData.getAddress());
+					card.setDescription(itemData.getDescription()!=null ? itemData.getDescription():"Ticket Card");
+					card.setType(CardType.CARD);
+					card.setUser(user);
+					new CardService().save(card);
+				}
+				 
+				
+				
+				 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(null)))
+						.header("Access-Control-Allow-Origin", "*")
+							.header("Access-Control-Allow-Methods", "GET")
+							.type(MediaType.APPLICATION_JSON)
+							.build();
+				 
+				 
+			  } catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}				 
+		  }
 		
 		
+		@DELETE
+		@Path("/me/wallet/{itemId}")
+	    @Produces(MediaType.APPLICATION_JSON)
+		  public Response deleteItem(@PathParam("itemId") Long itemId) 
+		  {
+			try
+			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+				User user = new UserService().getUser(userName);
+				
+				WalletItem item = new WalletItemService().getWalletItemById(itemId);
+				
+				if(item==null || !item.getUser().getId().equals(user.getId()))
+					throw new Exception("error.item.not.found");
+				else if(item.getId().equals(user.getWallet().getId()))
+					throw new Exception("error.unable.to.delete.main.wallet");
+				else
+					new WalletItemService().delete(item);
+				
+				
+				 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(null)))
+						.header("Access-Control-Allow-Origin", "*")
+							.header("Access-Control-Allow-Methods", "GET")
+							.type(MediaType.APPLICATION_JSON)
+							.build();
+				 
+				 
+			  } catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}				 
+		  }
 		
 		
 				
-		public static void main(String[] args) {
-			System.out.println(UserService.hashPassword("admin"));
-		}
+
 }

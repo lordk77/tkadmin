@@ -49,6 +49,9 @@ public class UserDTO implements Serializable
 			BeanUtils.copyProperties(this, user);
 			if(user.getOrganization()!=null)
 				organizationInfo = new OrganizationDTO(user.getOrganization());
+
+			if(this.getWallet()!=null)
+				this.getWallet().setUser(null);
 			
 			if(user.getRoles()!=null)
 			{

@@ -12,6 +12,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import io.ticketcoin.dashboard.persistence.filter.TicketFilter;
+import io.ticketcoin.dashboard.persistence.model.Card;
 import io.ticketcoin.dashboard.persistence.model.Ticket;
 import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
@@ -87,6 +88,25 @@ public class TicketDAO extends GenericDAO<Ticket>{
 			HibernateUtils.getSessionFactory().getCurrentSession().save(ticket);
 			return ticket;
 		}
+	}
+
+	public List<Card> getUserCards(String userName) {
+		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
+				.createCriteria(Card.class)
+				.createAlias("user", "user");
+
+		c.add(Restrictions.eq("user.username", userName));
+
+		c.addOrder(Order.asc("id"));
+		
+		 return c.list();
+	}
+
+	public Card getCardByAddress(String address) {
+		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
+				.createCriteria(Card.class);
+		c.add(Restrictions.eq("address", address));
+		 return (Card)c.uniqueResult();
 	}
 
 
