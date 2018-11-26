@@ -30,6 +30,7 @@ public class TicketDTO implements Serializable{
 		private Integer ticketState;
 		private Integer transferRule;
 		private Integer allowedEntrances;
+		private Long tokenId;
 
 		private TicketCategoryDTO ticketCategory;
 		private EventDTO eventDetail;
@@ -130,6 +131,14 @@ public class TicketDTO implements Serializable{
 
 		public void setTicketCategory(TicketCategoryDTO ticketCategory) {
 			this.ticketCategory = ticketCategory;
+		}
+
+		public Long getTokenId() {
+			return tokenId;
+		}
+
+		public void setTokenId(Long tokenId) {
+			this.tokenId = tokenId;
 		}
 		
 		

@@ -109,6 +109,9 @@ public class Ticket
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ORDER_ID")
 	private PurchaseOrder order;
+	
+	@Column(name = "TOKEN_ID")
+	private Long tokenId;
 
 
 	public Long getId() {

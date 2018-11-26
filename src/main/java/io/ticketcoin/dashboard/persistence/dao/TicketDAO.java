@@ -8,13 +8,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Criteria;
 import org.hibernate.LockMode;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 
 import io.ticketcoin.dashboard.persistence.filter.TicketFilter;
 import io.ticketcoin.dashboard.persistence.model.Card;
 import io.ticketcoin.dashboard.persistence.model.Ticket;
-import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
 
 public class TicketDAO extends GenericDAO<Ticket>{
@@ -25,7 +27,7 @@ public class TicketDAO extends GenericDAO<Ticket>{
 
 	public List<Ticket> searchTickets(TicketFilter filter) {
 		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
-				.createCriteria(Ticket.class)
+				.createCriteria(Ticket.class, "tck")
 				.createAlias("ownedBy", "user");
 
 		
@@ -45,6 +47,20 @@ public class TicketDAO extends GenericDAO<Ticket>{
 			c.add(Restrictions.eq("event.organization.id", filter.getOrganizationId()));
 			
 		}
+		
+		if(filter.getCardID()!=null)
+		{
+			DetachedCriteria subquery = DetachedCriteria.forClass(Card.class,"card");	
+			subquery.add(Restrictions.eq("card.address", filter.getCardID()));
+			subquery.add(Restrictions.eqProperty("card.user", "tck.ownedBy"));				
+			c.add(Subqueries.exists(subquery.setProjection(Projections.property("card.id"))));				
+		}
+		if(filter.getDate()!=null)
+		{
+			c.add(Restrictions.or(Restrictions.isNull("validFrom"),Restrictions.le("validFrom", filter.getDate())));
+			c.add(Restrictions.or(Restrictions.isNull("validTo"),Restrictions.ge("validTo", filter.getDate())));
+		}
+		
 		
 		if(!filter.isIncludeExpired())
 		{

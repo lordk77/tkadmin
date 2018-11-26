@@ -1,5 +1,7 @@
 package io.ticketcoin.dashboard.persistence.filter;
 
+import java.util.Date;
+
 public class TicketFilter {
 	
 	private String username;
@@ -7,7 +9,9 @@ public class TicketFilter {
 	
 	private String ticketUUID;
 	private Long organizationId;
-	
+	private Long tokenId;
+	private String cardID;
+	private Date date;
 	
 	
 	private boolean includeExpired;
@@ -41,6 +45,24 @@ public class TicketFilter {
 	}
 	public void setOrganizationId(Long organizationId) {
 		this.organizationId = organizationId;
+	}
+	public Long getTokenId() {
+		return tokenId;
+	}
+	public void setTokenId(Long tokenId) {
+		this.tokenId = tokenId;
+	}
+	public String getCardID() {
+		return cardID;
+	}
+	public void setCardID(String cardID) {
+		this.cardID = cardID;
+	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
 	}
 	
 }
