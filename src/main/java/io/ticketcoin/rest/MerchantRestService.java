@@ -2,6 +2,7 @@ package io.ticketcoin.rest;
 
 import java.math.BigInteger;
 import java.security.SignatureException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,12 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.ECDSASignature;
+import org.web3j.crypto.Hash;
+import org.web3j.crypto.Keys;
 import org.web3j.crypto.Sign;
+import org.web3j.crypto.Sign.SignatureData;
+import org.web3j.utils.Numeric;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -96,6 +102,8 @@ public class MerchantRestService {
 					return Response.status(401).build();
 				else if(user.getOrganization()==null)
 					throw new Exception("error.no.organization.specified");
+				else if (!validateTicketData(ticketData))
+					throw new Exception("error.bad.signature");				
 				
 				else
 				{
@@ -115,6 +123,7 @@ public class MerchantRestService {
 						throw new Exception("error.spent.ticket");
 					else if(ticketDTOs.get(0).getTicketState()==Ticket.STATE_INVALID)
 						throw new Exception("error.invalid.ticket");	
+					
 					
 		
 					
@@ -147,7 +156,8 @@ public class MerchantRestService {
 					return Response.status(401).build();
 				else if(user.getOrganization()==null)
 					throw new Exception("error.no.organization.specified");
-				
+				else if (!validateTicketData(ticketData))
+					throw new Exception("error.bad.signature");
 				else
 				{
 				
@@ -221,6 +231,7 @@ public class MerchantRestService {
 					return Response.status(401).build();
 				else if(user.getOrganization()==null)
 					throw new Exception("error.no.organization.specified");
+					
 				
 				else
 				{
@@ -265,49 +276,66 @@ public class MerchantRestService {
 		
 		
 		
-		private boolean TicketData(TicketData td) throws SignatureException
+		private static boolean validateTicketData(TicketData td) throws SignatureException
 		{
-			BigInteger  signedMessageToKey = Sign.signedMessageToKey((td.getEventUUID() + td.getAddress() + td.getTicketUUID()+td.getUtc()).getBytes(), new Sign.SignatureData(
-					hexStringToByteArray(td.getV())[0], 
-					hexStringToByteArray(td.getR()), 
-					hexStringToByteArray(td.getS())));
-			
-			System.out.println(signedMessageToKey.toString(16));
-			return ("0x"+signedMessageToKey.toString(16)).equals(td.getAddress());
 
-					
+			String message = td.getEventUUID() + td.getAddress() + td.getTicketUUID()+td.getUtc();
 			
+
+			byte[] msgHash = Hash.sha3((message).getBytes());
+
+           
+	        SignatureData sd = new SignatureData(
+	        		Numeric.hexStringToByteArray(td.getV())[0], 
+					Numeric.hexStringToByteArray(td.getR()), 
+					Numeric.hexStringToByteArray(td.getS()));
+
+	        String addressRecovered = null;
+	        boolean match = false;
+	        
+	        // Iterate for each possible key to recover
+	        for (int i = 0; i < 4; i++) {
+	            BigInteger publicKey = Sign.recoverFromSignature(
+	                    (byte) i, 
+	                    new ECDSASignature(new BigInteger(1, sd.getR()), new BigInteger(1, sd.getS())), 
+	                    msgHash);
+	               
+	            if (publicKey != null) {
+	                addressRecovered = "0x" + Keys.getAddress(publicKey); 
+	                
+	                if (addressRecovered.equals(td.getAddress())) {
+	                    match = true;
+	                    break;
+	                }
+	            }
+	        }
+	        
+			
+			return match;
+					
 		}
-		
-		
-		public static byte[] hexStringToByteArray(String s) {
-		    int len = s.length();
-		    byte[] data = new byte[len / 2];
-		    for (int i = 0; i < len; i += 2) {
-		        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-		                             + Character.digit(s.charAt(i+1), 16));
-		    }
-		    return data;
-		}
-		
+	
 		
 		
 		public static void main(String[] args)
 		{
-			Credentials.create(
-					"", 
-					"");
-			/*
-					val address = credentials.address
-					val ticketUUID = item.ticketUUID
-					val eventUUID = item.eventDetail.eventUUID!!
-					val utc =  Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis()
-					val data = (eventUUID+address+ticketUUID+utc.toString()).toByteArray()
-					val signature = Sign.signMessage(data, credentials.ecKeyPair)
-					val r = Numeric.toHexString(signature.r)
-					val s = Numeric.toHexString(signature.s)
-					val v =  Numeric.toHexString(byteArrayOf(signature.v))*/
-					
+			TicketData _td = new TicketData();
+			_td.setAddress("0x10b3371666621a6035f736fb42dd6822c1a0e09d");
+			_td.setEventUUID("c99b59e9-097e-4904-a863-9a2427677218");
+			_td.setR("0x37546c4140a1bc349fa80a0faf83e7aee5d07c25ee80da84abc01118a5b0c000");
+			_td.setS("0x30475750d8c5179fa47d381f53e939f160ddc6f461bdc8c04fb81f41bbce2ce9");
+			_td.setV("0x1C");
+			_td.setTicketUUID("6");
+			_td.setUtc(1543239273506l);
+			
+			
+			try {
+				System.out.println(validateTicketData(_td));
+			} catch (SignatureException e) {
+				e.printStackTrace();
+			}
 		}
+
+			
 		
 }
