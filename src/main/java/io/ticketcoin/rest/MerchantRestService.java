@@ -1,10 +1,7 @@
 package io.ticketcoin.rest;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SignatureException;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -12,16 +9,11 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
 import org.web3j.crypto.Credentials;
@@ -29,32 +21,18 @@ import org.web3j.crypto.Sign;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.stripe.model.EphemeralKey;
 
-import io.ticketcoin.dashboard.dto.EventDTO;
-import io.ticketcoin.dashboard.dto.EventExtDTO;
+import io.ticketcoin.dashboard.dto.CardData;
 import io.ticketcoin.dashboard.dto.EventSearchResultDTO;
-import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
 import io.ticketcoin.dashboard.dto.TicketDTO;
 import io.ticketcoin.dashboard.dto.TicketData;
-import io.ticketcoin.dashboard.dto.UserDTO;
-import io.ticketcoin.dashboard.dto.UserProfileDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.filter.TicketFilter;
-import io.ticketcoin.dashboard.persistence.model.Event;
-import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
-import io.ticketcoin.dashboard.persistence.model.Role;
 import io.ticketcoin.dashboard.persistence.model.Ticket;
 import io.ticketcoin.dashboard.persistence.model.User;
-import io.ticketcoin.dashboard.persistence.service.EventSearchResult;
 import io.ticketcoin.dashboard.persistence.service.EventService;
-import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
 import io.ticketcoin.dashboard.persistence.service.TicketService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
-import io.ticketcoin.rest.integration.stripe.StripeService;
-import io.ticketcoin.rest.integration.stripe.dto.EphemeralKeysRequest;
 import io.ticketcoin.rest.response.JSONResponseWrapper;
 
 @Path("/merchant")
@@ -140,7 +118,7 @@ public class MerchantRestService {
 					
 		
 					
-					 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(ticketDTOs)))
+					 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(ticketDTOs.get(0))))
 							.header("Access-Control-Allow-Origin", "*")
 								.header("Access-Control-Allow-Methods", "GET")
 								.type(MediaType.APPLICATION_JSON)
@@ -187,6 +165,103 @@ public class MerchantRestService {
 					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
 				}				 
 		  }
+
+		
+		@POST
+		@Path("/checkCard")
+		@Consumes(MediaType.APPLICATION_JSON)
+	    @Produces(MediaType.APPLICATION_JSON)
+		  public Response checkCard(CardData cardData) 
+		  {
+			try
+			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+
+				User user = new UserService().getUser(userName);
+				
+				if(!user.isMerchant())
+					return Response.status(401).build();
+				else if(user.getOrganization()==null)
+					throw new Exception("error.no.organization.specified");
+				
+				else
+				{
+				
+					TicketDTO dto =  getCandidateTicket(cardData.getCardID(), user);
+		
+					
+					 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(dto)))
+							.header("Access-Control-Allow-Origin", "*")
+								.header("Access-Control-Allow-Methods", "GET")
+								.type(MediaType.APPLICATION_JSON)
+								.build();
+				}
+			  } catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}				 
+		  }
+		
+		
+		
+		
+		@POST
+		@Path("/consumeCard")
+		@Consumes(MediaType.APPLICATION_JSON)
+	    @Produces(MediaType.APPLICATION_JSON)
+		  public Response consume(CardData cardData) 
+		  {
+			try
+			{
+				String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+
+				User user = new UserService().getUser(userName);
+				
+				if(!user.isMerchant())
+					return Response.status(401).build();
+				else if(user.getOrganization()==null)
+					throw new Exception("error.no.organization.specified");
+				
+				else
+				{
+				
+					TicketDTO dto =  getCandidateTicket(cardData.getCardID(), user);
+					TicketDTO ticket =  new TicketService().consumeTicket(dto.getTicketUUID(), user.getOrganization().getId());
+					
+					 return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getSuccessWrapper(ticket)))
+							.header("Access-Control-Allow-Origin", "*")
+								.header("Access-Control-Allow-Methods", "GET")
+								.type(MediaType.APPLICATION_JSON)
+								.build();
+				}
+			  } catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}				 
+		  }
+		
+		
+		private TicketDTO getCandidateTicket(String cardID, User user) throws Exception
+		{
+			TicketFilter filter = new TicketFilter();
+			filter.setIncludeExpired(false);
+			filter.setOrganizationId(user.getOrganization().getId());
+			filter.setCardID(cardID);
+			filter.setDate(new Date());
+			
+			List<TicketDTO> ticketDTOs = new TicketService().searchTicketsDTO(filter);
+			
+			if(ticketDTOs.size()==0)
+				throw new Exception("error.ticket.not.found");
+			else if(ticketDTOs.size()>1)
+				throw new Exception("error.ticket.uuid.ambiguous");
+			else if(ticketDTOs.get(0).getTicketState()==Ticket.STATE_SPENT)
+				throw new Exception("error.spent.ticket");
+			else if(ticketDTOs.get(0).getTicketState()==Ticket.STATE_INVALID)
+				throw new Exception("error.invalid.ticket");	
+			else
+				return ticketDTOs.get(0);			
+		}
 		
 		
 		
