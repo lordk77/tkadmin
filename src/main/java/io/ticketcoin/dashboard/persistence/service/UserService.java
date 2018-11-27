@@ -72,6 +72,27 @@ public class UserService extends GenericService<User>{
 	
 	
 
+	public Integer updateAcceptedTermsAndCondition(String username, Long acceptedTermsAndCondition)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			Integer retval = new UserDAO().updateAcceptedTermsAndCondition(username, acceptedTermsAndCondition);
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	
+
 	
 	public User createUser(User user) throws Exception
 	{

@@ -37,6 +37,9 @@ public class UserDTO implements Serializable
 	private String app_version;
 	private Wallet wallet;
 	
+	private Long acceptedTermsAndCondition;
+	private Long latestTermsAndCondition;
+	
 	
 	private boolean merchant;
 	
@@ -188,6 +191,18 @@ public class UserDTO implements Serializable
 	}
 	public void setMerchant(boolean merchant) {
 		this.merchant = merchant;
+	}
+	public Long getAcceptedTermsAndCondition() {
+		return acceptedTermsAndCondition;
+	}
+	public void setAcceptedTermsAndCondition(Long acceptedTermsAndCondition) {
+		this.acceptedTermsAndCondition = acceptedTermsAndCondition;
+	}
+	public Long getLatestTermsAndCondition() {
+		return latestTermsAndCondition;
+	}
+	public void setLatestTermsAndCondition(Long latestTermsAndCondition) {
+		this.latestTermsAndCondition = latestTermsAndCondition;
 	}
 
 	

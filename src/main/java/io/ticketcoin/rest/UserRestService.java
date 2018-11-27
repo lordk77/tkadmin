@@ -21,6 +21,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
+import org.apache.cxf.rs.security.oauth2.common.UserSubject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,6 +30,7 @@ import com.google.gson.JsonParser;
 import com.stripe.model.EphemeralKey;
 
 import io.ticketcoin.dashboard.dto.PurchaseOrderDTO;
+import io.ticketcoin.dashboard.dto.TermsAndConditionDTO;
 import io.ticketcoin.dashboard.dto.TicketDTO;
 import io.ticketcoin.dashboard.dto.UserDTO;
 import io.ticketcoin.dashboard.dto.UserProfileDTO;
@@ -44,6 +46,7 @@ import io.ticketcoin.dashboard.persistence.model.Wallet.WalletType;
 import io.ticketcoin.dashboard.persistence.model.WalletItem;
 import io.ticketcoin.dashboard.persistence.service.CardService;
 import io.ticketcoin.dashboard.persistence.service.PurchaseOrderService;
+import io.ticketcoin.dashboard.persistence.service.TermsAndConditionService;
 import io.ticketcoin.dashboard.persistence.service.TicketService;
 import io.ticketcoin.dashboard.persistence.service.UserService;
 import io.ticketcoin.dashboard.persistence.service.WalletItemService;
@@ -66,6 +69,11 @@ public class UserRestService {
 			String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
 			User user = new UserService().getUser(userName);
 			UserDTO uDto = new UserDTO(user);
+			
+			if(uDto.getAcceptedTermsAndCondition()==null)
+				uDto.setAcceptedTermsAndCondition(0l);
+			
+			uDto.setLatestTermsAndCondition(new TermsAndConditionService().getLatestTermsAndConditionId());
 			
 			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(uDto)))
 						.header("Access-Control-Allow-Origin", "*")
@@ -119,6 +127,11 @@ public class UserRestService {
 			
 
 		}
+		
+		
+		
+		
+		
 		
 		
 		@GET
@@ -346,6 +359,40 @@ public class UserRestService {
 					return Response.ok(new GsonBuilder().setDateFormat("yyyy-MM-dd").create().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
 				}				 
 		  }
+		
+		
+		
+		@POST
+		@Path("/me/acceptsTermsAndCondition")
+		@Consumes(MediaType.APPLICATION_JSON)
+		public Response updateProfile(TermsAndConditionDTO tec) 
+		{
+				try 
+				{
+					
+					String userName = ((OAuthContext)mc.getContext(OAuthContext.class)).getSubject().getLogin();
+					
+					Integer updatedRow = new UserService().updateAcceptedTermsAndCondition(userName, tec.getVersion());
+					
+						
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(null, "user.updated")))
+							.header("Access-Control-Allow-Origin", "*")
+								.header("Access-Control-Allow-Methods", "POST")
+								.type(MediaType.APPLICATION_JSON)
+								.build();
+					
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+					return Response.ok(new Gson().toJson(JSONResponseWrapper.getFaultWrapper(e.getMessage()))).build();
+				}
+			
+
+		}
+		
+		
+		
+
 		
 		
 				

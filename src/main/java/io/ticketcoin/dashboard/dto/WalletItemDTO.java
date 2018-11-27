@@ -14,7 +14,6 @@ import io.ticketcoin.dashboard.persistence.model.User;
 import io.ticketcoin.dashboard.persistence.model.Wallet;
 import io.ticketcoin.dashboard.persistence.model.WalletItem;
 
-@MappedSuperclass
 @XmlRootElement
 public class WalletItemDTO implements Serializable{
 

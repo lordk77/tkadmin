@@ -9,6 +9,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.hibernate.sql.JoinType;
 
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
@@ -63,6 +64,13 @@ public class UserDAO extends GenericDAO<User>{
 			
 			 return c.list();
 
+	}
+
+	public Integer updateAcceptedTermsAndCondition(String username, Long acceptedTermsAndCondition) {
+		Query query = HibernateUtils.getSessionFactory().getCurrentSession().createQuery("update User set acceptedTermsAndCondition = :acceptedTermsAndCondition where username = :username ");
+		query.setParameter("username", username);
+		query.setParameter("acceptedTermsAndCondition", acceptedTermsAndCondition);
+		return query.executeUpdate();
 	}
 
 

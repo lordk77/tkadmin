@@ -50,6 +50,8 @@ public class User implements Serializable{
 	private String fb_identifier;
 	private String bt_identifier;
 	private String stripe_identifier;
+	
+	private Long acceptedTermsAndCondition;
 
     
     
@@ -259,6 +261,15 @@ public class User implements Serializable{
 					merchant=true;
 		}
 		return merchant;
+	}
+
+
+	public Long getAcceptedTermsAndCondition() {
+		return acceptedTermsAndCondition;
+	}
+
+	public void setAcceptedTermsAndCondition(Long acceptedTermsAndCondition) {
+		this.acceptedTermsAndCondition = acceptedTermsAndCondition;
 	}
 			
 	
