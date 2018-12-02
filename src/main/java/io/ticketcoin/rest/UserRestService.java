@@ -21,7 +21,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.rs.security.oauth2.common.OAuthContext;
-import org.apache.cxf.rs.security.oauth2.common.UserSubject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -93,7 +92,7 @@ public class UserRestService {
 			PurchaseOrderService pos = new PurchaseOrderService();
 				try {
 					
-					if(order.getReservationDate()!=null && order.getReservationDate().before(DateUtils.round(new Date(), Calendar.DAY_OF_MONTH)))
+					if(order.getReservationDate()!=null && order.getReservationDate().before(DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)))
 						throw new Exception("error.invalid.date");
 
 					EphemeralKey stripeEphemeralKeys = null;

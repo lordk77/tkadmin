@@ -32,10 +32,10 @@ public class WalletItemDTO implements Serializable{
 		try {
 			BeanUtils.copyProperties(this, walletItem);
 			
-			if(walletItem instanceof Wallet)
-				this.setIcon(((Wallet)walletItem).getType()!=null ? ((Wallet)walletItem).getType().icon : null);
-			else if(walletItem instanceof Card)
-				this.setIcon(((Card)walletItem).getType()!=null ? ((Card)walletItem).getType().icon : null);
+//			if(walletItem instanceof Wallet)
+//				this.setIcon(((Wallet)walletItem).getType()!=null ? ((Wallet)walletItem).getType().icon : null);
+//			else if(walletItem instanceof Card)
+//				this.setIcon(((Card)walletItem).getType()!=null ? ((Card)walletItem).getType().icon : null);
 			
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();

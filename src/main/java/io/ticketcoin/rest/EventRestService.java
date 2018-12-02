@@ -136,6 +136,7 @@ public class EventRestService
 		try 
 		{
 			filter.setMaxResult(MAX_RESULTS);
+			filter.setOnlyActive(true);
 			EventSearchResultDTO resDTO = new EventService().searchEventsDTO(filter);
 			
 			 return Response.ok(new Gson().toJson(JSONResponseWrapper.getSuccessWrapper(resDTO)))

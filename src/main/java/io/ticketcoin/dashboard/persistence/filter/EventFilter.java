@@ -18,6 +18,8 @@ public class EventFilter {
 	
 	private Long organizationId;
 	
+	private boolean onlyActive;
+	
 	public String getGenericTxt() {
 		return genericTxt;
 	}
@@ -80,6 +82,14 @@ public class EventFilter {
 
 	public void setOrganizationId(Long organizationId) {
 		this.organizationId = organizationId;
+	}
+
+	public boolean isOnlyActive() {
+		return onlyActive;
+	}
+
+	public void setOnlyActive(boolean onlyActive) {
+		this.onlyActive = onlyActive;
 	}
 	
 	

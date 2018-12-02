@@ -108,6 +108,8 @@ public class EventDAO extends GenericDAO<Event>{
 		if(filter.getEventUUID()!=null)
 			c.add(Restrictions.eq("eventUUID", filter.getEventUUID()));
 		
+		if(filter.isOnlyActive())
+			c.add(Restrictions.ge("dateTo", DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)));
 		
 		
 		return c;
