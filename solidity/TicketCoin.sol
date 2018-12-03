@@ -1025,18 +1025,20 @@ contract TicketManagement is TicketOwnership  {
 
 
     /// @notice this function is used to enroll a new token
-    /// @param _ticketUUID ticketUUID
+    /// @param _ticketUUID tickets
     /// @param _organizationUUID organization uuid
-    /// @param _priceCapGwai price cap
     /// @param _validFrom validity from 
     /// @param  _validUntil expiration date
     /// @param  _allowedTransfers number of allowed transfer
-    /// @param  _transferRule rules applied for transferring title
-    /// @param  _ticketState status of the ticket
     /// @param  _owner  owners of the tickets
     function enrollTickets(
-        Ticket[] _tickets
-        address[] _owners)
+        uint256[] _ticketUUID,
+        uint256[] _organizationUUID,
+        uint256[] _validFrom,
+        uint256[] _validUntil,
+        int256[] _allowedTransfers,
+        address[] _owner,
+        uint listSize)
         external
         whenNotPaused
         onlyCTO
@@ -1044,21 +1046,21 @@ contract TicketManagement is TicketOwnership  {
 
 
 
-		for (uint i=0; i<_tickets.length; i++) 
+		for (uint i=0; i<listSize; i++) 
 		{
 
 	        //checks that the ticket does not exist
-	        require(ticketUUIDToIndex[_tickets[i].ticketUUID]==0);
+	        //require(ticketUUIDToIndex[_ticketUUID[i]]==0);
 	         
-	        _createTicket(_tickets[i].ticketUUID,
-	        _tickets[i].organizationUUID,
-	        _tickets[i].priceCapGwai,
-	        _tickets[i].validFrom,
-	        _tickets[i].validUntil,
-	        _tickets[i].allowedTransfers,
-	        _tickets[i].transferRule,
-	        _tickets[i].ticketState,
-	        _owners[i] );
+	        _createTicket(_ticketUUID[i],
+	        _organizationUUID[i],
+	        0,
+	        _validFrom[i],
+	        _validUntil[i],
+	        _allowedTransfers[i],
+	        TRANSFER_RULE_ANY,
+	        STATE_VALID,
+	        _owner[i] );
         }
     }
         
