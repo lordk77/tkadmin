@@ -1,0 +1,1 @@
+web3j solidity generate TicketCoinCore.bin TicketCoinCore.abi  -o ../src/main/java -p io.ticketcoin.web3j.wrapper
