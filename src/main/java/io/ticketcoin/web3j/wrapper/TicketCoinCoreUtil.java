@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RunnableFuture;
 
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
@@ -17,9 +19,13 @@ import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.utils.Numeric;
+
+import io.ticketcoin.config.Configuration;
 
 public class TicketCoinCoreUtil {
 	
@@ -57,8 +63,11 @@ public class TicketCoinCoreUtil {
 
 		     BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 		     
-			RawTransaction rawTransaction  = RawTransaction.createContractTransaction(
-					nonce, gasProvider.getGasPrice(TicketCoinCore.FUNC_ENROLLTICKET),  gasProvider.getGasLimit(TicketCoinCore.FUNC_ENROLLTICKET), BigInteger.ZERO, 
+			RawTransaction rawTransaction  = RawTransaction.createTransaction(
+					nonce, gasProvider.getGasPrice(TicketCoinCore.FUNC_ENROLLTICKET),  
+					gasProvider.getGasLimit(TicketCoinCore.FUNC_ENROLLTICKET), 
+					Configuration.getProperty(Configuration.TICKETCOIN_CORE_ADDRESS),
+					BigInteger.ZERO, 
 					FunctionEncoder.encode(function)
 					);
 			
@@ -71,4 +80,77 @@ public class TicketCoinCoreUtil {
 			
 	        
 	    }
+	 
+	 
+	 public static TransactionReceipt waitForReceipt(Web3j web3j, String transactionHash) 
+				throws Exception 
+		{
+
+			int attempts = 40;
+			int sleep_millis = 1000;
+			
+			Optional<TransactionReceipt> receipt = getReceipt(web3j, transactionHash);
+
+			while(attempts-- > 0 && !receipt.isPresent()) {
+				Thread.sleep(sleep_millis);
+				receipt = getReceipt(web3j, transactionHash);
+			}
+
+			if (attempts <= 0) {
+				throw new RuntimeException("No Tx receipt received");
+			}
+
+			return receipt.get();
+		}
+	 
+	 /**
+		 * Returns the TransactionRecipt for the specified tx hash as an optional.
+		 */
+		public static Optional<TransactionReceipt> getReceipt(Web3j web3j, String transactionHash) 
+				throws Exception 
+		{
+			EthGetTransactionReceipt receipt = web3j
+					.ethGetTransactionReceipt(transactionHash)
+					.sendAsync()
+					.get();
+
+			return receipt.getTransactionReceipt();
+		}
+		
+		
+		public void startTxListener(final Web3j web3j, final String transactionHash)
+		{
+			CompletableFuture.runAsync(new Runnable() {
+			    @Override
+			    public void run() {
+			        // Simulate a long-running Job
+			        try {
+			        	TransactionReceipt txReceipt = new TicketCoinCoreUtil(credential, web3j, gasProvider).waitForReceipt(web3j, transactionHash);
+			        		
+			        		System.out.println(
+			    					"*****************************************\n" +
+			    					"block: " + txReceipt.getBlockNumber() + "\n" +
+			    					"gas Used" + txReceipt.getGasUsed() +  "\n" +
+			    					"Price in wei " + txReceipt.getGasUsed().multiply(gasProvider.getGasPrice()) +  "\n" +
+			    					"*****************************************" 
+			    					);
+			        		
+			        		
+			        } catch (Exception e) {
+			            throw new IllegalStateException(e);
+			        }
+			    }
+			});
+			
+			
+			
+			
+			
+		}
+		
+		
+		
+		
+	 
+	 
 }

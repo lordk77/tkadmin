@@ -1179,7 +1179,7 @@ contract TicketManagement is TicketOwnership  {
    public view 
    returns(uint256)
    {
-       require(tickets.length-1<=_tokenID);
+       require(_tokenID <= tickets.length-1);
        
        return tickets[_tokenID].ticketUUID;
    }
