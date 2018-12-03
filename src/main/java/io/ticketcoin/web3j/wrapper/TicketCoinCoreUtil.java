@@ -87,7 +87,7 @@ public class TicketCoinCoreUtil {
 		{
 
 			int attempts = 40;
-			int sleep_millis = 1000;
+			int sleep_millis = 5000;
 			
 			Optional<TransactionReceipt> receipt = getReceipt(web3j, transactionHash);
 
