@@ -1,6 +1,6 @@
 package io.ticketcoin.dashboard.persistence.service;
 
-import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
@@ -10,7 +10,9 @@ import com.stripe.model.Charge;
 
 import io.ticketcoin.dashboard.persistence.dao.ChargeDAO;
 import io.ticketcoin.dashboard.persistence.model.PurchaseOrder;
+import io.ticketcoin.dashboard.persistence.model.Ticket;
 import io.ticketcoin.dashboard.utils.HibernateUtils;
+import io.ticketcoin.web3j.wrapper.TicketCoinCoreUtil;
 
 public class ChargeService {
 	
@@ -31,7 +33,7 @@ public class ChargeService {
 			
 			
 			
-			new ChargeDAO().processOrder(order);
+			List<Ticket> tickets =  new ChargeDAO().processOrder(order);
 
 			Charge charge = Charge.create(chargeParams);
 	
@@ -45,6 +47,12 @@ public class ChargeService {
 				session.getTransaction().rollback();
 				updateOrderState( order, PurchaseOrderService.STATUS_REJECTED);
 			}
+			
+			
+			//Scrive i ticket in blochchain
+			for(Ticket t:tickets)
+				new TicketCoinCoreUtil().enrollTicket(t.getId());
+			
 			
 			return charge;
 		}

@@ -17,10 +17,13 @@ public class ChargeDAO {
 
 	
 
-	public void processOrder(PurchaseOrder order) throws Exception {
+	public List<Ticket> processOrder(PurchaseOrder order) throws Exception {
 		
 		Session session = HibernateUtils.getSessionFactory().getCurrentSession();
 		List<String> ticketCategoryUUIDs = new ArrayList<>();
+		
+		List<Ticket> enrolledTickets  = new ArrayList<>();
+		
 		for(PurchaseOrderDetail pod : order.getOrderDetail())
 			ticketCategoryUUIDs.add(pod.getTicketCategoryUUID());
 		
@@ -50,7 +53,11 @@ public class ChargeDAO {
 								
 								//Creates the tickets
 								for (int i = 0; i < (Boolean.TRUE.equals(pod.getGroupTicket()) ? 1 : pod.getQuantity());i++)
-									session.save(new Ticket(pod,tcd));
+								{
+									Ticket tikcet = new Ticket(pod,tcd);
+									session.save(tikcet);
+									enrolledTickets.add(tikcet);
+								}
 								
 							}
 							
@@ -64,6 +71,7 @@ public class ChargeDAO {
 						throw new Exception("error.ticketCategoryUUID.not.found");
 				}
 				
+				return enrolledTickets;
 				
 				
 				

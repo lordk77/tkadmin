@@ -35,6 +35,11 @@ public class TicketDTO implements Serializable{
 		private TicketCategoryDTO ticketCategory;
 		private EventDTO eventDetail;
 		
+		private String ethTransactionHash;
+		private String ethTransactionDetailURL;
+		
+		
+		
 		public TicketDTO() {}
 		
 		public TicketDTO(Ticket ticket) 
@@ -49,6 +54,13 @@ public class TicketDTO implements Serializable{
 			
 			this.setTicketCategory(new TicketCategoryDTO(ticket.getCategory()));
 			this.setEventDetail(new EventDTO(ticket.getCategory().getEvent()));
+			
+			if(ticket.getTransaction()!=null)
+			{
+				this.setEthTransactionHash(ticket.getTransaction().getTransactionHash());
+				this.setEthTransactionDetailURL(ticket.getTransaction().getTransactionDetailURL());
+			}
+				
 			
 		}
 		
@@ -140,7 +152,24 @@ public class TicketDTO implements Serializable{
 		public void setTokenId(Long tokenId) {
 			this.tokenId = tokenId;
 		}
-		
+
+		public String getEthTransactionHash() {
+			return ethTransactionHash;
+		}
+
+		public void setEthTransactionHash(String ethTransactionHash) {
+			this.ethTransactionHash = ethTransactionHash;
+		}
+
+		public String getEthTransactionDetailURL() {
+			return ethTransactionDetailURL;
+		}
+
+		public void setEthTransactionDetailURL(String ethTransactionDetailURL) {
+			this.ethTransactionDetailURL = ethTransactionDetailURL;
+		}
+
+
 		
 		
 }

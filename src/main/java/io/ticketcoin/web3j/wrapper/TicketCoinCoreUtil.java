@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RunnableFuture;
 
+import org.hibernate.Session;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
@@ -22,47 +25,54 @@ import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.ContractGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
+import org.web3j.utils.Convert;
 import org.web3j.utils.Numeric;
+import org.web3j.utils.Convert.Unit;
 
 import io.ticketcoin.config.Configuration;
+import io.ticketcoin.dashboard.persistence.dao.GenericDAO;
+import io.ticketcoin.dashboard.persistence.dao.TicketDAO;
+import io.ticketcoin.dashboard.persistence.model.ETHTransaction;
+import io.ticketcoin.dashboard.persistence.model.Ticket;
+import io.ticketcoin.dashboard.persistence.service.TicketService;
+import io.ticketcoin.dashboard.utils.HibernateUtils;
+import io.ticketcoin.utility.UUIDConverter;
 
 public class TicketCoinCoreUtil {
 	
 
-	private Credentials credential;
-	private Web3j web3j;
-	private ContractGasProvider gasProvider;
+	private static Web3j web3j = Web3j.build(new HttpService(Configuration.getProperty(Configuration.ETH_NODE)));
+	private static Credentials credentials = Credentials.create(Configuration.getProperty(Configuration.CTO_PRIVATE_KEY));;
+	private static ContractGasProvider gasProvider = new StaticGasProvider(Convert.toWei("8", Unit.GWEI).toBigInteger(),new BigInteger("3000000"));;
 	
-	public TicketCoinCoreUtil(Credentials credential, Web3j web3j, ContractGasProvider gasProvider)
-	{
-		this.credential = credential;
-		this.web3j = web3j;
-		this.gasProvider = gasProvider;
-	}
+	private static TicketCoinCore tcc = TicketCoinCore.load(Configuration.getProperty(Configuration.TICKETCOIN_CORE_ADDRESS), web3j, credentials,  gasProvider);
+	
 	
     
-	 public CompletableFuture<EthSendTransaction> enrollTicket(BigInteger _ticketUUID, BigInteger _organizationUUID, BigInteger _priceCapGwai, BigInteger _validFrom, BigInteger _validUntil, BigInteger _allowedTransfers, BigInteger _transferRule, BigInteger _ticketState, String _owner) throws IOException, InterruptedException, ExecutionException {
-	        final Function function = new Function(
+	 public CompletableFuture<EthSendTransaction> enrollTicket(Ticket ticket) throws IOException, InterruptedException, ExecutionException {
+	        
+		 
+		 //Prepare the function
+		 final Function function = new Function(
 	                TicketCoinCore.FUNC_ENROLLTICKET, 
-	                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(_ticketUUID), 
-	                new org.web3j.abi.datatypes.generated.Uint256(_organizationUUID), 
-	                new org.web3j.abi.datatypes.generated.Uint256(_priceCapGwai), 
-	                new org.web3j.abi.datatypes.generated.Uint256(_validFrom), 
-	                new org.web3j.abi.datatypes.generated.Uint256(_validUntil), 
-	                new org.web3j.abi.datatypes.generated.Int256(_allowedTransfers), 
-	                new org.web3j.abi.datatypes.generated.Uint256(_transferRule), 
-	                new org.web3j.abi.datatypes.generated.Uint256(_ticketState), 
-	                new org.web3j.abi.datatypes.Address(_owner)), 
+	                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(UUIDConverter.convertToBigInteger(UUID.fromString(ticket.getTicketUUID()))), 
+	                new org.web3j.abi.datatypes.generated.Uint256(UUIDConverter.convertToBigInteger(UUID.fromString(ticket.getOrder().getEventUUID()))), 
+	                new org.web3j.abi.datatypes.generated.Uint256(0), 
+	                new org.web3j.abi.datatypes.generated.Uint256(ticket.getValidFrom()!=null? ticket.getValidFrom().getTime():null), 
+	                new org.web3j.abi.datatypes.generated.Uint256(ticket.getValidTo()!=null? ticket.getValidTo().getTime():0), 
+	                new org.web3j.abi.datatypes.generated.Int256(ticket.getAllowedTransfers()!=null?ticket.getAllowedTransfers():0), 
+	                new org.web3j.abi.datatypes.generated.Uint256(ticket.getTransferRule()!=null?ticket.getTransferRule():0), 
+	                new org.web3j.abi.datatypes.generated.Uint256(Ticket.STATE_VALID), 
+	                new org.web3j.abi.datatypes.Address(ticket.getOwnedBy().getWallet().getAddress())), 
 	                Collections.<TypeReference<?>>emptyList());
 	        
 	        
-	       
-	        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
-	        		credential.getAddress(), DefaultBlockParameterName.LATEST).sendAsync().get();
-
-		     BigInteger nonce = ethGetTransactionCount.getTransactionCount();
-		     
+	       //Prepare raw transaction
+	        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(credentials.getAddress(), DefaultBlockParameterName.LATEST).sendAsync().get();
+		    BigInteger nonce = ethGetTransactionCount.getTransactionCount();
 			RawTransaction rawTransaction  = RawTransaction.createTransaction(
 					nonce, gasProvider.getGasPrice(TicketCoinCore.FUNC_ENROLLTICKET),  
 					gasProvider.getGasLimit(TicketCoinCore.FUNC_ENROLLTICKET), 
@@ -72,13 +82,13 @@ public class TicketCoinCoreUtil {
 					);
 			
 					
-					
-			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credential);
+			//Sign message		
+			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
 			String hexValue = Numeric.toHexString(signedMessage);
-			return web3j.ethSendRawTransaction(hexValue).sendAsync();
-
 			
-	        
+			//Send message
+			return web3j.ethSendRawTransaction(hexValue).sendAsync();
+ 
 	    }
 	 
 	 
@@ -118,14 +128,14 @@ public class TicketCoinCoreUtil {
 		}
 		
 		
-		public void startTxListener(final Web3j web3j, final String transactionHash)
+		public void startTxListener(final String transactionHash)
 		{
 			CompletableFuture.runAsync(new Runnable() {
 			    @Override
 			    public void run() {
 			        // Simulate a long-running Job
 			        try {
-			        	TransactionReceipt txReceipt = new TicketCoinCoreUtil(credential, web3j, gasProvider).waitForReceipt(web3j, transactionHash);
+			        	TransactionReceipt txReceipt = new TicketCoinCoreUtil().waitForReceipt(web3j, transactionHash);
 			        		
 			        		System.out.println(
 			    					"*****************************************\n" +
@@ -141,11 +151,90 @@ public class TicketCoinCoreUtil {
 			        }
 			    }
 			});
-			
-			
-			
-			
-			
+
+		}
+		
+		
+		public void enrollTicket(Long ticketId)
+		{
+			CompletableFuture.runAsync(new Runnable() {
+
+				TicketCoinCoreUtil tcu = new TicketCoinCoreUtil();
+				
+				@Override
+			    public void run() {
+
+			    	Session session = null;
+			    	ETHTransaction transaction = new ETHTransaction();
+			    	TicketDAO td = new TicketDAO();
+			    	GenericDAO<ETHTransaction> txDao = new GenericDAO<ETHTransaction>(ETHTransaction.class);
+			    	Ticket ticket = null;
+					try
+					{
+						session = HibernateUtils.getSessionFactory().getCurrentSession();
+						session.beginTransaction();
+						
+						ticket = td.findById(ticketId);
+						
+						CompletableFuture<EthSendTransaction> cp = tcu.enrollTicket(ticket);
+						String transactionHash =  cp.get().getResult();
+						transaction.setTransactionHash(transactionHash);	
+						transaction.setTransactionDetailURL(Configuration.getProperty(Configuration.TX_DETAIL_URL)+"/"+transactionHash);
+						ticket.setTransaction(transaction);
+						txDao.save(transaction);
+						td.save(ticket);
+						session.getTransaction().commit();
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+						session.getTransaction().rollback();
+					}
+					
+			    	
+
+			        try 
+			        {
+			        	
+			        	TransactionReceipt txReceipt = new TicketCoinCoreUtil().waitForReceipt(web3j, transaction.getTransactionHash());
+			        	
+			        	transaction.setBlockNumber(txReceipt.getBlockNumber().toString());
+			        	transaction.setGasUsed(txReceipt.getGasUsed());
+			        	transaction.setGasPriceInWEI(gasProvider.getGasPrice());
+			        	
+			        	
+			        	try
+			        	{
+			        		new TicketService().updateTokenID(ticketId, tcc.getTransferEvents(txReceipt).get(0).tokenId.longValue());
+			        	}
+			        	catch(Exception e)
+						{
+							e.printStackTrace();
+						}
+			        	
+			        	
+			        	try
+						{
+							session = HibernateUtils.getSessionFactory().getCurrentSession();
+							session.beginTransaction();
+							txDao.save(transaction);
+							session.getTransaction().commit();
+						}
+						catch(Exception e)
+						{
+							e.printStackTrace();
+							session.getTransaction().rollback();
+							throw e;
+						}
+			        	
+			        		
+			        		
+			        } catch (Exception e) {
+			        	e.printStackTrace();
+			            throw new IllegalStateException(e);
+			        }
+			    }
+			});
 		}
 		
 		

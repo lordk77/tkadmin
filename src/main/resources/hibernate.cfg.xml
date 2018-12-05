@@ -56,7 +56,7 @@
 	<mapping class="io.ticketcoin.dashboard.persistence.model.Wallet" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.Card" />
 	<mapping class="io.ticketcoin.dashboard.persistence.model.TermsAndCondition" />
-	
+	<mapping class="io.ticketcoin.dashboard.persistence.model.ETHTransaction" />
 	
 	<mapping class="io.ticketcoin.rest.integration.stripe.model.StripeChargeRequest" />
 	<mapping class="io.ticketcoin.rest.integration.stripe.model.StripeChargeResponse" />

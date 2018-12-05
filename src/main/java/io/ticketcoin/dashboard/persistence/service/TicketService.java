@@ -91,6 +91,33 @@ public class TicketService extends GenericService<Ticket>{
 	}
 	
 	
+	public void updateTokenID(Long ticketId, Long tokenId) throws Exception
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+
+			
+			session.createQuery("update Ticket t set t.tokenId= :tokenId where t.id=:ticketId")
+			.setParameter("tokenId", tokenId)
+			.setParameter("ticketId", ticketId)
+			.executeUpdate()
+			;
+			
+			
+			session.getTransaction().commit();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	
 	
 	
 }

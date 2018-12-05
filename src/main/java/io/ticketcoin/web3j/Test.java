@@ -40,12 +40,21 @@ public class Test {
 			
 			ContractGasProvider gasProvider = new StaticGasProvider(Convert.toWei("8", Unit.GWEI).toBigInteger(),new BigInteger("3000000"));
 			
+			
+			
+			System.out.println(UUID.randomUUID());
+			
+			/*
 			String fileName = WalletUtils.getRinkebyKeyDirectory() +"/UTC--2018-11-10T14-33-51.48000000Z--10a94cb649026b89ed1c28e3600bb49de17f2825.json";
 			
 			//loads credential
 			Credentials credentials = WalletUtils.loadCredentials("burubu",fileName);
 			System.out.println(credentials.getAddress());
-
+			System.out.println(credentials.getEcKeyPair().getPrivateKey().toString(16));
+			 */
+			
+			Credentials credentials =  Credentials.create(Configuration.getProperty(Configuration.CTO_PRIVATE_KEY));
+			 
 			 
 			//Checks balance
 			System.out.println("Balance: " + getETHBalance(credentials.getAddress()).getBalance());			
@@ -53,8 +62,7 @@ public class Test {
 
 			
 			//enroll ticket
-			TicketCoinCore tc = TicketCoinCore.load(Configuration.getProperty(Configuration.TICKETCOIN_CORE_ADDRESS), web3j, credentials, 
-					gasProvider);
+			TicketCoinCore tc = TicketCoinCore.load(Configuration.getProperty(Configuration.TICKETCOIN_CORE_ADDRESS), web3j, credentials,  gasProvider);
 			
 			
 			
@@ -64,28 +72,13 @@ public class Test {
 	        String value =  tc.getCTO().send();
 			System.out.println("--> : "  + value);
 
-			/*
-			 * b1140e5a-2558-4223-af2f-ed5a8adb8e69
-			 * */
-			UUID tckUUID = UUID.randomUUID();
-			TicketCoinCoreUtil tccu = new TicketCoinCoreUtil(credentials, web3j, gasProvider);
-			CompletableFuture<EthSendTransaction> cp = tccu.enrollTicket(
-					UUIDConverter.convertToBigInteger(tckUUID),
-					BigInteger.ZERO, //_organizationUUID
-					BigInteger.ZERO, //_priceCapGwai
-					BigInteger.ZERO, //_validFrom
-					BigInteger.ZERO, //_validUntil
-					BigInteger.ONE, //_allowedTransfers
-					BigInteger.ZERO, //_transferRule
-					BigInteger.ZERO, //_ticketState
-					"0x10a94cb649026b89ed1c28e3600bb49de17f2825"//_owner
-					);
+
+
+			TicketCoinCoreUtil tccu = new TicketCoinCoreUtil();
+			tccu.enrollTicket(841l);
 			
-			String transactionHash =  cp.get().getResult();
-			System.out.println("tx --> : "  + transactionHash);
 
 
-			tccu.startTxListener(web3j, transactionHash);
 	
 			
 			

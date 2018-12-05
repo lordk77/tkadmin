@@ -112,6 +112,13 @@ public class Ticket
 	
 	@Column(name = "TOKEN_ID")
 	private Long tokenId;
+	
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="ETH_TRNSACTION_ID")
+	private ETHTransaction transaction;
+	
+	
 
 
 	public Long getId() {
@@ -262,6 +269,22 @@ public class Ticket
 
 	public void setAllowedEntrances(Integer allowedEntrances) {
 		this.allowedEntrances = allowedEntrances;
+	}
+
+	public ETHTransaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(ETHTransaction transaction) {
+		this.transaction = transaction;
+	}
+
+	public Long getTokenId() {
+		return tokenId;
+	}
+
+	public void setTokenId(Long tokenId) {
+		this.tokenId = tokenId;
 	}
 
 	

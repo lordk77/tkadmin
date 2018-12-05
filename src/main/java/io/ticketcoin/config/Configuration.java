@@ -13,6 +13,13 @@ public class Configuration {
 	public static String ETH_NODE = "ETH_NODE";
 	public static String TICKETCOIN_CORE_ADDRESS = "TICKETCOIN_CORE_ADDRESS";
 		
+	public static String CTO_PRIVATE_KEY = "CTO_PRIVATE_KEY";
+	public static String TX_DETAIL_URL = "TX_DETAIL_URL";
+
+	
+
+			
+			
 		
     static {
         try {
