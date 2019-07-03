@@ -40,7 +40,7 @@ public class UserBean {
 	        try 
 	        {
 	        		//integration with container security 
-//	        		((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).login(username, password);
+	        		((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).login(username, UserService.hashPassword(password));
 	        		
 	        		//reads user data from db
 	        		if ((this.loggedUser= new UserService().getUser(username) )!=null) 

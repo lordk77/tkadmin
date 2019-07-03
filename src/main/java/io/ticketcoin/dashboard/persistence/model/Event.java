@@ -27,7 +27,9 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.ParamDef;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -38,6 +40,7 @@ import emoji4j.EmojiUtils;
 @Table(name="TDEF_EVENT")
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@FilterDef(name="OrganizationFiler", parameters= {@ParamDef(name="organizationId",type="integer")})
 public class Event {
 	
 	public static String TYPE_SINGLE_DATE = "1";

@@ -24,25 +24,7 @@ public class EventService extends GenericService<Event> {
 		super(Event.class);
 	}
 
-	public List<Event> getEvents(User user)
-	{
-		Session session = null;
-		try
-		{
-			session = HibernateUtils.getSessionFactory().getCurrentSession();
-			session.beginTransaction();
-			List<Event> retval = new EventDAO().getEvents(user);
-			session.getTransaction().commit();
-			return retval;
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			session.getTransaction().rollback();
-			throw e;
-		}
-	}
-	
+
 	
 
 	

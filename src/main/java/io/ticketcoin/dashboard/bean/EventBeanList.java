@@ -6,6 +6,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import io.ticketcoin.dashboard.persistence.filter.EventFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.service.EventService;
 
@@ -28,7 +29,12 @@ public class EventBeanList
 	public List<Event> getEvents() {
 		if(events==null)
 		{
-			events= new EventService().getEvents(userBean.getLoggedUser());
+			EventFilter filter = new EventFilter();
+			
+			if(!userBean.getLoggedUser().isAdmin())
+				filter.setOrganizationId(userBean.getLoggedUser().getOrganization()!=null ? userBean.getLoggedUser().getOrganization().getId():-1l);
+			
+			events= new EventService().searchEvents(filter).getResults();
 		}
 		return events;
 	}

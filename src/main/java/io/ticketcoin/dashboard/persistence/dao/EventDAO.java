@@ -7,17 +7,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.h2.command.ddl.CreateFunctionAlias;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
-import org.hibernate.transform.AliasToBeanResultTransformer;
 
 import io.ticketcoin.dashboard.dto.EventCategoryDTO;
 import io.ticketcoin.dashboard.persistence.filter.EventFilter;
@@ -34,12 +30,7 @@ public class EventDAO extends GenericDAO<Event>{
 		super(Event.class);
 	}
 
-	public List<Event> getEvents(User user) {
-		return (List<Event>)HibernateUtils.getSessionFactory().getCurrentSession()
-				.createCriteria(Event.class)
-				.add(Restrictions.eq("organization", user.getOrganization())).list();
 
-	}
 
 	public EventSearchResult searchEvents(EventFilter filter) {
 		Criteria c = createCrieria(filter).getExecutableCriteria(HibernateUtils.getSessionFactory().getCurrentSession());
@@ -111,6 +102,9 @@ public class EventDAO extends GenericDAO<Event>{
 		if(filter.isOnlyActive())
 			c.add(Restrictions.ge("dateTo", DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)));
 		
+		
+		if(filter.getOrganizationId()!=null)
+			c.add(Restrictions.eq("organization.id", filter.getOrganizationId()));
 		
 		return c;
 	}

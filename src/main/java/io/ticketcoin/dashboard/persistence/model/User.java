@@ -263,6 +263,21 @@ public class User implements Serializable{
 		return merchant;
 	}
 
+	
+	@Transient
+	public boolean isAdmin()
+	{
+		boolean admin = false;
+		
+		if(this.getRoles()!=null)
+		{
+			for (Role r:this.getRoles())
+				if("admin".equalsIgnoreCase(r.getRolename()))
+					admin=true;
+		}
+		return admin;
+	}
+
 
 	public Long getAcceptedTermsAndCondition() {
 		return acceptedTermsAndCondition;
