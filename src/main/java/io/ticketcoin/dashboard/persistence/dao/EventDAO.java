@@ -85,6 +85,9 @@ public class EventDAO extends GenericDAO<Event>{
 		}
 		 
 		
+		if(!filter.isIncludeUnpublishedEvents())
+			c.add(Restrictions.eq("published", true));
+		
 		if (!StringUtils.isEmpty(filter.getCategory()))
 		{
 			c.createAlias("eventCategories", "eventCategories");

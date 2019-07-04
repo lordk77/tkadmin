@@ -34,7 +34,18 @@
 					    				<b:inputText value="#{eventBean.event.shortDescription}" label="Short Description" render-label="true" required="false" />
 					    			</b:panelGrid>					    								    			   
 			
-								    <b:panelGrid columns="2">
+			
+								    <b:panelGrid columns="1">
+								    	<b:selectOneMenu value="#{eventBean.event.eventType}" label="EventType" >
+								    		<p:ajax event="change" process="@this" />
+					    				 	<f:selectItem itemValue="2" itemLabel="Period"/>
+								            <f:selectItem itemValue="1" itemLabel="Single date"/>
+								            <f:selectItem itemValue="3" itemLabel="Open"/>
+								        </b:selectOneMenu>
+								    </b:panelGrid>					    								    			   
+			
+			
+								    <b:panelGrid columns="2" id="datePanel">
 									    <b:dateTimePicker value="#{eventBean.event.dateFrom}"
 									        icon-position="right"
 									        show-date="true"
@@ -42,9 +53,11 @@
 									        show-icon="true" 
 									        label="Date from" 
 									        required="true"
-									        update="datePanel"
-									        process="@this"			 format="DD/MM/YYYY"						        
-									        />
+									        update="daysPanel"
+									        format="DD/MM/YYYY"			
+									        id="dateFrom"			
+									        >
+									        </b:dateTimePicker>
 								    <b:dateTimePicker value="#{eventBean.event.dateTo}"
 								        icon-position="right"
 								        show-date="true"
@@ -52,23 +65,18 @@
 								        show-icon="true" 
 								        label="Date to"
 								        required="true"
-								        update="datePanel"
-								        process="@this"		 format="DD/MM/YYYY"
-								        />						        
+								        update="daysPanel"
+								        format="DD/MM/YYYY"
+								        id="dateTo"	
+								        >
+								        	<p:ajax event="change" process="@this" />
+								        </b:dateTimePicker>					        
 			
 								    </b:panelGrid>
 								    
-					    			<b:panelGrid columns="1" id="datePanel">
+					    			<b:panelGrid columns="1" id="daysPanel">
 					    			
-					    			
-					    					<b:selectOneMenu value="#{eventBean.event.eventType}" label="EventType"  >
-					    					 	<f:selectItem itemValue="2" itemLabel="Period"/>
-								            <f:selectItem itemValue="1" itemLabel="Single date"/>
-								            <f:selectItem itemValue="3" itemLabel="Open"/>
-								        </b:selectOneMenu>
-								        
-					    			
-				    					<b:selectMultiMenu value="#{eventBean.event.daysOfWeek}" label="Days of week" >
+				    					<b:selectMultiMenu value="#{eventBean.event.daysOfWeek}" label="Days of week" ajax="true" >
 								            <f:selectItem itemValue="1" itemLabel="Sunday"/>
 								            <f:selectItem itemValue="2" itemLabel="Monday"/>
 								            <f:selectItem itemValue="3" itemLabel="Tuesday"/>
@@ -78,15 +86,14 @@
 								            <f:selectItem itemValue="7" itemLabel="Saturday"/>
 								        </b:selectMultiMenu>
 								        
-
-								        
-								        
-										 <b:selectMultiMenu value="#{eventBean.event.eventCategoryAsString}" label="Event type" >
-									            <f:selectItems value="#{eventBean.event.eventCategory}"  var="cat" itemValue="#{cat.toString()}" itemLabel="#{cat.emoji} #{cat.description}"/>
-									        </b:selectMultiMenu>
 								    </b:panelGrid>									    
 								    
 								    
+								    <b:panelGrid columns="1" >							        
+									 <b:selectMultiMenu value="#{eventBean.event.eventCategoryAsString}" label="Event type" >
+								            <f:selectItems value="#{eventBean.event.eventCategory}"  var="cat" itemValue="#{cat.toString()}" itemLabel="#{cat.emoji} #{cat.description}"/>
+								     </b:selectMultiMenu>
+								    </b:panelGrid>
 								    
 							    
 							    
@@ -102,6 +109,8 @@
 					    			</b:panel>
 					    			
 					    			<b:image library="img" name="qr_code.jpg" height="150px" rendered="#{eventBean.event.id != null}"/>
+					    			
+					    			 <b:switch value="#{eventBean.event.published}" label="Published" offColor="success" onColor="info"  />
 					    			
 							</b:column>
 						</b:row>			
@@ -189,12 +198,11 @@
 							          <h:outputText value=""/>
 							        </f:facet>
 						       		<h:panelGroup>
-						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;1}" >
+						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;=1}" >
 						       			 <f:ajax render="evtForm:editableCategoryDetailPanel,editableCategoryTable"></f:ajax>
 						       			 </b:commandButton>
-						       			 <b:commandButton  icon="calendar" ajax="true" action="#{eventBean.regenerateCategoryDetail(category)}" rendered="#{eventBean.event.categories.size()&gt;1}" >
-						       			 	<f:ajax render="evtForm:editableCategoryDetailPanel,editableCategoryTable"></f:ajax>
-						       			 </b:commandButton>
+						       			 <p:commandButton  icon="calendar" action="#{eventBean.regenerateCategoryDetail(category)}" rendered="#{eventBean.event.categories.size()&gt;=1}" process="@form" update="@form,@(.editableCategoryTable)">
+						       			 </p:commandButton>
 						       		</h:panelGroup>
 							        
 							      	<f:facet name="footer">
@@ -261,7 +269,7 @@
 						       		<h:panelGroup>
 						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategoryDetail(detail)}" 
 						       			  update="@(.editableCategoryDetailTable)" process="editableCategoryDetailTable" 
-						       			 rendered="#{eventBean.event.categories.size()&gt;1}"  />
+						       			 rendered="#{eventBean.event.categories.size()&gt;=1}"  />
 						       		</h:panelGroup>
 
 							        

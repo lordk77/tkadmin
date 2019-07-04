@@ -18,6 +18,8 @@ public class EventFilter {
 	
 	private Long organizationId;
 	
+	private boolean includeUnpublishedEvents;
+	
 	private boolean onlyActive;
 	
 	public String getGenericTxt() {
@@ -90,6 +92,14 @@ public class EventFilter {
 
 	public void setOnlyActive(boolean onlyActive) {
 		this.onlyActive = onlyActive;
+	}
+
+	public boolean isIncludeUnpublishedEvents() {
+		return includeUnpublishedEvents;
+	}
+
+	public void setIncludeUnpublishedEvents(boolean includeUnpublishedEvents) {
+		this.includeUnpublishedEvents = includeUnpublishedEvents;
 	}
 	
 	

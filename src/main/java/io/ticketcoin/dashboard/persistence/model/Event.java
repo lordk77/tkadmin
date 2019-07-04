@@ -135,8 +135,8 @@ public class Event {
 	@Column(name="WEBSITE")
 	private String website;
 	
-	
-	
+	@Column(name="IS_PUBLISHED")
+	private Boolean published;
 	
 	  private Date created;
 	  private Date updated;
@@ -442,5 +442,13 @@ public class Event {
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
+	}
+
+	public Boolean getPublished() {
+		return published;
+	}
+
+	public void setPublished(Boolean published) {
+		this.published = published;
 	}
 }

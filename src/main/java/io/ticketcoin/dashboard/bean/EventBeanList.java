@@ -30,7 +30,7 @@ public class EventBeanList
 		if(events==null)
 		{
 			EventFilter filter = new EventFilter();
-			
+			filter.setIncludeUnpublishedEvents(true);
 			if(!userBean.getLoggedUser().isAdmin())
 				filter.setOrganizationId(userBean.getLoggedUser().getOrganization()!=null ? userBean.getLoggedUser().getOrganization().getId():-1l);
 			
