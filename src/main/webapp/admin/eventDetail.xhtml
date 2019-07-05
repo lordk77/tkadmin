@@ -13,7 +13,7 @@
                     <hr/>
 					
 					<h:form id="evtForm">
-     				<b:commandButton ajax="true" update="eventImagePanel" process="@this" immediate="true" style="visibility:hidden" id="emptyAction" styleClass="refreshImagePanel"/>
+     					<p:commandButton  update="eventImagePanel, eventImage" process="@this" immediate="true" style="visibility:hidden" id="emptyAction" styleClass="refreshImagePanel"/>
 				    <b:panel>
 					   <f:facet name="heading">
 					     <i class="fa fa-calendar-o" style="padding-right:20px" />
@@ -103,7 +103,7 @@
 				    			
 					    			<b:panel style="min-height:150px" styleClass="overview-box-image" id="eventImagePanel">
 					    				<h:panelGrid columns="1" styleClass="overview-box-image">
-											<p:graphicImage value="#{eventBean.content}" height="150px"/>
+											<p:graphicImage value="#{eventBean.content}" height="150px" id="eventImage" cache="false"/>
 											<b:button iconAwesome="photo" look="success" onclick="$('.modalPseudoClass').modal()" value="Load image" />
 					    				</h:panelGrid>
 					    			</b:panel>
@@ -293,11 +293,14 @@
 				  	 <p:fileUpload 
 				  	 	fileUploadListener="#{eventBean.handleImageUpload}" mode="advanced" 
 				  	 	dragDropSupport="true"
-                          update="messages" sizeLimit="1000000" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" oncomplete="$('.modalPseudoClass').modal('hide');$('.refreshImagePanel').click()" />
+                          update="messages" sizeLimit="1000000"
+                          allowTypes="/(\.|\/)(gif|jpe?g|png)$/"
+                          oncomplete="$('.modalPseudoClass').modal('hide');$('.refreshImagePanel').click()"
+                          auto="true"
+                           />
 				  </h:form>
 				  <f:facet name="footer">
 				    <b:button value="Close" dismiss="modal" />
-				    <b:button value="Ok" look="primary" dismiss="modal"  />
 				  </f:facet>
 				</b:modal>
 
