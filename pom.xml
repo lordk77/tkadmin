@@ -93,7 +93,15 @@
 	    <artifactId>primefaces</artifactId>
 	    <version>7.0</version>
 	</dependency>
-	
+
+	<!-- https://mvnrepository.com/artifact/org.primefaces.extensions/primefaces-extensions -->
+	<dependency>
+	    <groupId>org.primefaces.extensions</groupId>
+	    <artifactId>primefaces-extensions</artifactId>
+	    <version>7.0.1</version>
+	</dependency>
+
+
 	<dependency>
     <groupId>javax.servlet</groupId>
     <artifactId>jstl</artifactId>
