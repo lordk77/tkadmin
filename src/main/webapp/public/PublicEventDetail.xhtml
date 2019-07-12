@@ -1,0 +1,127 @@
+<ui:composition
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:b="http://bootsfaces.net/ui"
+     template="/WEB-INF/templates/blank-layout.xhtml"
+     >
+     
+            
+	<f:metadata>
+		<f:viewParam name="eventUUID" value="#{publicEventBean.eventUUID}"/>
+	</f:metadata>	
+		
+     <ui:define name="content">
+        	
+
+        <h:panelGroup rendered="#{publicEventBean.event!=null}">
+			<b:jumbotron >
+	            <b:container style-class="text-center">
+	                <h1><p:outputLabel value="#{publicEventBean.event.name}"/></h1>
+	                <p:graphicImage url="#{publicEventBean.event.images[0].attachmentURL}" style="max-width:400px;max-height: 400px" />
+	            </b:container>
+	        </b:jumbotron>
+	        
+	        <b:container style-class="text-center">
+	        	<h3><p:outputLabel value="#{publicEventBean.event.description}"  /></h3> 	
+	        	<p:separator/>
+	        </b:container>
+	        
+	         <b:container rendered="#{publicEventBean.event.location!=null}">
+	            <b:row>
+	                <b:column col-md="10">
+	                    <h2><p:outputLabel value="#{publicEventBean.event.location.name}"  /></h2>
+	                    <p><p:outputLabel value="#{publicEventBean.event.location.address.city}"  rendered="#{publicEventBean.event.location.address!=null}"/></p>
+	                    <p><p:outputLabel value="#{publicEventBean.event.location.address.address}"  rendered="#{publicEventBean.event.location.address!=null}"/></p>
+	                </b:column>
+	               	<b:column col-md="2">
+	                    <b:iconAwesome value="map" solid="true" />
+	                </b:column>
+	            </b:row>
+	            <p:separator/>
+	         </b:container>
+	         
+        
+        
+        
+        	<b:container rendered="#{publicEventBean.event.phone!=null}">
+	            <b:row>
+	                <b:column col-md="2">
+	                    <h3><p:outputLabel value="Phone"/></h3>
+	                </b:column>
+	                <b:column col-md="8">
+	                    <h3><p:outputLabel value="#{publicEventBean.event.phone}"/></h3>
+	                </b:column>	                
+	               	<b:column col-md="2">
+	                    <b:iconAwesome value="phone" solid="true" />
+	                </b:column>
+	            </b:row>
+	            <p:separator/>
+	         </b:container>
+	         
+	         <b:container rendered="#{publicEventBean.event.email!=null}">
+	            <b:row>
+	                <b:column col-md="2">
+	                    <h3><p:outputLabel value="Email"/></h3>
+	                </b:column>
+	                <b:column col-md="8">
+	                    <h3><a href="mailto:#{publicEventBean.event.email}"><p:outputLabel value="#{publicEventBean.event.email}"/></a></h3>
+	                </b:column>	                
+	               	<b:column col-md="2">
+	                    <b:iconAwesome value="envelope" solid="true" />
+	                </b:column>
+	            </b:row>
+	            <p:separator/>
+	         </b:container>
+
+	         <b:container rendered="#{publicEventBean.event.website!=null}">
+	            <b:row>
+	                <b:column col-md="2">
+	                    <h3><p:outputLabel value="Website"/></h3>
+	                </b:column>
+	                <b:column col-md="8">
+	              		<h3><a href="#{publicEventBean.event.website}"><p:outputLabel value="#{publicEventBean.event.website}"/></a></h3>
+	                </b:column>	                
+	               	<b:column col-md="2">
+	                    <h3><b:iconAwesome value="globe" solid="true" /></h3>
+	                </b:column>
+	            </b:row>
+	            <p:separator/>
+	         </b:container>	     
+	         
+	         <br/>
+		        <b:container style-class="text-center">
+		        	<h2><p:outputLabel value="Tickets"  /></h2> 	
+		        </b:container>
+		           
+		           <ui:repeat value="#{publicEventBean.event.categories}" var="category">
+				   	<b:container>
+			            <b:row>
+			                <b:column col-md="10">
+			                	<h3><h:outputText value="#{category.title}" /></h3>
+			                    <p><p:outputLabel value="#{category.description}"/></p>
+			                </b:column>
+			               	<b:column col-md="2">
+			                    <p><p:outputLabel value="#{category.streetPrice}" rendered="#{category.streetPrice.longValue()>0}"/></p>
+			                </b:column>
+			            </b:row>
+			           </b:container>
+			 	 </ui:repeat>
+
+	         	             
+	         
+	         
+        </h:panelGroup>
+        
+        
+        <b:jumbotron rendered="#{publicEventBean.event==null}">
+            <b:container style-class="text-center">
+                <h1>Event not found</h1>
+            </b:container>
+        </b:jumbotron>
+        
+
+</ui:define>
+</ui:composition>
