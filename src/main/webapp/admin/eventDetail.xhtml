@@ -113,7 +113,7 @@
 					    			  
 					    			   renderMethod="image"
 					    			   renderMode="2"
-							           text="https://app.ticketcoin.io/public/app/event/detail/#{eventBean.event.eventUUID}"  
+							           text="https://app.ticketcoin.io/app/event/detail/#{eventBean.event.eventUUID}"  
 							           label="Ticketcoin.io"  
 							           size="250"                   
 							           fillColor="#000"  
@@ -121,10 +121,12 @@
 							           fontColor="#FF9818"  
 							           ecLevel="H"                     
 							           radius="0.5" 
+							           
 							           />  
 							           
+							           <p:graphicImage value="#{eventBean.qrContent}" height="250px" id="QRImage" cache="false" rendered="false"/>
 							           
-							           
+							           <br/><br/>
 							           
 							           
 							           

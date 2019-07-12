@@ -1,6 +1,7 @@
 package io.ticketcoin.dashboard.bean;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -15,6 +16,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.primefaces.event.FileUploadEvent;
@@ -26,6 +28,7 @@ import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
 import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.service.EventService;
+import io.ticketcoin.utility.QrCode;
 
 
 @ManagedBean
@@ -103,6 +106,33 @@ public class EventBean
 		public void setContent(StreamedContent content) {
 			this.content = content;
 		}
+
+		
+		public StreamedContent getQrContent()
+		{
+
+			StreamedContent sc = null;
+			
+			if(this.event.getEventUUID()!=null)
+			{
+				try 
+				{
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					new QrCode().generate("https://app.ticketcoin.io/app/event/detail/" + this.event.getEventUUID(), 250, 250, ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("img/logo-tk-30.png")), baos);
+					sc = new DefaultStreamedContent(new ByteArrayInputStream(baos.toByteArray()));
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+			
+			return sc;
+		}
+		
+		
+		
+		
 		
 	 
 	 public void calculateNetPrice()
