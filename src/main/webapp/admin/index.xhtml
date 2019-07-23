@@ -7,7 +7,7 @@
      xmlns:b="http://bootsfaces.net/ui"
      template="/WEB-INF/templates/dashboard-layout.xhtml"
      >
-     <ui:define name="content">
+     <ui:define name="content" >
         	
 
 					<h1>Overview</h1>
@@ -21,9 +21,9 @@
 						    				<b:iconAwesome name="user-plus" size="4x" />
 						    			</b:column>
 						    			<b:column col-md="8">
-						    				<span class="overview-box-count">3216</span>
-						    				<span class="overview-box-name">NEW CUSTOMERS</span>
-						    				<span class="overview-box-rate">+34%</span>
+						    				<span class="overview-box-count"><h:outputText value="#{chartView.kpis.allCustomers}"/></span>
+						    				<span class="overview-box-name">UNIQUE CUSTOMERS</span>
+						    				<span class="overview-box-rate" ><h:outputText value="#{chartView.kpis.newCustomersPercentage}"/>%</span>
 						    			</b:column>
 						    		</b:row>
 					    		</b:panel>
@@ -36,9 +36,9 @@
 						    				<b:iconAwesome name="ticket" size="4x" />
 						    			</b:column>
 						    			<b:column col-md="8">
-						    				<span class="overview-box-count">3216</span>
+						    				<span class="overview-box-count"><h:outputText value="#{chartView.kpis.allTickets}"/></span>
 						    				<span class="overview-box-name">TICKET SOLD</span>
-						    				<span class="overview-box-rate">+34%</span>
+						    				<span class="overview-box-rate" ><h:outputText value="#{chartView.kpis.newTicketsPercentage}"/>%</span>
 						    			</b:column>
 						    		</b:row>
 					    		</b:panel>
@@ -51,9 +51,9 @@
 						    				<b:iconAwesome name="university" size="4x" />
 						    			</b:column>
 						    			<b:column col-md="8">
-						    				<span class="overview-box-count">$3216</span>
+						    				<span class="overview-box-count">EUR <h:outputText value="#{chartView.kpis.allIncomes}"/></span>
 						    				<span class="overview-box-name">REVENUE</span>
-						    				<span class="overview-box-rate">+34%</span>
+						    				<span class="overview-box-rate" ><h:outputText value="#{chartView.kpis.newIncomesPercentage}"/>%</span>
 						    			</b:column>
 						    		</b:row>
 					    		</b:panel>
@@ -63,27 +63,6 @@
 
 
 
-                    <b:row styleClass="placeholders">
-                        <b:column col-xs="6" col-sm="4" styleClass="placeholder">
-                            <p:chart type="pie" model="#{chartView.pieModel1}" style="width:400px;height:300px"  />
-                        </b:column>
-                        <b:column col-xs="6" col-sm="4" styleClass="placeholder">
-                            <p:chart type="pie" model="#{chartView.pieModel2}" style="width:400px;height:300px"  />
-                        </b:column>
-                        <b:column col-xs="6" col-sm="4" styleClass="placeholder">
-                            <p:chart type="pie" model="#{chartView.pieModel3}" style="width:400px;height:300px"  />
-                        </b:column>                        
-                    </b:row>	
-
-                    
-                    <b:row >
-						<b:column col-xs="12" col-md="6">
-							<p:chart type="bar" model="#{chartView.barModel}" style="height:300px"/>
-						</b:column>
-						<b:column col-xs="12" col-md="6">
-							<p:chart type="bar" model="#{chartView.horizontalBarModel}" style="height:300px"/>
-						</b:column>
-					</b:row>
 
 	
 					
@@ -91,38 +70,39 @@
 				
                     <b:row >
 						<b:column col-xs="12" col-md="12">
-							<p:chart type="line" model="#{chartView.lineModel2}" style="height:300px;"/>
+							<p:chart type="line" model="#{chartView.ticketsSold}" style="height:300px;"/>
 						</b:column>
 					</b:row>	
 					
                     
-                    
-                    <h1>Top trending event</h1>
-                    <hr/>
-                    <b:row styleClass="table-responsive">
-                        <h:dataTable styleClass="table table-striped" value="#{loremIpsumBean.items}" var="item" rows="15">
-                            <h:column>
-                                <f:facet name="header"><h:outputText value="#" /></f:facet>
-                                <h:outputText value="#{item.h1}" />
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
-                                <h:outputText value="#{item.h2}" />
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
-                                <h:outputText value="#{item.h3}" />
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
-                                <h:outputText value="#{item.h4}" />
-                            </h:column>
-                            <h:column>
-                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
-                                <h:outputText value="#{item.h5}" />
-                            </h:column>
-                        </h:dataTable>
-                    </b:row>
+                    <h:panelGroup rendered="false">
+	                    <h1>Top trending event</h1>
+	                    <hr/>
+	                    <b:row styleClass="table-responsive">
+	                        <h:dataTable styleClass="table table-striped" value="#{loremIpsumBean.items}" var="item" rows="15">
+	                            <h:column>
+	                                <f:facet name="header"><h:outputText value="#" /></f:facet>
+	                                <h:outputText value="#{item.h1}" />
+	                            </h:column>
+	                            <h:column>
+	                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+	                                <h:outputText value="#{item.h2}" />
+	                            </h:column>
+	                            <h:column>
+	                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+	                                <h:outputText value="#{item.h3}" />
+	                            </h:column>
+	                            <h:column>
+	                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+	                                <h:outputText value="#{item.h4}" />
+	                            </h:column>
+	                            <h:column>
+	                                <f:facet name="header"><h:outputText value="Header" /></f:facet>
+	                                <h:outputText value="#{item.h5}" />
+	                            </h:column>
+	                        </h:dataTable>
+	                    </b:row>
+	                   </h:panelGroup>
                     
 </ui:define>
 </ui:composition>

@@ -1,5 +1,8 @@
 package io.ticketcoin.dashboard.persistence.service;
 
+import java.util.Date;
+import java.util.Map;
+
 import org.hibernate.Session;
 
 import com.facebook.api.schema.User;
@@ -32,5 +35,24 @@ public class StatsService {
 	}
 	
 	
+	
+	public Map<Date, Long> getTicketTimeSeries(Long organizationId)
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			Map<Date, Long> retval = new StatsDAO().getTicketTimeSeries(organizationId);
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
 	
 }
