@@ -37,8 +37,8 @@
 			
 			
 								    <b:panelGrid columns="1">
-								    	<b:selectOneMenu value="#{eventBean.event.eventType}" label="EventType" >
-								    		<p:ajax event="change" process="@this" />
+								    	<b:selectOneMenu value="#{eventBean.event.eventType}" label="EventType"   readonly="#{eventBean.event.id!=null}">
+								    		<p:ajax event="change" process="@this" update="datePanel, daysPanel" />
 					    				 	<f:selectItem itemValue="2" itemLabel="Period"/>
 								            <f:selectItem itemValue="1" itemLabel="Single date"/>
 								            <f:selectItem itemValue="3" itemLabel="Open"/>
@@ -56,20 +56,25 @@
 									        required="true"
 									        update="daysPanel"
 									        format="DD/MM/YYYY"			
-									        id="dateFrom"			
+									        id="dateFrom"	
+									        max-date="#{eventBean.minTicketDate}"	
+									        min-date="#{eventBean.event.eventType == 1 ?  eventBean.minTicketDate : null}"	
 									        >
-									        </b:dateTimePicker>
-								    <b:dateTimePicker value="#{eventBean.event.dateTo}"
-								        icon-position="right"
-								        show-date="true"
-								        show-time="false"
-								        show-icon="true" 
-								        label="Date to"
-								        required="true"
-								        update="daysPanel"
-								        format="DD/MM/YYYY"
-								        id="dateTo"	
-								        >
+									   </b:dateTimePicker>
+									   
+									   <b:dateTimePicker value="#{eventBean.event.dateTo}" 
+									    	rendered="#{eventBean.event.eventType != 1 }"
+									        icon-position="right"
+									        show-date="true"
+									        show-time="false"
+									        show-icon="true" 
+									        label="Date to"
+									        required="true"
+									        update="daysPanel"
+									        format="DD/MM/YYYY"
+									        id="dateTo"	
+									        min-date="#{eventBean.maxTicketDate}"
+									        >
 								        	<p:ajax event="change" process="@this" />
 								        </b:dateTimePicker>					        
 			
@@ -77,7 +82,9 @@
 								    
 					    			<b:panelGrid columns="1" id="daysPanel">
 					    			
-				    					<b:selectMultiMenu value="#{eventBean.event.daysOfWeek}" label="Days of week" ajax="true" >
+				    					<b:selectMultiMenu 
+				    						value="#{eventBean.event.daysOfWeek}" label="Days of week" ajax="true"
+				    						rendered="#{eventBean.event.eventType != 1 }">
 								            <f:selectItem itemValue="1" itemLabel="Sunday"/>
 								            <f:selectItem itemValue="2" itemLabel="Monday"/>
 								            <f:selectItem itemValue="3" itemLabel="Tuesday"/>
@@ -168,7 +175,7 @@
 					    </b:panelGrid>
 					</b:panel>		
 				    	
-				    	<b:panel>
+				    	<b:panel  rendered="#{eventBean.event.id &gt; 0}">
 						   <f:facet name="heading">
 						     <i class="fa fa-ticket" style="padding-right:20px" />
 						     <h:outputText value="Ticket Options" />
@@ -221,8 +228,6 @@
 						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;=1}" >
 						       			 <f:ajax render="evtForm:editableCategoryDetailPanel,editableCategoryTable"></f:ajax>
 						       			 </b:commandButton>
-						       			 <p:commandButton  icon="calendar" action="#{eventBean.regenerateCategoryDetail(category)}" rendered="#{eventBean.event.categories.size()&gt;=1}" process="@form" update="@form,@(.editableCategoryTable)">
-						       			 </p:commandButton>
 						       		</h:panelGroup>
 							        
 							      	<f:facet name="footer">
@@ -233,7 +238,7 @@
 						       </b:dataTable>
 					   </b:panel>
 					   
-				<b:panel id="editableCategoryDetailPanel">
+				<b:panel id="editableCategoryDetailPanel" rendered="#{eventBean.event.id &gt; 0}">
 				   <f:facet name="heading">
 				     <i class="fa fa-ticket" style="padding-right:20px" />
 				     <h:outputText value="Date detail" />
@@ -289,7 +294,7 @@
 						       		<h:panelGroup>
 						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategoryDetail(detail)}" 
 						       			  update="@(.editableCategoryDetailTable)" process="editableCategoryDetailTable" 
-						       			 rendered="#{eventBean.event.categories.size()&gt;=1}"  />
+						       			 rendered="#{detail.soldTicket==0}"  />
 						       		</h:panelGroup>
 
 							        
@@ -304,7 +309,7 @@
 				   
 					   
 					   <div class="text-center">
-							<b:commandButton value="Save" look="primary" size="lg" action="#{eventBean.save}"   />
+							<b:commandButton value="Save" look="primary" size="lg" action="#{eventBean.save}"  />
 						</div>
 				</h:form>                  
                   

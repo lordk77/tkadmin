@@ -26,52 +26,7 @@ public class TicketDAO extends GenericDAO<Ticket>{
 	}
 
 	public List<Ticket> searchTickets(TicketFilter filter) {
-		Criteria c = HibernateUtils.getSessionFactory().getCurrentSession()
-				.createCriteria(Ticket.class, "tck")
-				.createAlias("ownedBy", "user");
-
-		
-		if(filter.getId()!=null)
-			c.add(Restrictions.idEq(filter.getId()));
-
-		if (!StringUtils.isEmpty(filter.getUsername()))
-			c.add(Restrictions.eq("user.username", filter.getUsername()));
-
-		if (!StringUtils.isEmpty(filter.getTicketUUID()))
-			c.add(Restrictions.eq("ticketUUID", filter.getTicketUUID()));
-		
-		if(filter.getOrganizationId()!=null)
-		{
-			c.createAlias("category", "category");
-			c.createAlias("category.event", "event");
-			c.add(Restrictions.eq("event.organization.id", filter.getOrganizationId()));
-			
-		}
-		
-		if(filter.getCardID()!=null)
-		{
-			DetachedCriteria subquery = DetachedCriteria.forClass(Card.class,"card");	
-			subquery.add(Restrictions.eq("card.address", filter.getCardID()));
-			subquery.add(Restrictions.eqProperty("card.user", "tck.ownedBy"));				
-			c.add(Subqueries.exists(subquery.setProjection(Projections.property("card.id"))));				
-		}
-		if(filter.getDate()!=null)
-		{
-			c.add(Restrictions.or(Restrictions.isNull("validFrom"),Restrictions.le("validFrom", filter.getDate())));
-			c.add(Restrictions.or(Restrictions.isNull("validTo"),Restrictions.ge("validTo", filter.getDate())));
-		}
-		
-		
-		if(!filter.isIncludeExpired())
-		{
-			c.add(Restrictions.or(
-					Restrictions.ge("validTo", DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)),
-					Restrictions.and(Restrictions.isNull("validTo"),Restrictions.ge("validFrom", DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)))
-					)
-				);
-			c.add(Restrictions.eq("ticketState", Ticket.STATE_VALID));
-		}
-		
+		Criteria c = createCrieria(filter).getExecutableCriteria(HibernateUtils.getSessionFactory().getCurrentSession());
 		c.addOrder(Order.asc("validFrom"));
 		
 		 return c.list();
@@ -127,5 +82,86 @@ public class TicketDAO extends GenericDAO<Ticket>{
 
 
 
+	
+	public Date getMinTicketDate(TicketFilter filter) 
+	{
+		Criteria c = createCrieria(filter).getExecutableCriteria(HibernateUtils.getSessionFactory().getCurrentSession());
+		c.setProjection(Projections.min("validFrom"));
+		return (Date)c.uniqueResult();
+	}
+	
+	public Date getMaxTicketDate(TicketFilter filter) 
+	{
+		Criteria c = createCrieria(filter).getExecutableCriteria(HibernateUtils.getSessionFactory().getCurrentSession());
+		c.setProjection(Projections.max("validFrom"));
+		return (Date)c.uniqueResult();
+	}
+	
+	
+	
+	
+	private DetachedCriteria createCrieria(TicketFilter filter) 
+	{
+		
+		DetachedCriteria c =  
+				DetachedCriteria.forClass(Ticket.class, "tck")
+				.createAlias("ownedBy", "user");
+
+		
+		if(filter.getId()!=null)
+			c.add(Restrictions.idEq(filter.getId()));
+
+		if (!StringUtils.isEmpty(filter.getUsername()))
+			c.add(Restrictions.eq("user.username", filter.getUsername()));
+
+		if (!StringUtils.isEmpty(filter.getTicketUUID()))
+			c.add(Restrictions.eq("ticketUUID", filter.getTicketUUID()));
+		
+		
+		if(filter.getTicketCategoryId()!=null)
+			c.add(Restrictions.eq("category.id", filter.getTicketCategoryId()));
+		
+		if(filter.getOrganizationId()!=null || filter.getEventId()!=null)
+		{
+			c.createAlias("category", "category");
+			c.createAlias("category.event", "event");
+			
+			if(filter.getOrganizationId()!=null )
+				c.add(Restrictions.eq("event.organization.id", filter.getOrganizationId()));
+			
+			if( filter.getEventId() !=null)
+				c.add(Restrictions.eq("event.id", filter.getEventId()));
+			
+		}
+		
+		if(filter.getCardID()!=null)
+		{
+			DetachedCriteria subquery = DetachedCriteria.forClass(Card.class,"card");	
+			subquery.add(Restrictions.eq("card.address", filter.getCardID()));
+			subquery.add(Restrictions.eqProperty("card.user", "tck.ownedBy"));				
+			c.add(Subqueries.exists(subquery.setProjection(Projections.property("card.id"))));				
+		}
+		if(filter.getDate()!=null)
+		{
+			c.add(Restrictions.or(Restrictions.isNull("validFrom"),Restrictions.le("validFrom", filter.getDate())));
+			c.add(Restrictions.or(Restrictions.isNull("validTo"),Restrictions.ge("validTo", filter.getDate())));
+		}
+		
+		
+		if(!filter.isIncludeExpired())
+		{
+			c.add(Restrictions.or(
+					Restrictions.ge("validTo", DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)),
+					Restrictions.and(Restrictions.isNull("validTo"),Restrictions.ge("validFrom", DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH)))
+					)
+				);
+			c.add(Restrictions.eq("ticketState", Ticket.STATE_VALID));
+		}
+		
+		
+		return c;
+	}
+	
+	
 
 }

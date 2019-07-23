@@ -23,11 +23,13 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
+import io.ticketcoin.dashboard.persistence.filter.TicketFilter;
 import io.ticketcoin.dashboard.persistence.model.Event;
 import io.ticketcoin.dashboard.persistence.model.FileAttachment;
 import io.ticketcoin.dashboard.persistence.model.TicketCategory;
 import io.ticketcoin.dashboard.persistence.model.TicketCategoryDetail;
 import io.ticketcoin.dashboard.persistence.service.EventService;
+import io.ticketcoin.dashboard.persistence.service.TicketService;
 import io.ticketcoin.utility.QrCode;
 
 
@@ -148,9 +150,22 @@ public class EventBean
 	
 	public String save()
 	{
-		this.event.setOrganization(userBean.getLoggedUser().getOrganization());
+
 		try
 		{
+			if(this.event.getOrganization()==null)
+				this.event.setOrganization(userBean.getLoggedUser().getOrganization());
+			
+				
+			
+			if(Event.TYPE_SINGLE_DATE.equals(this.event.getEventType()))
+			{
+				this.event.setDateTo(this.event.getDateFrom());
+				this.event.setDaysOfWeek(String.valueOf(DateUtils.toCalendar(this.event.getDateFrom()).get(Calendar.DAY_OF_WEEK)));
+			}
+				
+			generateCategoryDetail(this.event);
+			
 			new EventService().saveOrUpdate(this.event);
 			 FacesMessage message = new FacesMessage("Succesful", "Event saved.");
 		     FacesContext.getCurrentInstance().addMessage(null, message);	
@@ -162,6 +177,36 @@ public class EventBean
 		}
 		return null;
 	}
+	
+	
+	
+	public Date getMinTicketDate() 
+	{
+		if(this.event.getId()!=null)
+		{
+			TicketFilter filter = new TicketFilter();
+			filter.setIncludeExpired(true);
+			filter.setEventId(this.event.getId());
+			return new TicketService().getMinTicketDate(filter);
+		}
+		else
+			return null;
+	}
+	
+	public Date getMaxTicketDate() 
+	{
+		
+		if(this.event.getId()!=null)
+		{
+			TicketFilter filter = new TicketFilter();
+			filter.setIncludeExpired(true);
+			filter.setEventId(this.event.getId());
+			return new TicketService().getMaxTicketDate(filter);
+		}
+		else
+			return null;
+	}
+	
 	
 	public String addCategory()
 	{
@@ -177,22 +222,35 @@ public class EventBean
 		return null;
 	}
 	
+	private void generateCategoryDetail(Event evt) 
+	{
+		for (TicketCategory tc : evt.getCategories())
+			generateCategoryDetail(evt, tc);
+	}
 	
 	private void generateCategoryDetail(Event evt, TicketCategory tc) 
 	{
 		Date startDate = DateUtils.truncate(evt.getDateFrom(), Calendar.DAY_OF_MONTH);
 		Date endDate = DateUtils.truncate(evt.getDateTo(), Calendar.DAY_OF_MONTH);
 		Date cDate= startDate;
+		
+		List<TicketCategoryDetail> tcdToDelete = new ArrayList<TicketCategoryDetail>();
+		
 		while (!cDate.after(endDate))
 		{
 			boolean present=false;
+			TicketCategoryDetail tcd =null;
+			
 			if(tc.getCategoryDetails()!=null)
 			{
-				for(TicketCategoryDetail tcd : tc.getCategoryDetails())
+				for(TicketCategoryDetail tcdz : tc.getCategoryDetails())
 				{
-					if (tcd.getStartingDate().equals(cDate))
+					if (tcdz.getStartingDate().equals(cDate))
+					{
+						tcd=tcdz;
 						present=true;
 						break;
+					}
 				}
 			}
 			else
@@ -202,7 +260,7 @@ public class EventBean
 			{
 				if(evt.getDaysOfWeek() !=null && evt.getDaysOfWeek().indexOf(""+DateUtils.toCalendar(cDate).get(Calendar.DAY_OF_WEEK))>=0)
 				{
-					TicketCategoryDetail tcd = new TicketCategoryDetail();
+					tcd = new TicketCategoryDetail();
 					tcd.setAvailableTicket(tc.getTicketSupply());
 					tcd.setSoldTicket(0);
 					tcd.setStartingDate(cDate);
@@ -215,27 +273,67 @@ public class EventBean
 					tc.getCategoryDetails().add(tcd);
 				}
 			}
-			
+			else
+			{
+				if(evt.getDaysOfWeek() !=null && evt.getDaysOfWeek().indexOf(""+DateUtils.toCalendar(cDate).get(Calendar.DAY_OF_WEEK))<0 && tcd.getAvailableTicket().equals(tc.getTicketSupply()))
+				{
+					tcdToDelete.add(tcd);
+				}
+			}
 			cDate = DateUtils.addDays(cDate, 1);
 		}
 		
+		for(TicketCategoryDetail tcdz : tc.getCategoryDetails())
+		{
+			if (tcdz.getStartingDate().before(startDate) || tcdz.getStartingDate().after(endDate) )
+			{
+				tcdToDelete.add(tcdz);
+			}
+		}
+		
+		
+		tc.getCategoryDetails().removeAll(tcdToDelete);
 		
 	}
 	
 
 	public String removeCategory(TicketCategory tc)
 	{
-		this.event.getCategories().remove(tc);
+		//Verifies that there are no tickets sold for that category
+		TicketFilter filter = new TicketFilter();
+		filter.setIncludeExpired(true);
+		filter.setTicketCategoryId(tc.getId());
+		
+		if(new TicketService().searchTickets(filter).size()==0)
+			this.event.getCategories().remove(tc);
+		else
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "You can't remove the item: There are tickes sold for that category"));	
+		
 		return null;
 	}
 	
 	
 	public String removeCategoryDetail(TicketCategoryDetail tcd)
 	{
+		
 		for (TicketCategory tc : event.getCategories())
 		{
 			if(tc.equals(tcd.getTicketCategory()))
-				tc.getCategoryDetails().remove(tcd);
+			{
+				//Verifies that there are no tickets sold for that category detail
+				TicketFilter filter = new TicketFilter();
+				filter.setIncludeExpired(true);
+				filter.setTicketCategoryId(tc.getId());
+				filter.setDate(tcd.getStartingDate());
+				
+				if(new TicketService().searchTickets(filter).size()==0)
+					tc.getCategoryDetails().remove(tcd);
+				else
+					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "You can't remove the item: There are tickes sold for that date"));	
+				
+				
+				
+			}
 		}
 		return null;
 	}

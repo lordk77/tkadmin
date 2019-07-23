@@ -1,6 +1,7 @@
 package io.ticketcoin.dashboard.persistence.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -27,7 +28,25 @@ public class TicketService extends GenericService<Ticket>{
 			session = HibernateUtils.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			List<Ticket> retval = new TicketDAO().searchTickets(filter);
-			
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
+	
+	public Date getMinTicketDate(TicketFilter filter) 
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			Date retval = new TicketDAO().getMinTicketDate(filter);
 			session.getTransaction().commit();
 			return retval;
 		}
@@ -39,6 +58,24 @@ public class TicketService extends GenericService<Ticket>{
 		}
 	}
 
+	public Date getMaxTicketDate(TicketFilter filter) 
+	{
+		Session session = null;
+		try
+		{
+			session = HibernateUtils.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			Date retval = new TicketDAO().getMaxTicketDate(filter);
+			session.getTransaction().commit();
+			return retval;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			session.getTransaction().rollback();
+			throw e;
+		}
+	}
 	
 	public List<TicketDTO> searchTicketsDTO(TicketFilter filter)
 	{

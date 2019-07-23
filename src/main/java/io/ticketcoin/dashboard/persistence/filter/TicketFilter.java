@@ -12,7 +12,8 @@ public class TicketFilter {
 	private Long tokenId;
 	private String cardID;
 	private Date date;
-	
+	private Long ticketCategoryId;
+	private Long eventId;
 	
 	private boolean includeExpired;
 	
@@ -63,6 +64,18 @@ public class TicketFilter {
 	}
 	public void setDate(Date date) {
 		this.date = date;
+	}
+	public Long getTicketCategoryId() {
+		return ticketCategoryId;
+	}
+	public void setTicketCategoryId(Long ticketCategoryId) {
+		this.ticketCategoryId = ticketCategoryId;
+	}
+	public Long getEventId() {
+		return eventId;
+	}
+	public void setEventId(Long eventId) {
+		this.eventId = eventId;
 	}
 	
 }
