@@ -49,6 +49,7 @@ public class ChargeDAO {
 							else
 							{
 								tcd.setAvailableTicket(tcd.getAvailableTicket() - pod.getQuantity());
+								tcd.setSoldTicket(tcd.getSoldTicket() + pod.getQuantity());
 								session.save(tcd);
 								
 								//Creates the tickets
