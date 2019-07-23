@@ -8,11 +8,20 @@
      template="/WEB-INF/templates/layout.xhtml"
      >
      <ui:define name="body">
-          <b:column col-sm="3" col-md="2" styleClass="sidebar">
+          <b:column col-sm="3" col-md="2" styleClass="sidebar" rendered="#{userBean.loggedUser!=null}">
               <ui:include src="/admin/includes/side-bar.xhtml"></ui:include>
           </b:column>
-          <b:column col-sm="9" offset-sm="3" col-md="10" offset="2" styleClass="main">
+          <b:column col-sm="9" offset-sm="3" col-md="10" offset="2" styleClass="main"  rendered="#{userBean.loggedUser!=null}">
               <ui:insert name="content"></ui:insert>
+          </b:column>
+          
+          <b:column col-sm="12" styleClass="main"  rendered="#{userBean.loggedUser==null}">
+            <b:jumbotron>
+	            <b:container style-class="text-center">
+	                <h1>Access denied</h1>
+	            </b:container>
+	
+	        </b:jumbotron>
           </b:column>
       </ui:define>
    </ui:composition>
