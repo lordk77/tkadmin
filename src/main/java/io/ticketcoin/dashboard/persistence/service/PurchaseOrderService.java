@@ -1,14 +1,11 @@
 package io.ticketcoin.dashboard.persistence.service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.hibernate.Hibernate;
-import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
