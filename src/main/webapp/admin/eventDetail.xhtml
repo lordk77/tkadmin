@@ -39,8 +39,8 @@
 								    <b:panelGrid columns="1">
 								    	<b:selectOneMenu value="#{eventBean.event.eventType}" label="EventType"   readonly="#{eventBean.event.id!=null}">
 								    		<p:ajax event="change" process="@this" update="datePanel, daysPanel" />
+					    				 	<f:selectItem itemValue="1" itemLabel="Single date"/>
 					    				 	<f:selectItem itemValue="2" itemLabel="Period"/>
-								            <f:selectItem itemValue="1" itemLabel="Single date"/>
 								            <f:selectItem itemValue="3" itemLabel="Open"/>
 								        </b:selectOneMenu>
 								    </b:panelGrid>					    								    			   
@@ -175,70 +175,97 @@
 					    </b:panelGrid>
 					</b:panel>		
 				    	
-				    	<b:panel  rendered="#{eventBean.event.id &gt; 0}">
-						   <f:facet name="heading">
-						     <i class="fa fa-ticket" style="padding-right:20px" />
-						     <h:outputText value="Ticket Options" />
-						   </f:facet>
-						   
-						   <b:dataTable value="#{eventBean.event.categories}" var="category"  paginated="false" class="editableCategoryTable" searching="false" id="editableCategoryTable">
-						        						        <b:dataTableColumn>
-						       	<f:facet name="header">
-							          <h:outputText value="Title"/>
-							        </f:facet>
-							        <b:inputText value="#{category.title}" required="true"/>
-						        </b:dataTableColumn>
-						        
-						        <b:dataTableColumn>
-						        	<f:facet name="header">
-							          <h:outputText value="Description"/>
-							        </f:facet>
-							        <b:inputText value="#{category.description}" required="true"/>
-						        </b:dataTableColumn>
-					       		
-				       			<b:dataTableColumn>
-									<f:facet name="header">
-							          <h:outputText value="Price"/>
-							        </f:facet>
-						       		 <b:inputText value="#{category.streetPrice}" required="true" mask="decimal">
-							       		 <f:facet name="prepend">
-								       		 <b:selectOneMenu value="#{category.currency}">
-								       		 	<f:selectItem itemValue="EUR" itemLabel="EUR" />
-								       		 </b:selectOneMenu>
-							       		 </f:facet>
-						       		 </b:inputText>
-							        
-						        </b:dataTableColumn>
-						        
-				       			<b:dataTableColumn>
-									<f:facet name="header">
-							          <h:outputText value="Initial supply"/>
-							        </f:facet>
-								   	<b:inputText value="#{category.ticketSupply}"  render-label="true" required="true" />
-						        </b:dataTableColumn>
-						        
-						        
-						        
-						        
-				       			<b:dataTableColumn>
-									<f:facet name="header">
-							          <h:outputText value=""/>
-							        </f:facet>
-						       		<h:panelGroup>
-						       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;=1}" >
-						       			 <f:ajax render="evtForm:editableCategoryDetailPanel,editableCategoryTable"></f:ajax>
-						       			 </b:commandButton>
-						       		</h:panelGroup>
-							        
-							      	<f:facet name="footer">
-							          <b:commandButton value="Add"  ajax="true" action="#{eventBean.addCategory}" update="@(.editableCategoryTable)" process="editableCategoryTable"   />
-							        </f:facet>
-							        
-						        </b:dataTableColumn>
-						       </b:dataTable>
-					   </b:panel>
+				    	
+				    	
+				    	
+				    	
+		    	<b:panel  rendered="#{eventBean.event.id &gt; 0}">
+				   <f:facet name="heading">
+				     <i class="fa fa-ticket" style="padding-right:20px" />
+				     <h:outputText value="Ticket Options" />
+				   </f:facet>
+				   
+				   <b:dataTable value="#{eventBean.event.categories}" var="category"  paginated="false" class="editableCategoryTable" searching="false" id="editableCategoryTable">
+				     <b:dataTableColumn>
+				     
+				       	<f:facet name="header">
+					          <h:outputText value="Title"/>
+					        </f:facet>
+					        <b:inputText value="#{category.title}" required="true"/>
+				        </b:dataTableColumn>
+				        
+				        <b:dataTableColumn>
+				        	<f:facet name="header">
+					          <h:outputText value="Description"/>
+					        </f:facet>
+					        <b:inputText value="#{category.description}" required="true"/>
+				        </b:dataTableColumn>
+			       		
+		       			<b:dataTableColumn>
+							<f:facet name="header">
+					          <h:outputText value="Price"/>
+					        </f:facet>
+				       		 <b:inputText value="#{category.streetPrice}" required="true" mask="decimal">
+					       		 <f:facet name="prepend">
+						       		 <b:selectOneMenu value="#{category.currency}">
+						       		 	<f:selectItem itemValue="EUR" itemLabel="EUR" />
+						       		 </b:selectOneMenu>
+					       		 </f:facet>
+				       		 </b:inputText>
+				        </b:dataTableColumn>
+				        
+		       			<b:dataTableColumn>
+							<f:facet name="header">
+					          <h:outputText value="Ticket supply #{eventBean.event.eventType == 2 ? '(per day)':''}"/>
+					        </f:facet>
+						   	
+						   	<b:inputText value="#{category.ticketSupply}"  render-label="true" required="true" />
+
+				        </b:dataTableColumn>
+
+		       			<b:dataTableColumn rendered="#{eventBean.event.eventType != 2}">
+							<f:facet name="header">
+					          <h:outputText value="Ticket sold"/>
+					        </f:facet>
+				        	<b:inputText value="#{category.categoryDetails[0].soldTicket}"  render-label="true" readonly="true" />
+				        </b:dataTableColumn>	
+				        
+		       			<b:dataTableColumn rendered="#{eventBean.event.eventType != 2}">
+							<f:facet name="header">
+					          <h:outputText value="Ticket available"/>
+					        </f:facet>
+				        	<b:inputText value="#{category.categoryDetails[0].availableTicket}"  render-label="true" readonly="true" />
+				        </b:dataTableColumn>					        
+
+				        
+		       			<b:dataTableColumn>
+							<f:facet name="header">
+					          <h:outputText value=""/>
+					        </f:facet>
+				       		<h:panelGroup>
+				       			 <b:commandButton  icon="minus" ajax="true" action="#{eventBean.removeCategory(category)}" update="@(.editableCategoryTable)" process="editableCategoryTable" rendered="#{eventBean.event.categories.size()&gt;=1}" >
+				       			 <f:ajax render="evtForm:editableCategoryDetailPanel,editableCategoryTable"></f:ajax>
+				       			 </b:commandButton>
+				       		</h:panelGroup>
+					        
+					      	<f:facet name="footer">
+					          <b:commandButton value="Add"  ajax="true" action="#{eventBean.addCategory}" update="@(.editableCategoryTable)" process="editableCategoryTable"   />
+					        </f:facet>
+					        
+				        </b:dataTableColumn>
+				       </b:dataTable>
+				   </b:panel>
 					   
-				<b:panel id="editableCategoryDetailPanel" rendered="#{eventBean.event.id &gt; 0}">
+					   
+					   
+					   
+					   
+					   
+					   
+					   
+					   
+					   
+				<b:panel id="editableCategoryDetailPanel" rendered="#{eventBean.event.id &gt; 0 and eventBean.event.eventType == 2}">
 				   <f:facet name="heading">
 				     <i class="fa fa-ticket" style="padding-right:20px" />
 				     <h:outputText value="Date detail" />

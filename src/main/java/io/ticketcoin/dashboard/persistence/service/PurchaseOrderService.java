@@ -66,7 +66,8 @@ public class PurchaseOrderService extends GenericService<PurchaseOrder>{
 				.createCriteria(TicketCategoryDetail.class)
 				.createAlias("ticketCategory", "ticketCategory")
 				.add(Restrictions.eq("ticketCategory.ticketCategoryUUID", pod.getTicketCategoryUUID()))
-				.add(Restrictions.eq("startingDate", purchaseOrderDTO.getReservationDate()))
+				.add(Restrictions.le("startingDate", purchaseOrderDTO.getReservationDate()))
+				.add(Restrictions.or(Restrictions.isNull("endingDate"),Restrictions.lt("endingDate", purchaseOrderDTO.getReservationDate())))
 				.uniqueResult();
 				if(tcd==null)
 					throw new Exception("error.ticketCategoryUUID.not.found");

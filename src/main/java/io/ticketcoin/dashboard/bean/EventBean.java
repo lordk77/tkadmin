@@ -55,7 +55,8 @@ public class EventBean
 		this.event=new Event();
 		this.event.setEventUUID(UUID.randomUUID().toString());
 		this.event.setCategories(new ArrayList<TicketCategory>());
-		this.getEvent().getCategories().add(new TicketCategory(true));
+		this.event.setEventType(Event.TYPE_SINGLE_DATE);
+		//this.getEvent().getCategories().add(new TicketCategory(true));
 	}
 
 	
@@ -131,10 +132,6 @@ public class EventBean
 			
 			return sc;
 		}
-		
-		
-		
-		
 		
 	 
 	 public void calculateNetPrice()
@@ -216,6 +213,7 @@ public class EventBean
 		TicketCategory tc = new TicketCategory(true);
 
 		this.event.getCategories().add(tc);
+		tc.setEvent(this.event);
 		
 //		generateCategoryDetail(this.event, tc) ;
 		
@@ -230,10 +228,64 @@ public class EventBean
 	
 	private void generateCategoryDetail(Event evt, TicketCategory tc) 
 	{
+		if(Event.TYPE_SINGLE_DATE.equals(evt.getEventType()))
+		{
+			generateSingleDateCategoryDetail(evt, tc);
+		}
+		else if(Event.TYPE_OPEN.equals(evt.getEventType()))
+		{
+			generateSingleDateCategoryDetail(evt, tc);
+		}
+		else
+			generatePeriodCategoryDetail(evt, tc);
+			
+		
+	}
+	
+	
+	private void generateSingleDateCategoryDetail(Event evt, TicketCategory tc) 
+	{
+		Date startDate = DateUtils.truncate(evt.getDateFrom(), Calendar.DAY_OF_MONTH);
+		Date endDate = null;
+
+		
+		//Modifies category if possible, otherwise throws an error
+		if(tc.getCategoryDetails()!=null && tc.getCategoryDetails().size()>0)
+		{
+			TicketCategoryDetail tcd = tc.getCategoryDetails().get(0);
+			
+			tcd.setAvailableTicket(Integer.sum(tc.getTicketSupply().intValue(), tcd.getSoldTicket()*-1));
+			
+			tcd.setStartingDate(startDate);
+			tcd.setEndingDate(endDate);			
+		}
+		//Creates a new one
+		else
+		{
+			TicketCategoryDetail tcd = new TicketCategoryDetail();
+			tcd.setAvailableTicket(tc.getTicketSupply());
+			tcd.setSoldTicket(0);
+			tcd.setStartingDate(startDate);
+			tcd.setEndingDate(endDate);	
+			
+			tcd.setTicketCategory(tc);
+			
+			if(tc.getCategoryDetails()==null)
+				tc.setCategoryDetails(new ArrayList<TicketCategoryDetail>());
+			
+			
+			tc.getCategoryDetails().add(tcd);
+		}
+			
+	}
+	
+	
+	
+	private void generatePeriodCategoryDetail(Event evt, TicketCategory tc) 
+	{
 		Date startDate = DateUtils.truncate(evt.getDateFrom(), Calendar.DAY_OF_MONTH);
 		Date endDate = DateUtils.truncate(evt.getDateTo(), Calendar.DAY_OF_MONTH);
 		Date cDate= startDate;
-		
 		List<TicketCategoryDetail> tcdToDelete = new ArrayList<TicketCategoryDetail>();
 		
 		while (!cDate.after(endDate))
@@ -264,8 +316,8 @@ public class EventBean
 					tcd.setAvailableTicket(tc.getTicketSupply());
 					tcd.setSoldTicket(0);
 					tcd.setStartingDate(cDate);
-					if(Event.TYPE_PERIOD.equals(evt.getEventType()) && cDate!=null)
-						tcd.setEndingDate(DateUtils.setMinutes(DateUtils.setHours(cDate, 23),59));
+
+					tcd.setEndingDate(DateUtils.setMinutes(DateUtils.setHours(cDate, 23),59));
 					
 					tcd.setTicketCategory(tc);
 					if(tc.getCategoryDetails()==null)
@@ -275,7 +327,7 @@ public class EventBean
 			}
 			else
 			{
-				if(evt.getDaysOfWeek() !=null && evt.getDaysOfWeek().indexOf(""+DateUtils.toCalendar(cDate).get(Calendar.DAY_OF_WEEK))<0 && tcd.getAvailableTicket().equals(tc.getTicketSupply()))
+				if(evt.getDaysOfWeek() !=null && evt.getDaysOfWeek().indexOf(""+DateUtils.toCalendar(cDate).get(Calendar.DAY_OF_WEEK))<0 && tcd.getSoldTicket().equals(0l))
 				{
 					tcdToDelete.add(tcd);
 				}
